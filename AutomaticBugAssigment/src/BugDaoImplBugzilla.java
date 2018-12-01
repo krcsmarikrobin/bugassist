@@ -56,10 +56,12 @@ public class BugDaoImplBugzilla implements BugDAO {
 
 			JSONObject jsonObj = new JSONObject(response.toString());
 			bug.setBugShortDesc(jsonObj.getJSONArray("bugs").getJSONObject(0).getString("summary"));
+			bug.setBugProductName(jsonObj.getJSONArray("bugs").getJSONObject(0).getString("product"));
 
 		} catch (Exception e) {
 			e.printStackTrace();
 			bug.setBugShortDesc("null");
+			bug.setBugProductName("null");
 			succes = false;
 		} finally {
 			if (connection != null) {
@@ -249,27 +251,29 @@ public class BugDaoImplBugzilla implements BugDAO {
 						bug.setBugId(0);
 
 					}
-					if (bug.getBugId() > 1000) {
+					if (bug.getBugId() > 10000) {
 						bug.setBugCommit(commit);
 						this.addBugDesc(bug, HTTPUrl);
 						this.addBugSourceCodeFileList(bug, repo, commit);
 
 // ****************************///XML-be vagy db-be menteni
+						if (bug.getBugProductName().equals("Rhino")) {
 
-						System.out.println("------------------------------------------------------");
-						System.out.println("Bug Id: " + bug.getBugId());
-						System.out.println("Bug Comit hash: " + bug.getBugCommit().getName());
-						System.out.println("Bug Comit Parent hash: " + bug.getBugCommit().getParent(0).getName());
-						System.out.println("Bug Short Description: " + bug.getBugShortDesc());
-						System.out.println("Bug Long Description: " + bug.getBugLongDesc());
-						System.out.println("Bug Source File Path: " + bug.getBugSourceCodeFileList());
+							System.out.println("------------------------------------------------------");
+							System.out.println("Bug Id: " + bug.getBugId());
+							System.out.println("Bug Product Name: " + bug.getBugProductName());
+							System.out.println("Bug Comit hash: " + bug.getBugCommit().getName());
+							System.out.println("Bug Comit Parent hash: " + bug.getBugCommit().getParent(0).getName());
+							System.out.println("Bug Short Description: " + bug.getBugShortDesc());
+							System.out.println("Bug Long Description: " + bug.getBugLongDesc());
+							System.out.println("Bug Source File Path: " + bug.getBugSourceCodeFileList());
 
 // ****************************///vmilyen folytatólagosságot kell belevinni most
-						// s++ és if
-						++s;
+							// s++ és if
 
-						System.out.println("Processed Bug count: " + s);
-						System.out.println("------------------------------------------------------");
+							System.out.println("Processed Bug count: " + ++s);
+							System.out.println("------------------------------------------------------");
+						}
 					}
 
 				}

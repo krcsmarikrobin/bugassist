@@ -239,23 +239,22 @@ public class BugDaoImplBugzilla implements BugDAO {
 				}
 
 				if (foundInThisBranch) {
-					if (commit.getFullMessage().startsWith("Bug ")) { // a Bug kezdetû commitokat gyûjti ki, amihez van
-																		// bugzillás hibabejelentés
 
-						String[] splited = commit.getFullMessage().substring(4, commit.getFullMessage().length())
-								.split("\\s+"); // szétvágja a szóközök mentén, a tömb 1 indexe a bugid
-						bug = new Bug();
-						try {
-							bug.setBugId(Integer.parseInt(splited[0].replace(":", "")));
-						} catch (NumberFormatException e1) {
-							bug.setBugId(0);
-						}
+					String[] commitTextNumber = commit.getFullMessage().replaceAll("[^0-9]+", " ").trim().split(" ");
 
+					bug = new Bug();
+					try {
+						bug.setBugId(Integer.parseInt(commitTextNumber[0]));
+					} catch (NumberFormatException e1) {
+						bug.setBugId(0);
+
+					}
+					if (bug.getBugId() > 1000) {
 						bug.setBugCommit(commit);
 						this.addBugDesc(bug, HTTPUrl);
 						this.addBugSourceCodeFileList(bug, repo, commit);
 
-//****************************///XML-be vagy db-be menteni
+// ****************************///XML-be vagy db-be menteni
 
 						System.out.println("------------------------------------------------------");
 						System.out.println("Bug Id: " + bug.getBugId());
@@ -265,12 +264,13 @@ public class BugDaoImplBugzilla implements BugDAO {
 						System.out.println("Bug Long Description: " + bug.getBugLongDesc());
 						System.out.println("Bug Source File Path: " + bug.getBugSourceCodeFileList());
 
-					}
-//****************************///vmilyen folytatólagosságot kell belevinni most s++ és if
-					++s;
+// ****************************///vmilyen folytatólagosságot kell belevinni most
+						// s++ és if
+						++s;
 
-					System.out.println("Processed Bug count: " + s);
-					System.out.println("------------------------------------------------------");
+						System.out.println("Processed Bug count: " + s);
+						System.out.println("------------------------------------------------------");
+					}
 
 				}
 			}

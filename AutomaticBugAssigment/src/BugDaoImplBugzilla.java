@@ -196,7 +196,7 @@ public class BugDaoImplBugzilla implements BugDAO {
 			}
 
 			for (RevCommit commit : commits) {
-				boolean foundInThisBranch = false;
+	/*			boolean foundInThisBranch = false;
 
 				RevCommit targetCommit = null;
 				try {
@@ -238,9 +238,9 @@ public class BugDaoImplBugzilla implements BugDAO {
 							e1.printStackTrace();
 						}
 					}
-				}
+				}*/
 
-				if (foundInThisBranch) {
+	/*			if (foundInThisBranch) {*/
 
 					String[] commitTextNumber = commit.getFullMessage().replaceAll("[^0-9]+", " ").trim().split(" ");
 
@@ -278,7 +278,7 @@ public class BugDaoImplBugzilla implements BugDAO {
 
 				}
 			}
-		}
+/*		}*/
 		git.close();
 		walk.close();
 		return succes;

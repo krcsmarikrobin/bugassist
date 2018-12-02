@@ -1,6 +1,5 @@
 package model;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,11 +13,17 @@ import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevCommitList;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
+
+import bean.Bug;
+import model.BugDaoFileImp;
 
 /*
  * repo link source:
@@ -26,14 +31,14 @@ import org.eclipse.jgit.util.io.DisabledOutputStream;
  * -branch-without-changes-to-the-working-direct
  */
 
-public class GitRepoDataGet {
-
+public class GetGitRepoData {
+	BugDaoFileImp daoFileImp = new BugDaoFileImp();
 	Repository repo = null;
 	Git git = null;
 	RevWalk walk = null;
 	List<Ref> branches = null;
 
-	public GitRepoDataGet(String repoFilePath) throws IOException, GitAPIException { // example
+	public GetGitRepoData(String repoFilePath) throws IOException, GitAPIException { // example
 																						// "d:\\GIT\\gecko-dev\\.git"
 		repo = new FileRepository(repoFilePath);
 		git = new Git(repo);
@@ -42,16 +47,9 @@ public class GitRepoDataGet {
 
 	}
 
-	public void getTargetCommitsList(String fileExtension) throws NoHeadException, GitAPIException, IOException { // fileExtesion:
-																													// get
-																													// commits
-																													// by
-																													// file
-																													// extension
-																													// for
-																													// example
-																													// .java
-		int s = 0;
+	public void getTargetCommitsList(String fileExtension) throws NoHeadException, GitAPIException, IOException {
+		// fileExtesion: get commits by file extension for example .java
+
 		Integer bugId = null;
 		for (Ref branch : branches) {
 			String branchName = branch.getName();
@@ -71,19 +69,17 @@ public class GitRepoDataGet {
 						bugId = null;
 					}
 
-					String commitName = commit.getName();
-					String commitParentName = commit.getParent(0).getName();
 					List<String> commitModifyFileList = getCommitModifyFileList(commit, fileExtension);
 
 					if (commitModifyFileList.toString().contains(fileExtension)) {
-						System.out.println("---------------------------------------------------");
-						System.out.println("BugId: " + bugId);
-						System.out.println("Branch Name: " + branchName);
-						System.out.println("Commit name: " + commitName);
-						System.out.println("Commit Parent name: " + commitParentName);
-						System.out.println("Commit File changes List: " + commitModifyFileList);
-						System.out.println("Proccesed commit count: " + ++s);
-						System.out.println("---------------------------------------------------");
+						Bug bug = new Bug();
+						bug.setBugId(bugId);
+						bug.setBugCommit(commit);
+						bug.setBugSourceCodeFileList(commitModifyFileList);
+
+						// export data
+						daoFileImp.addBugDataFromRepo(bug);
+
 					}
 
 				}
@@ -94,34 +90,38 @@ public class GitRepoDataGet {
 	}
 
 	public List<String> getCommitModifyFileList(RevCommit commit, String fileExtension)
-			throws MissingObjectException, IncorrectObjectTypeException, IOException {
+			throws MissingObjectException, IncorrectObjectTypeException, IOException, ArrayIndexOutOfBoundsException {
 		List<String> fileList = new ArrayList<String>();
 
 		RevWalk rw = new RevWalk(repo);
 		RevCommit parent = null;
+		try {
+			parent = rw.parseCommit(commit.getParent(0).getId());
 
-		parent = rw.parseCommit(commit.getParent(0).getId());
+			DiffFormatter df = new DiffFormatter(DisabledOutputStream.INSTANCE);
+			df.setRepository(repo);
+			df.setDiffComparator(RawTextComparator.DEFAULT);
+			df.setDetectRenames(true);
 
-		DiffFormatter df = new DiffFormatter(DisabledOutputStream.INSTANCE);
-		df.setRepository(repo);
-		df.setDiffComparator(RawTextComparator.DEFAULT);
-		df.setDetectRenames(true);
-		List<DiffEntry> diffs = null;
+			List<DiffEntry> diffs = df.scan(parent.getTree(), commit.getTree());
 
-		diffs = df.scan(parent.getTree(), commit.getTree());
+			for (DiffEntry diff : diffs) {
+				/*
+				 * System.out.println(MessageFormat.format("({0} {1} {2}",
+				 * diff.getChangeType().name(), diff.getNewMode().getBits(),
+				 * diff.getNewPath()));
+				 */
+				if (diff.getNewPath().contains(fileExtension)) //only add .java extension files
+					fileList.add(diff.getNewPath());
+				df.close();
+				rw.close();
 
-		for (DiffEntry diff : diffs) {
-			/*
-			 * System.out.println(MessageFormat.format("({0} {1} {2}",
-			 * diff.getChangeType().name(), diff.getNewMode().getBits(),
-			 * diff.getNewPath()));
-			 */
-			if (diff.getNewPath().contains(fileExtension))
-				fileList.add(diff.getNewPath());
+			}
+
+		} catch (ArrayIndexOutOfBoundsException e) {
+			fileList.add("none");
 
 		}
-		df.close();
-		rw.close();
 
 		return fileList;
 

@@ -21,6 +21,15 @@ public class Bug {
 	private String bugLongDesc = null;
 	private String bugProductName = null;
 	private List<String> bugSourceCodeFileList = null;
+	private String bugStatus = null;
+
+	public String getBugStatus() {
+		return bugStatus;
+	}
+
+	public void setBugStatus(String bugStatus) {
+		this.bugStatus = bugStatus;
+	}
 
 	public String getBugProductName() {
 		return bugProductName;

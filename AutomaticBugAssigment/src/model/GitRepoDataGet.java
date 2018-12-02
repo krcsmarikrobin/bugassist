@@ -26,14 +26,14 @@ import org.eclipse.jgit.util.io.DisabledOutputStream;
  * -branch-without-changes-to-the-working-direct
  */
 
-public class gitRepoDataSource {
+public class GitRepoDataGet {
 
 	Repository repo = null;
 	Git git = null;
 	RevWalk walk = null;
 	List<Ref> branches = null;
 
-	public gitRepoDataSource(String repoFilePath) throws IOException, GitAPIException { // example
+	public GitRepoDataGet(String repoFilePath) throws IOException, GitAPIException { // example
 																						// "d:\\GIT\\gecko-dev\\.git"
 		repo = new FileRepository(repoFilePath);
 		git = new Git(repo);
@@ -42,7 +42,15 @@ public class gitRepoDataSource {
 
 	}
 
-	public void buildTargetCommitsList() throws NoHeadException, GitAPIException, IOException {
+	public void getTargetCommitsList(String fileExtension) throws NoHeadException, GitAPIException, IOException { // fileExtesion:
+																													// get
+																													// commits
+																													// by
+																													// file
+																													// extension
+																													// for
+																													// example
+																													// .java
 		int s = 0;
 		Integer bugId = null;
 		for (Ref branch : branches) {
@@ -62,19 +70,22 @@ public class gitRepoDataSource {
 					} catch (NumberFormatException e1) {
 						bugId = null;
 					}
+
 					String commitName = commit.getName();
 					String commitParentName = commit.getParent(0).getName();
-					//String commitMessage = commit.getFullMessage();
-					List<String> commitModifyFileList = getCommitModifyFileList(commit);
+					List<String> commitModifyFileList = getCommitModifyFileList(commit, fileExtension);
 
-					System.out.println("---------------------------------------------------");
-					System.out.println("BugId: " + bugId);
-					System.out.println("Branch Name: " + branchName);
-					System.out.println("Commit name: " + commitName);
-					System.out.println("Commit Parent name: " + commitParentName);
-					System.out.println("Commit File changes List: " + commitModifyFileList);
-					System.out.println("Proccesed commit count: " + ++s);
-					System.out.println("---------------------------------------------------");
+					if (commitModifyFileList.toString().contains(fileExtension)) {
+						System.out.println("---------------------------------------------------");
+						System.out.println("BugId: " + bugId);
+						System.out.println("Branch Name: " + branchName);
+						System.out.println("Commit name: " + commitName);
+						System.out.println("Commit Parent name: " + commitParentName);
+						System.out.println("Commit File changes List: " + commitModifyFileList);
+						System.out.println("Proccesed commit count: " + ++s);
+						System.out.println("---------------------------------------------------");
+					}
+
 				}
 
 			}
@@ -82,7 +93,7 @@ public class gitRepoDataSource {
 
 	}
 
-	public List<String> getCommitModifyFileList(RevCommit commit)
+	public List<String> getCommitModifyFileList(RevCommit commit, String fileExtension)
 			throws MissingObjectException, IncorrectObjectTypeException, IOException {
 		List<String> fileList = new ArrayList<String>();
 
@@ -105,7 +116,9 @@ public class gitRepoDataSource {
 			 * diff.getChangeType().name(), diff.getNewMode().getBits(),
 			 * diff.getNewPath()));
 			 */
-			fileList.add(diff.getNewPath());
+			if (diff.getNewPath().contains(fileExtension))
+				fileList.add(diff.getNewPath());
+
 		}
 		df.close();
 		rw.close();

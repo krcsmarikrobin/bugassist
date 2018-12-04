@@ -1,6 +1,7 @@
 package model;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +24,7 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 
 import bean.Bug;
-import model.BugDaoFileImp;
+import model.BugDaoGitFileImp;
 
 /*
  * repo link source:
@@ -32,7 +33,7 @@ import model.BugDaoFileImp;
  */
 
 public class GetGitRepoData {
-	BugDaoFileImp daoFileImp = new BugDaoFileImp();
+	BugDaoGitFileImp daoFileImp = new BugDaoGitFileImp();
 	Repository repo = null;
 	Git git = null;
 	RevWalk walk = null;
@@ -47,10 +48,14 @@ public class GetGitRepoData {
 
 	}
 
-	public void getTargetCommitsList(String fileExtension) throws NoHeadException, GitAPIException, IOException {
+	public void getTargetCommitsList(String fileExtension) throws NoHeadException, GitAPIException, IOException, SQLException {
 		// fileExtesion: get commits by file extension for example .java
-
+		
+		// create a database to collect data
+		BugDaoGitSqliteImp addBug = new BugDaoGitSqliteImp("test.db");
+		
 		Integer bugId = null;
+		
 		for (Ref branch : branches) {
 			String branchName = branch.getName();
 
@@ -59,6 +64,8 @@ public class GetGitRepoData {
 
 			for (RevCommit commit : commits) {
 
+				
+				
 				// from the commit messages get the bugzilla bugId
 				String[] commitTextNumber = commit.getFullMessage().replaceAll("[^0-9]+", " ").trim().split(" ");
 
@@ -78,7 +85,7 @@ public class GetGitRepoData {
 						bug.setBugSourceCodeFileList(commitModifyFileList);
 
 						// export data
-						daoFileImp.addBugDataFromRepo(bug);
+						addBug.addBugDataFromRepo(bug);
 
 					}
 
@@ -86,6 +93,7 @@ public class GetGitRepoData {
 
 			}
 		}
+		addBug.conn.commit(); //need commit for sqlite Database to save data
 
 	}
 

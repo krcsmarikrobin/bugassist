@@ -44,7 +44,10 @@ public class Bug {
 	}
 
 	public void setBugId(Integer bugId) {
-		this.bugId = bugId;
+		if (bugId == null)
+			this.bugId = 0;
+		else
+			this.bugId = bugId;
 	}
 
 	public RevCommit getBugCommit() {

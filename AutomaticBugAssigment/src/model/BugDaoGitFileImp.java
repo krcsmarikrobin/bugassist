@@ -6,12 +6,12 @@ import java.io.PrintWriter;
 
 import bean.Bug;
 
-public class BugDaoFileImp implements BugDAO {
+public class BugDaoGitFileImp implements BugDAOGit {
 	PrintWriter out = null;
 	File file = null;
 	int counter = 0;
 
-	public BugDaoFileImp() {
+	public BugDaoGitFileImp() {
 		
 		file = new File("D:/GIT/bugassist/dbfiles/filename.txt");
 		file.getParentFile().mkdirs();

@@ -48,11 +48,18 @@ public class GetGitRepoData {
 
 	}
 
-	public void getTargetCommitsList(String fileExtension) throws NoHeadException, GitAPIException, IOException, SQLException {
+	public Repository getRepo() {
+		return repo;
+	}
+	
+	
+	
+	
+	public void getTargetCommitsList(String fileExtension, String fileName) throws NoHeadException, GitAPIException, IOException, SQLException {
 		// fileExtesion: get commits by file extension for example .java
 		
 		// create a database to collect data
-		BugDaoGitSqliteImp addBug = new BugDaoGitSqliteImp("test.db");
+		BugDaoGitSqliteImp addBug = new BugDaoGitSqliteImp(fileName, repo);
 		
 		Integer bugId = null;
 		

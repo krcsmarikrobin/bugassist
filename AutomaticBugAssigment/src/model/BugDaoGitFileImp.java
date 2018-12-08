@@ -3,6 +3,7 @@ package model;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.List;
 
 import bean.Bug;
 
@@ -44,6 +45,12 @@ public class BugDaoGitFileImp implements BugDAOGit {
 
 	@Override
 	public Bug getBugData(Integer bugId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Bug> getAllBugsBugIdAndCommitNameWhereHttpDataEmpty() {
 		// TODO Auto-generated method stub
 		return null;
 	}

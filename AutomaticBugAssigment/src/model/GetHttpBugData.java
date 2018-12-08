@@ -6,7 +6,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.json.JSONObject;
 
 import bean.Bug;
@@ -14,12 +16,44 @@ import bean.Bug;
 public class GetHttpBugData {
 	String HttpUrl;
 	HttpURLConnection connection = null;
+	BugDaoGitSqliteImp dao;
 
 	public GetHttpBugData(String httpUrl) {
 		this.HttpUrl = httpUrl;
+		GetGitRepoData repoData = null;
+		try {
+			repoData = new GetGitRepoData("d:\\GIT\\gecko-dev\\.git");
+		} catch (IOException | GitAPIException e) {
+			e.printStackTrace();
+		}
+		dao = new BugDaoGitSqliteImp("test.db", repoData.getRepo());
 	}
 
-	public void getBugHttpData(Bug bug) throws IOException { // get the bug data from bugzilla (short desc, long
+	
+	
+	public void collectBugHttpData(List<Bug> bugs) {
+		int s = 0;
+		final int f = bugs.size();
+		for (Bug bug : bugs) {
+			try {
+				this.setBugHttpData(bug);
+	
+			} catch (IOException e) {
+				System.out.println("Error get bug!" + e.getMessage());
+			}
+			if (dao.addBugDataFromHttp(bug))
+			System.out.println("Processed: " + ++s + "/" + f);
+			
+		}
+		
+		
+	}
+	
+	
+		
+	
+	
+	public void setBugHttpData(Bug bug) throws IOException { // get the bug data from bugzilla (short desc, long
 																// desc, product name, status
 
 		try { // add short desc, product name and the status to bug from bugzilla

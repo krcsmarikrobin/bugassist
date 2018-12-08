@@ -1,10 +1,21 @@
 package model;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.jgit.errors.IncorrectObjectTypeException;
+import org.eclipse.jgit.errors.MissingObjectException;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
 
 import bean.Bug;
 
@@ -13,10 +24,11 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 	String url;
 	int helpCounter = 0;
 	int faultyHelpCounter = 0;
+	Repository repo = null;
 
-	public BugDaoGitSqliteImp(String fileName) {
-
-		url = "jdbc:sqlite:D:\\GIT\\bugassist\\dbfiles\\" + fileName;
+	public BugDaoGitSqliteImp(String dbFileName, Repository repo) {
+		this.repo = repo;
+		url = "jdbc:sqlite:D:\\GIT\\bugassist\\dbfiles\\" + dbFileName;
 
 		try {
 			conn = DriverManager.getConnection(url);
@@ -29,7 +41,7 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 		} catch (SQLException e1) {
 			System.out.println("Error create database!");
 		}
-	
+
 		// SQL statement for creating a new table
 		String sql1 = "CREATE TABLE IF NOT EXISTS bug(bugid integer, commitname text, parentcommitname text, shotdesc text, longdesc text, productname text, status text);\\n";
 		String sql2 = "CREATE TABLE IF NOT EXISTS bugfiles(commitname text, filename text);\\n";
@@ -61,9 +73,9 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 				success = true;
 		} catch (SQLException e1) {
 			System.out.println("Error insert bug data to put database!" + e1.getMessage());
-		} 
+		}
 		for (String fileName : bug.getBugSourceCodeFileList()) {
-			
+
 			sql = "INSERT INTO bugfiles(commitname, filename) VALUES(?,?)";
 
 			try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -78,21 +90,112 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 
 		if (success) {
 			System.out.println("Saved bug count: " + ++helpCounter);
-			}
-			
+		}
+
 		return success;
 	}
 
 	@Override
 	public boolean addBugDataFromHttp(Bug bug) {
-		// TODO Auto-generated method stub
-		return false;
+		boolean success = false;
+/*		
+		String sql = "UPDATE bug set shotdesc=\"" + bug.getBugShortDesc() , longdesc, productname, status) WHERE bugid=" + bug.getBugId() + " AND commitname=" + bug.getBugCommit().getName()
+				+ " VALUES(?,?,?,?);";
+		System.out.println(sql);
+		try {
+			PreparedStatement pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, );
+			pstmt.setString(2, bug.getBugLongDesc());
+			pstmt.setString(3, bug.getBugProductName());
+			pstmt.setString(4, bug.getBugStatus());
+			
+			if (pstmt.executeUpdate() > 0)
+				conn.commit();
+				success = true;
+		} catch (SQLException e1) {
+			System.out.println("Error insert bug desc to put database!" + e1.getMessage());
+			e1.printStackTrace();
+		}
+*/ //------------------------------JAVÍTANI!!!!!!!!!
+		return success;
 	}
 
 	@Override
 	public Bug getBugData(Integer bugId) {
-		// TODO Auto-generated method stub
-		return null;
+		Bug bug = new Bug();
+		;
+		bug.setBugId(bugId);
+
+		String sql = "SELECT commitname, shotdesc, longdesc, productname, status FROM bug WHERE bugid=?;";
+
+		try {
+			PreparedStatement pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, bug.getBugId());
+			ResultSet rs = pstmt.executeQuery(sql);
+			while (rs.next()) {
+
+				ObjectId commitId = ObjectId.fromString(rs.getString("commitname"));
+				RevWalk revWalk = new RevWalk(repo);
+				RevCommit commit = revWalk.parseCommit(commitId);
+				revWalk.close();
+				bug.setBugCommit(commit);
+				bug.setBugShortDesc(rs.getString("shotdesc"));
+				bug.setBugLongDesc(rs.getString("longdesc"));
+				bug.setBugProductName(rs.getString("productname"));
+				bug.setBugStatus(rs.getString("status"));
+
+			}
+
+		} catch (SQLException e) {
+			System.out.println("Error get bug data from database!" + e.getMessage());
+		} catch (MissingObjectException e) {
+			System.out.println("Error get bug data from database!" + e.getMessage());
+
+		} catch (IncorrectObjectTypeException e) {
+			System.out.println("Error get bug data from database!" + e.getMessage());
+
+		} catch (IOException e) {
+			System.out.println("Error get bug data from database!" + e.getMessage());
+
+		}
+		return bug;
+	}
+
+	@Override
+	public List<Bug> getAllBugsBugIdAndCommitNameWhereHttpDataEmpty() {
+		List<Bug> bugList = new ArrayList<Bug>();
+
+		String sql = "SELECT bugid, commitname FROM bug where shotdesc is null or longdesc is null or productname is null or status is null";
+
+		try {
+			Statement stmt = conn.createStatement();
+
+			ResultSet rs = stmt.executeQuery(sql);
+			
+			while (rs.next()) {
+				Bug bug = new Bug();
+				ObjectId commitId = ObjectId.fromString(rs.getString("commitname"));
+				RevWalk revWalk = new RevWalk(repo);
+				RevCommit commit = revWalk.parseCommit(commitId);
+				revWalk.close();
+				bug.setBugCommit(commit);
+				bug.setBugId(rs.getInt("bugid"));
+				bugList.add(bug);
+			}
+
+		} catch (SQLException e) {
+			System.out.println("Error get AllBugs bugid and commitname data from database!" + e.getMessage());
+		} catch (MissingObjectException e) {
+			System.out.println("Error get AllBugs bugid and commitname data from database!" + e.getMessage());
+
+		} catch (IncorrectObjectTypeException e) {
+			System.out.println("Error get AllBugs bugid and commitname data from database!" + e.getMessage());
+
+		} catch (IOException e) {
+			System.out.println("Error get AllBugs bugid and commitname data from database!" + e.getMessage());
+		}
+
+		return bugList;
 	}
 
 }

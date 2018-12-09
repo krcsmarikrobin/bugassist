@@ -22,4 +22,7 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 AutomaticBugAssigment/.classpath
+<<<<<<< HEAD
 AutomaticBugAssigment/.project
+=======
+>>>>>>> 7297bd4e640ea8838e24c875652eb92906bda1c6

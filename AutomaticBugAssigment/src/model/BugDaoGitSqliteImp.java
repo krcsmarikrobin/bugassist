@@ -98,25 +98,27 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 	@Override
 	public boolean addBugDataFromHttp(Bug bug) {
 		boolean success = false;
-/*		
-		String sql = "UPDATE bug set shotdesc=\"" + bug.getBugShortDesc() , longdesc, productname, status) WHERE bugid=" + bug.getBugId() + " AND commitname=" + bug.getBugCommit().getName()
-				+ " VALUES(?,?,?,?);";
-		System.out.println(sql);
+		
+		String sql = "UPDATE bug set shotdesc = ?, longdesc = ?, productname = ?, status = ? "
+				+ "WHERE bugid = " + bug.getBugId() + " AND commitname = '" + bug.getBugCommit().getName() + "'";
+		PreparedStatement pstmt;
 		try {
-			PreparedStatement pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, );
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, bug.getBugShortDesc());
 			pstmt.setString(2, bug.getBugLongDesc());
 			pstmt.setString(3, bug.getBugProductName());
 			pstmt.setString(4, bug.getBugStatus());
 			
-			if (pstmt.executeUpdate() > 0)
-				conn.commit();
+			if (pstmt.executeUpdate() > 0) {
 				success = true;
+			}
+			pstmt.close();
+			conn.commit();
 		} catch (SQLException e1) {
 			System.out.println("Error insert bug desc to put database!" + e1.getMessage());
 			e1.printStackTrace();
-		}
-*/ //------------------------------JAVÍTANI!!!!!!!!!
+		} 
+
 		return success;
 	}
 
@@ -145,6 +147,9 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 				bug.setBugStatus(rs.getString("status"));
 
 			}
+			rs.close();
+			pstmt.close();
+			conn.commit();
 
 		} catch (SQLException e) {
 			System.out.println("Error get bug data from database!" + e.getMessage());
@@ -182,6 +187,9 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 				bug.setBugId(rs.getInt("bugid"));
 				bugList.add(bug);
 			}
+			rs.close();
+			stmt.close();
+			conn.commit();
 
 		} catch (SQLException e) {
 			System.out.println("Error get AllBugs bugid and commitname data from database!" + e.getMessage());

@@ -11,6 +11,6 @@ public interface BugDAOGit {
 
 	public Bug getBugData(Integer bugId);
 	
-	public List<Bug> getAllBugsBugIdAndCommitNameWhereHttpDataEmpty();
+	public List<Bug> getAllBugsBugIdAndCommitNameWhereHttpDataNull();
 
 }

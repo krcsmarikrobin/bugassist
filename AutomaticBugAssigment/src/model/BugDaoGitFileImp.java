@@ -50,7 +50,7 @@ public class BugDaoGitFileImp implements BugDAOGit {
 	}
 
 	@Override
-	public List<Bug> getAllBugsBugIdAndCommitNameWhereHttpDataEmpty() {
+	public List<Bug> getAllBugsBugIdAndCommitNameWhereHttpDataNull() {
 		// TODO Auto-generated method stub
 		return null;
 	}

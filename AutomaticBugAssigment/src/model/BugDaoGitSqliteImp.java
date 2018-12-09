@@ -167,7 +167,7 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 	}
 
 	@Override
-	public List<Bug> getAllBugsBugIdAndCommitNameWhereHttpDataEmpty() {
+	public List<Bug> getAllBugsBugIdAndCommitNameWhereHttpDataNull() {
 		List<Bug> bugList = new ArrayList<Bug>();
 
 		String sql = "SELECT bugid, commitname FROM bug where shotdesc is null or longdesc is null or productname is null or status is null";

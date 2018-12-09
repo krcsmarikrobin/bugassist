@@ -1,14 +1,12 @@
 package model;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.List;
-import org.eclipse.jgit.lib.Repository;
 import org.json.JSONObject;
 
 import bean.Bug;
@@ -16,32 +14,27 @@ import bean.Bug;
 public class GetHttpBugData {
 	String HttpUrl;
 	HttpURLConnection connection = null;
-	BugDaoGitSqliteImp dao;
 
-	public GetHttpBugData(String httpUrl, String dbFileNameWithPath, Repository repo) {
+	GetGitRepoData repoData;
+
+	public GetHttpBugData(String httpUrl, GetGitRepoData repoData) {
 		this.HttpUrl = httpUrl;
-		dao = new BugDaoGitSqliteImp(dbFileNameWithPath, repo);
+		this.repoData = repoData;
+
 	}
 
 	public void collectBugHttpData(List<Bug> bugs) {
 		int s = 0;
 		final int f = bugs.size();
 		for (Bug bug : bugs) {
-			try {
-				this.setBugHttpData(bug);
-
-			} catch (IOException e) {
-				System.out.println("Error get bug!" + e.getMessage());
-			}
-			if (dao.addBugDataFromHttp(bug))
+			this.setBugHttpData(bug);
+			if (repoData.dao.addBugDataFromHttp(bug))
 				System.out.println("Processed: " + ++s + "/" + f);
-
 		}
-
 	}
 
-	public void setBugHttpData(Bug bug) throws IOException { // get the bug data from bugzilla (short desc, long
-																// desc, product name, status
+	public void setBugHttpData(Bug bug) { // get the bug data from bugzilla (short desc, long
+											// desc, product name, status
 
 		try { // add short desc, product name and the status to bug from bugzilla
 				// Create connection

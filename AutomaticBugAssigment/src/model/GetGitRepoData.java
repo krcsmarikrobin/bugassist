@@ -7,12 +7,9 @@ import java.util.List;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawTextComparator;
-import org.eclipse.jgit.errors.IncorrectObjectTypeException;
-import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 
 import org.eclipse.jgit.lib.Ref;
@@ -23,7 +20,6 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 
 import bean.Bug;
-import model.BugDaoGitFileImp;
 
 /*
  * repo link source:
@@ -32,79 +28,88 @@ import model.BugDaoGitFileImp;
  */
 
 public class GetGitRepoData {
-	BugDaoGitFileImp daoFileImp = new BugDaoGitFileImp();
+	BugDaoGitSqliteImp dao = null;
 	Repository repo = null;
 	Git git = null;
 	RevWalk walk = null;
 	List<Ref> branches = null;
 
-	public GetGitRepoData(String repoFilePath) throws IOException, GitAPIException { // example
-																						// "d:\\GIT\\gecko-dev\\.git"
-		repo = new FileRepository(repoFilePath);
-		git = new Git(repo);
-		walk = new RevWalk(repo);
-		branches = git.branchList().call();
+	public GetGitRepoData(String repoFilePath, String dbFileNameWithPath) { // example "d:\\GIT\\gecko-dev\\.git"
+		try {
+			repo = new FileRepository(repoFilePath);
+			git = new Git(repo);
+			walk = new RevWalk(repo);
+			branches = git.branchList().call();
+			dao = new BugDaoGitSqliteImp(dbFileNameWithPath, repo);
+
+		} catch (IOException | GitAPIException e1) {
+			e1.printStackTrace();
+			System.exit(0);
+		}
 
 	}
 
 	public Repository getRepo() {
 		return repo;
 	}
-	
-	
-	
-	
-	public void collectCommitListToDao(String fileExtension, String dbFileNameWithPath) throws NoHeadException, GitAPIException, IOException, SQLException {
+
+	public BugDaoGitSqliteImp getDao() {
+		return dao;
+	}
+
+	public void collectCommitListToDao(String fileExtension) {
 		// fileExtesion: get commits by file extension for example .java
-		
+
 		// create a database to collect data
-		BugDaoGitSqliteImp addBug = new BugDaoGitSqliteImp(dbFileNameWithPath, repo);
-		
 		Integer bugId = null;
-		
-		for (Ref branch : branches) {
-			String branchName = branch.getName();
+		try {
+			for (int i = 0; i < branches.size(); i++) {
 
-			Iterable<RevCommit> commits = null;
-			commits = git.log().all().call();
+				Iterable<RevCommit> commits = null;
+				commits = git.log().all().call();
 
-			for (RevCommit commit : commits) {
+				for (RevCommit commit : commits) {
 
-				
-				
-				// from the commit messages get the bugzilla bugId
-				String[] commitTextNumber = commit.getFullMessage().replaceAll("[^0-9]+", " ").trim().split(" ");
+					// from the commit messages get the bugzilla bugId
+					String[] commitTextNumber = commit.getFullMessage().replaceAll("[^0-9]+", " ").trim().split(" ");
 
-				if (!commitTextNumber[0].isEmpty()) {
-					try {
-						bugId = Integer.parseInt(commitTextNumber[0]);
-					} catch (NumberFormatException e1) {
-						bugId = null;
-					}
+					if (!commitTextNumber[0].isEmpty()) {
+						try {
+							bugId = Integer.parseInt(commitTextNumber[0]);
+						} catch (NumberFormatException e1) {
+							bugId = null;
+						}
 
-					List<String> commitModifyFileList = getModifyFileListInCommit(commit, fileExtension);
+						List<String> commitModifyFileList = getModifyFileListInCommit(commit, fileExtension);
 
-					if (commitModifyFileList.toString().contains(fileExtension)) {
-						Bug bug = new Bug();
-						bug.setBugId(bugId);
-						bug.setBugCommit(commit);
-						bug.setBugSourceCodeFileList(commitModifyFileList);
+						if (commitModifyFileList.toString().contains(fileExtension)) {
+							Bug bug = new Bug();
+							bug.setBugId(bugId);
+							bug.setBugCommit(commit);
+							bug.setBugSourceCodeFileList(commitModifyFileList);
 
-						// export data
-						addBug.addBugDataFromRepo(bug);
+							// export data
+							dao.addBugDataFromRepo(bug);
+
+						}
 
 					}
 
 				}
-
 			}
+
+		} catch (GitAPIException | IOException e) {
+			e.printStackTrace();
 		}
-		addBug.conn.commit(); //need commit for sqlite Database to save data
+		try {
+			dao.conn.commit(); // need commit for sqlite Database to save data
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 
 	}
 
-	public List<String> getModifyFileListInCommit(RevCommit commit, String fileExtension)
-			throws MissingObjectException, IncorrectObjectTypeException, IOException, ArrayIndexOutOfBoundsException {
+	public List<String> getModifyFileListInCommit(RevCommit commit, String fileExtension) {
 		List<String> fileList = new ArrayList<String>();
 
 		RevWalk rw = new RevWalk(repo);
@@ -125,14 +130,14 @@ public class GetGitRepoData {
 				 * diff.getChangeType().name(), diff.getNewMode().getBits(),
 				 * diff.getNewPath()));
 				 */
-				if (diff.getNewPath().contains(fileExtension)) //only add .java extension files
+				if (diff.getNewPath().contains(fileExtension)) // only add .java extension files
 					fileList.add(diff.getNewPath());
 				df.close();
 				rw.close();
 
 			}
 
-		} catch (ArrayIndexOutOfBoundsException e) {
+		} catch (IOException | ArrayIndexOutOfBoundsException e) {
 			fileList.add("none");
 
 		}

@@ -26,9 +26,9 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 	int faultyHelpCounter = 0;
 	Repository repo = null;
 
-	public BugDaoGitSqliteImp(String dbFileName, Repository repo) {
+	public BugDaoGitSqliteImp(String dbFileNameWithPath, Repository repo) { //dbFileNameWithPath for example D:\\GIT\\bugassist\\dbfiles\\test.db
 		this.repo = repo;
-		url = "jdbc:sqlite:D:\\GIT\\bugassist\\dbfiles\\" + dbFileName;
+		url = "jdbc:sqlite:" + dbFileNameWithPath;
 
 		try {
 			conn = DriverManager.getConnection(url);

@@ -14,12 +14,11 @@ import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
-import org.eclipse.jgit.lib.AnyObjectId;
-import org.eclipse.jgit.lib.ObjectId;
+
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevCommitList;
+
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 
@@ -55,11 +54,11 @@ public class GetGitRepoData {
 	
 	
 	
-	public void getTargetCommitsList(String fileExtension, String fileName) throws NoHeadException, GitAPIException, IOException, SQLException {
+	public void collectCommitListToDao(String fileExtension, String dbFileNameWithPath) throws NoHeadException, GitAPIException, IOException, SQLException {
 		// fileExtesion: get commits by file extension for example .java
 		
 		// create a database to collect data
-		BugDaoGitSqliteImp addBug = new BugDaoGitSqliteImp(fileName, repo);
+		BugDaoGitSqliteImp addBug = new BugDaoGitSqliteImp(dbFileNameWithPath, repo);
 		
 		Integer bugId = null;
 		
@@ -83,7 +82,7 @@ public class GetGitRepoData {
 						bugId = null;
 					}
 
-					List<String> commitModifyFileList = getCommitModifyFileList(commit, fileExtension);
+					List<String> commitModifyFileList = getModifyFileListInCommit(commit, fileExtension);
 
 					if (commitModifyFileList.toString().contains(fileExtension)) {
 						Bug bug = new Bug();
@@ -104,7 +103,7 @@ public class GetGitRepoData {
 
 	}
 
-	public List<String> getCommitModifyFileList(RevCommit commit, String fileExtension)
+	public List<String> getModifyFileListInCommit(RevCommit commit, String fileExtension)
 			throws MissingObjectException, IncorrectObjectTypeException, IOException, ArrayIndexOutOfBoundsException {
 		List<String> fileList = new ArrayList<String>();
 

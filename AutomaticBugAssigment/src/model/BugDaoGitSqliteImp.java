@@ -206,4 +206,41 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 		return bugList;
 	}
 
+	@Override
+	// Clean database from bugs and bugfiles where the shortdesc, longdesc etc. is not exist and the bug status is assigned or new, then return the deleted bugs count;
+	public int cleanBugDataWhereNoneAndUnfinished() {
+		int deletedCount = 0;
+		String sqlFiles = null;
+		String sqlBug = null;
+		String sql = "SELECT commitname FROM bug where status = 'none' or status = 'ASSIGNED' or status = 'NEW'";
+
+		try {
+			Statement stmt = conn.createStatement();
+
+			ResultSet rs = stmt.executeQuery(sql);
+			
+			while (rs.next()) {
+				
+				sqlFiles = "DELETE FROM bugfiles WHERE commitname = '" + rs.getString("commitname") + "'";
+				Statement stmtDelete = conn.createStatement();
+				stmtDelete.executeUpdate(sqlFiles);
+				
+				sqlBug = "DELETE FROM bug WHERE commitname = '" + rs.getString("commitname") + "'";
+				stmtDelete.executeUpdate(sqlBug);
+				
+				stmtDelete.close();
+				++deletedCount;
+			}
+			rs.close();
+			stmt.close();
+			conn.commit();
+
+		} catch (SQLException e) {
+			System.out.println("Error delete bugs!" + e.getMessage());
+			e.printStackTrace();
+		} 
+			
+		return deletedCount;
+	}
+
 }

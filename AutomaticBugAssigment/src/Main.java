@@ -10,8 +10,11 @@ public class Main {
 				"D:\\GIT\\bugassist\\dbfiles\\test.db");
 		// repoData.collectCommitListToDao(".java");
 
-		GetHttpBugData httpData = new GetHttpBugData("https://bugzilla.mozilla.org", repoData);
-		httpData.collectBugHttpData(repoData.getDao().getAllBugsBugIdAndCommitNameWhereHttpDataNull());
+		//GetHttpBugData httpData = new GetHttpBugData("https://bugzilla.mozilla.org", repoData);
+		//httpData.collectBugHttpData(repoData.getDao().getAllBugsBugIdAndCommitNameWhereHttpDataNull());
+		System.out.println("Deleted bug: " + repoData.getDao().cleanBugDataWhereNoneAndUnfinished());
+		
+		
 	}
 
 }

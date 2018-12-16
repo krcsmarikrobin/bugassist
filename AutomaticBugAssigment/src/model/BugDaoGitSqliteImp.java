@@ -26,7 +26,8 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 	int faultyHelpCounter = 0;
 	Repository repo = null;
 
-	public BugDaoGitSqliteImp(String dbFileNameWithPath, Repository repo) { //dbFileNameWithPath for example D:\\GIT\\bugassist\\dbfiles\\test.db
+	public BugDaoGitSqliteImp(String dbFileNameWithPath, Repository repo) { // dbFileNameWithPath for example
+																			// D:\\GIT\\bugassist\\dbfiles\\test.db
 		this.repo = repo;
 		url = "jdbc:sqlite:" + dbFileNameWithPath;
 
@@ -43,17 +44,19 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 		}
 
 		// SQL statement for creating a new table
-		String sql1 = "CREATE TABLE IF NOT EXISTS bug(bugid integer, commitname text, parentcommitname text, shotdesc text, longdesc text, productname text, status text);\\n";
+		String sql1 = "CREATE TABLE IF NOT EXISTS bug(commitname text, parentcommitname text, bugid integer);\\n";
 		String sql2 = "CREATE TABLE IF NOT EXISTS bugfiles(commitname text, filename text);\\n";
-
+		String sql3 = "CREATE TABLE IF NOT EXISTS bughttpdata(bugid integer, shortdesc text, longdesc text, productname text, status text);\\n";
 		try {
 
 			Statement stmt = conn.createStatement();
 			// create new table
 			stmt.execute(sql1);
 			stmt.execute(sql2);
+			stmt.execute(sql3);
 		} catch (SQLException e1) {
 			System.out.println("Error create tables in database!\n" + e1.getMessage());
+			e1.printStackTrace();
 			System.exit(0);
 		}
 
@@ -63,8 +66,16 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 	public boolean addBugDataFromRepo(Bug bug) {
 		boolean success = false;
 		String sql = "INSERT INTO bug(bugid, commitname, parentcommitname) VALUES(?,?,?)";
+		String sql1 = "SELECT commitname FROM bug WHERE commitname = '" + bug.getBugCommit().name() + "'";
+		
 
 		try {
+			// if the commit exist in database break;
+			Statement stmt = conn.createStatement();
+			ResultSet cmrs = stmt.executeQuery(sql1);
+			if (cmrs.next())
+				return false;
+			
 			PreparedStatement pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, bug.getBugId());
 			pstmt.setString(2, bug.getBugCommit().getName());
@@ -73,6 +84,7 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 				success = true;
 		} catch (SQLException e1) {
 			System.out.println("Error insert bug data to put database!" + e1.getMessage());
+			e1.printStackTrace();
 		}
 		for (String fileName : bug.getBugSourceCodeFileList()) {
 
@@ -96,28 +108,35 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 	}
 
 	@Override
-	public boolean addBugDataFromHttp(Bug bug) {
+	public boolean addBugDataFromHttp(Bug bug) { // add bughttpdata table to a row when if it is not exist
 		boolean success = false;
-		
-		String sql = "UPDATE bug set shotdesc = ?, longdesc = ?, productname = ?, status = ? "
-				+ "WHERE bugid = " + bug.getBugId() + " AND commitname = '" + bug.getBugCommit().getName() + "'";
+		String sql1 = "SELECT bugid FROM bughttpdata WHERE bugid = " + bug.getBugId();
+		String sql = "INSERT INTO bughttpdata (shortdesc, longdesc, productname, status, bugid) VALUES(?,?,?,?,?)";
+
 		PreparedStatement pstmt;
+		Statement stmt;
 		try {
-			pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, bug.getBugShortDesc());
-			pstmt.setString(2, bug.getBugLongDesc());
-			pstmt.setString(3, bug.getBugProductName());
-			pstmt.setString(4, bug.getBugStatus());
-			
-			if (pstmt.executeUpdate() > 0) {
-				success = true;
+			stmt = conn.createStatement();
+			stmt.executeQuery(sql1);
+			if (!stmt.getResultSet().next()) {
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setString(1, bug.getBugShortDesc());
+				pstmt.setString(2, bug.getBugLongDesc());
+				pstmt.setString(3, bug.getBugProductName());
+				pstmt.setString(4, bug.getBugStatus());
+				pstmt.setInt(5, bug.getBugId());
+
+				if (pstmt.executeUpdate() > 0)
+					success = true;
+				pstmt.close();
+				stmt.close();
+				conn.commit();
 			}
-			pstmt.close();
-			conn.commit();
+
 		} catch (SQLException e1) {
 			System.out.println("Error insert bug desc to put database!" + e1.getMessage());
 			e1.printStackTrace();
-		} 
+		}
 
 		return success;
 	}
@@ -125,10 +144,10 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 	@Override
 	public Bug getBugData(Integer bugId) {
 		Bug bug = new Bug();
-		;
+
 		bug.setBugId(bugId);
 
-		String sql = "SELECT commitname, shotdesc, longdesc, productname, status FROM bug WHERE bugid=?;";
+		String sql = "SELECT commitname, shortdesc, longdesc, productname, status FROM bughttpdata WHERE bugid = ?";
 
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -141,7 +160,7 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 				RevCommit commit = revWalk.parseCommit(commitId);
 				revWalk.close();
 				bug.setBugCommit(commit);
-				bug.setBugShortDesc(rs.getString("shotdesc"));
+				bug.setBugShortDesc(rs.getString("shortdesc"));
 				bug.setBugLongDesc(rs.getString("longdesc"));
 				bug.setBugProductName(rs.getString("productname"));
 				bug.setBugStatus(rs.getString("status"));
@@ -167,28 +186,37 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 	}
 
 	@Override
-	public List<Bug> getAllBugsBugIdAndCommitNameWhereHttpDataNull() {
+	public List<Bug> getAllBugsBugIdAndCommitNameWhereNotHaveHttpData() {
 		List<Bug> bugList = new ArrayList<Bug>();
 
-		String sql = "SELECT bugid, commitname FROM bug where shotdesc is null or longdesc is null or productname is null or status is null";
+		String sql = "SELECT bugid, commitname FROM bug GROUP BY bugid";
+		String sql1 = "SELECT bugid FROM bughttpdata where bugid = ?";
 
 		try {
 			Statement stmt = conn.createStatement();
-
 			ResultSet rs = stmt.executeQuery(sql);
+			PreparedStatement pstmt = conn.prepareStatement(sql1);
 			
 			while (rs.next()) {
-				Bug bug = new Bug();
-				ObjectId commitId = ObjectId.fromString(rs.getString("commitname"));
-				RevWalk revWalk = new RevWalk(repo);
-				RevCommit commit = revWalk.parseCommit(commitId);
-				revWalk.close();
-				bug.setBugCommit(commit);
-				bug.setBugId(rs.getInt("bugid"));
-				bugList.add(bug);
+				
+				pstmt.setInt(1, rs.getInt("bugid"));
+				ResultSet httpRs = pstmt.executeQuery();
+				if (!httpRs.next()) {
+					
+					Bug bug = new Bug();
+					ObjectId commitId = ObjectId.fromString(rs.getString("commitname"));
+					RevWalk revWalk = new RevWalk(repo);
+					RevCommit commit = revWalk.parseCommit(commitId);
+					revWalk.close();
+					bug.setBugCommit(commit);
+					bug.setBugId(rs.getInt("bugid"));
+					bugList.add(bug);
+				}	
+				httpRs.close();
 			}
 			rs.close();
 			stmt.close();
+			pstmt.close();
 			conn.commit();
 
 		} catch (SQLException e) {
@@ -207,26 +235,32 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 	}
 
 	@Override
-	// Clean database from bugs and bugfiles where the shortdesc, longdesc etc. is not exist and the bug status is assigned or new, then return the deleted bugs count;
+	// Clean database from bugs and bugfiles where the shortdesc, longdesc etc. is
+	// not exist and the bug status is assigned or new, then return the deleted bugs
+	// count;
 	public int cleanBugDataWhereNoneAndUnfinished() {
 		int deletedCount = 0;
 		String sqlFiles = null;
 		String sqlBug = null;
-		String sql = "SELECT commitname FROM bug where status = 'none' or status = 'ASSIGNED' or status = 'NEW'";
+		String sqlBugHttp = null;
+		String sql = "SELECT commitname, bug.bugid FROM bug, bughttpdata where bug.bugid = bughttpdata.bugid and (status = 'none' or status = 'ASSIGNED' or status = 'NEW')";
 
 		try {
 			Statement stmt = conn.createStatement();
 
 			ResultSet rs = stmt.executeQuery(sql);
-			
+
 			while (rs.next()) {
-				
+
 				sqlFiles = "DELETE FROM bugfiles WHERE commitname = '" + rs.getString("commitname") + "'";
 				Statement stmtDelete = conn.createStatement();
 				stmtDelete.executeUpdate(sqlFiles);
-				
+
 				sqlBug = "DELETE FROM bug WHERE commitname = '" + rs.getString("commitname") + "'";
 				stmtDelete.executeUpdate(sqlBug);
+				
+				sqlBugHttp = "DELETE FROM bughttpdata WHERE bugid = " + rs.getInt("bugid");
+				stmtDelete.executeUpdate(sqlBugHttp);
 				
 				stmtDelete.close();
 				++deletedCount;
@@ -238,8 +272,8 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 		} catch (SQLException e) {
 			System.out.println("Error delete bugs!" + e.getMessage());
 			e.printStackTrace();
-		} 
-			
+		}
+
 		return deletedCount;
 	}
 

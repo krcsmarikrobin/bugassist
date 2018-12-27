@@ -67,7 +67,6 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 		boolean success = false;
 		String sql = "INSERT INTO bug(bugid, commitname, parentcommitname) VALUES(?,?,?)";
 		String sql1 = "SELECT commitname FROM bug WHERE commitname = '" + bug.getBugCommit().name() + "'";
-		
 
 		try {
 			// if the commit exist in database break;
@@ -75,7 +74,7 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 			ResultSet cmrs = stmt.executeQuery(sql1);
 			if (cmrs.next())
 				return false;
-			
+
 			PreparedStatement pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, bug.getBugId());
 			pstmt.setString(2, bug.getBugCommit().getName());
@@ -147,7 +146,7 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 
 		bug.setBugId(bugId);
 
-		String sql = "SELECT commitname, shortdesc, longdesc, productname, status FROM bughttpdata WHERE bugid = ?";
+		String sql = "SELECT commitname, shortdesc, longdesc, productname, status FROM bughttpdata, bug WHERE bughttpdata.bugid = bug.bugid AND bughttpdata.bugid = ?";
 
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -196,13 +195,13 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 			Statement stmt = conn.createStatement();
 			ResultSet rs = stmt.executeQuery(sql);
 			PreparedStatement pstmt = conn.prepareStatement(sql1);
-			
+
 			while (rs.next()) {
-				
+
 				pstmt.setInt(1, rs.getInt("bugid"));
 				ResultSet httpRs = pstmt.executeQuery();
 				if (!httpRs.next()) {
-					
+
 					Bug bug = new Bug();
 					ObjectId commitId = ObjectId.fromString(rs.getString("commitname"));
 					RevWalk revWalk = new RevWalk(repo);
@@ -211,7 +210,7 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 					bug.setBugCommit(commit);
 					bug.setBugId(rs.getInt("bugid"));
 					bugList.add(bug);
-				}	
+				}
 				httpRs.close();
 			}
 			rs.close();
@@ -258,10 +257,10 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 
 				sqlBug = "DELETE FROM bug WHERE commitname = '" + rs.getString("commitname") + "'";
 				stmtDelete.executeUpdate(sqlBug);
-				
+
 				sqlBugHttp = "DELETE FROM bughttpdata WHERE bugid = " + rs.getInt("bugid");
 				stmtDelete.executeUpdate(sqlBugHttp);
-				
+
 				stmtDelete.close();
 				++deletedCount;
 			}
@@ -275,6 +274,66 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 		}
 
 		return deletedCount;
+	}
+
+	@Override
+	public List<Bug> getAllBugs() {
+
+		Bug bug = new Bug();
+		List<Bug> bugs = new ArrayList<Bug>();
+
+		String sql = "SELECT bughttpdata.bugid, commitname, shortdesc, longdesc, productname, status FROM bughttpdata, bug WHERE bughttpdata.bugid = bug.bugid";
+		String sql2 = "SELECT filename FROM bugfiles WHERE commitname = ?";
+		try {
+			Statement stmt = conn.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
+			PreparedStatement pstmt = conn.prepareStatement(sql2);
+			
+			while (rs.next()) {
+
+				ObjectId commitId = ObjectId.fromString(rs.getString("commitname"));
+				RevWalk revWalk = new RevWalk(repo);
+				RevCommit commit = revWalk.parseCommit(commitId);
+				revWalk.close();
+				bug.setBugId(rs.getInt("bugid"));
+				bug.setBugCommit(commit);
+				bug.setBugShortDesc(rs.getString("shortdesc"));
+				bug.setBugLongDesc(rs.getString("longdesc"));
+				bug.setBugProductName(rs.getString("productname"));
+				bug.setBugStatus(rs.getString("status"));
+
+				
+				pstmt.setString(1, bug.getBugCommit().getName());
+				ResultSet subRs = pstmt.executeQuery();
+				List<String> bugFiles = new ArrayList<String>();
+
+				while (subRs.next()) {
+					bugFiles.add(subRs.getString("filename"));
+				}
+				subRs.close();
+				
+				bug.setBugSourceCodeFileList(bugFiles);
+				bugs.add(bug);
+
+			}
+			rs.close();
+			stmt.close();
+			pstmt.close();
+		} catch (SQLException e) {
+			System.out.println("Error get bug data from database!" + e.getMessage());
+			e.printStackTrace();
+		} catch (MissingObjectException e) {
+			System.out.println("Error get bug data from database!" + e.getMessage());
+			e.printStackTrace();
+		} catch (IncorrectObjectTypeException e) {
+			System.out.println("Error get bug data from database!" + e.getMessage());
+			e.printStackTrace();
+		} catch (IOException e) {
+			System.out.println("Error get bug data from database!" + e.getMessage());
+			e.printStackTrace();
+		}
+
+		return bugs;
 	}
 
 }

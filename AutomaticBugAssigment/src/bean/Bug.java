@@ -9,12 +9,15 @@
 
 package bean;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.eclipse.jgit.revwalk.RevCommit;
 
-public class Bug {
+public class Bug implements Serializable {
 
+
+	private static final long serialVersionUID = 1877870992422006289L;
 	private Integer bugId = null;
 	private RevCommit bugCommit = null;
 	private String bugShortDesc = null;

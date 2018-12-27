@@ -8,6 +8,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.omg.CORBA.Environment;
+
 import bean.Bug;
 import model.GetGitRepoData;
 import model.GetHttpBugData;
@@ -18,7 +20,7 @@ public class Main {
 
 	public static void main(String[] args) throws IOException {
 
-		GetGitRepoData repoData = new GetGitRepoData("C:\\GIT\\gecko-dev\\.git", "C:\\GIT\\bugassist\\AutomaticBugAssigment\\OuterFiles\\db\\test.db");
+		GetGitRepoData repoData = new GetGitRepoData("D:\\GIT\\gecko-dev\\.git", "D:\\GIT\\bugassist\\AutomaticBugAssigment\\OuterFiles\\db\\test.db");
 		
 		//repoData.collectCommitListToDao(".java");
 
@@ -37,9 +39,9 @@ public class Main {
 			out.println(pre[i]);
 		out.close();*/
 		
+/*		
 		
-		
-		/*long a = System.currentTimeMillis();
+		long a = System.currentTimeMillis();
 		System.out.println("Start! ");
 		
 		List<Bug> bugs = repoData.getDao().getAllBugs();
@@ -48,8 +50,8 @@ public class Main {
 		a = (System.currentTimeMillis() - a)/1000;
 		System.out.println("Vége! Futási idõ másodperc: " + a);
 		
-		System.out.println("Feldolgozott bugok: " + bugs.size());*/
-		
+		System.out.println("Feldolgozott bugok: " + bugs.size());
+*/		
 		
 		
 		List<Bug> bugs = IOBugObjectDataFromMemory.loadData();
@@ -62,7 +64,7 @@ public class Main {
 		for (int i=0; i<bugs.size(); ++i)
 			System.out.println("Feldolgozott bugId: " + bugs.get(i).getBugId());
 			
-		
+	
 	}
-
 }
+

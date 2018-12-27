@@ -1,0 +1,1 @@
+D:\GIT\bugassist\db\sqlite3.exe D:\GIT\bugassist\dbfiles\test.db

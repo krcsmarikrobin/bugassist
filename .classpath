@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="AutomaticBugAssigment/src"/>
+	<classpathentry kind="lib" path="AutomaticBugAssigment/Libraries/opennlp-tools-1.9.0.jar"/>
+	<classpathentry kind="lib" path="AutomaticBugAssigment/Libraries/org.eclipse.jgit-5.1.3.201810200350-r.jar"/>
+	<classpathentry kind="lib" path="AutomaticBugAssigment/Libraries/org.json.jar"/>
+	<classpathentry kind="lib" path="AutomaticBugAssigment/Libraries/slf4j-api-1.7.25.jar"/>
+	<classpathentry kind="lib" path="AutomaticBugAssigment/Libraries/slf4j-simple-1.7.25.jar"/>
+	<classpathentry kind="lib" path="AutomaticBugAssigment/Libraries/sqlite-jdbc-3.23.1.jar"/>
+	<classpathentry kind="output" path="AutomaticBugAssigment/bin"/>
+</classpath>

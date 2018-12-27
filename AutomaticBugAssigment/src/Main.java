@@ -18,7 +18,7 @@ public class Main {
 
 	public static void main(String[] args) throws IOException {
 
-		GetGitRepoData repoData = new GetGitRepoData("D:\\GIT\\gecko-dev\\.git", "D:\\GIT\\bugassist\\AutomaticBugAssigment\\OuterFiles\\db\\test.db");
+		GetGitRepoData repoData = new GetGitRepoData("C:\\GIT\\gecko-dev\\.git", "C:\\GIT\\bugassist\\AutomaticBugAssigment\\OuterFiles\\db\\test.db");
 		
 		//repoData.collectCommitListToDao(".java");
 

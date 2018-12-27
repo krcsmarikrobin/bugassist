@@ -279,7 +279,7 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 	@Override
 	public List<Bug> getAllBugs() {
 
-		Bug bug = new Bug();
+		
 		List<Bug> bugs = new ArrayList<Bug>();
 
 		String sql = "SELECT bughttpdata.bugid, commitname, shortdesc, longdesc, productname, status FROM bughttpdata, bug WHERE bughttpdata.bugid = bug.bugid";
@@ -290,7 +290,7 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 			PreparedStatement pstmt = conn.prepareStatement(sql2);
 			
 			while (rs.next()) {
-
+				Bug bug = new Bug();
 				ObjectId commitId = ObjectId.fromString(rs.getString("commitname"));
 				RevWalk revWalk = new RevWalk(repo);
 				RevCommit commit = revWalk.parseCommit(commitId);

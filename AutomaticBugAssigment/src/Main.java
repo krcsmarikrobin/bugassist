@@ -38,8 +38,8 @@ public class Main {
 		out.close();*/
 		
 		
-		/*
-		long a = System.currentTimeMillis();
+		
+		/*long a = System.currentTimeMillis();
 		System.out.println("Start! ");
 		
 		List<Bug> bugs = repoData.getDao().getAllBugs();
@@ -51,14 +51,17 @@ public class Main {
 		System.out.println("Feldolgozott bugok: " + bugs.size());*/
 		
 		
+		
 		List<Bug> bugs = IOBugObjectDataFromMemory.loadData();
 		
 		System.out.println("Feldolgozott bugok: " + bugs.size());
 		
-		System.out.println("Feldolgozott bug1: " + bugs.get(0).getBugLongDesc());
+		System.out.println("Feldolgozott bug1: " + bugs.get(2).getBugLongDesc());
 		System.out.println("Feldolgozott bug2: " + bugs.get(17700).getBugLongDesc());
 		
-		
+		for (int i=0; i<bugs.size(); ++i)
+			System.out.println("Feldolgozott bugId: " + bugs.get(i).getBugId());
+			
 		
 	}
 

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+0<?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
 	<name>AutomaticBugAssigment</name>
 	<comment></comment>
@@ -29,17 +29,17 @@
 		<link>
 			<name>org.eclipse.jgit-5.1.3.201810200350-r.jar</name>
 			<type>2</type>
-			<location>D:/GIT/AutomaticBugAssigmentV1/Libraries/org.eclipse.jgit-5.1.3.201810200350-r.jar</location>
+			<location>C:/GIT/bugassist/AutomaticBugAssigment/Libraries/org.eclipse.jgit-5.1.3.201810200350-r.jar</location>
 		</link>
 		<link>
 			<name>org.json.jar</name>
 			<type>2</type>
-			<location>D:/GIT/AutomaticBugAssigmentV1/Libraries/org.json.jar</location>
+			<location>C:/GIT/bugassist/AutomaticBugAssigment/Libraries/org.json.jar</location>
 		</link>
 		<link>
 			<name>slf4j-api-1.7.25.jar</name>
 			<type>2</type>
-			<location>D:/GIT/AutomaticBugAssigmentV1/Libraries/slf4j-api-1.7.25.jar</location>
+			<location>C:/GIT/bugassist/AutomaticBugAssigment/Libraries/slf4j-api-1.7.25.jar</location>
 		</link>
 	</linkedResources>
 </projectDescription>

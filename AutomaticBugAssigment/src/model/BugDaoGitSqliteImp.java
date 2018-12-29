@@ -336,4 +336,5 @@ public class BugDaoGitSqliteImp implements BugDAOGit {
 		return bugs;
 	}
 
+	
 }

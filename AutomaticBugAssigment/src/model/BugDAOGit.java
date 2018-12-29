@@ -16,5 +16,6 @@ public interface BugDAOGit {
 	public int cleanBugDataWhereNoneAndUnfinished();
 	
 	public List<Bug> getAllBugs();
+	
 
 }

@@ -11,13 +11,13 @@ import org.json.JSONObject;
 
 import bean.Bug;
 
-public class GetHttpBugData {
+public class HttpBugData {
 	String HttpUrl;
 	HttpURLConnection connection = null;
 
-	GetGitRepoData repoData;
+	GitRepoData repoData;
 
-	public GetHttpBugData(String httpUrl, GetGitRepoData repoData) {
+	public HttpBugData(String httpUrl, GitRepoData repoData) {
 		this.HttpUrl = httpUrl;
 		this.repoData = repoData;
 

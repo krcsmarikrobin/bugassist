@@ -3,18 +3,17 @@ package model;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
 import bean.Bug;
-import opennlp.tools.lemmatizer.Lemmatizer;
-import opennlp.tools.lemmatizer.LemmatizerME;
+
 import opennlp.tools.lemmatizer.DictionaryLemmatizer;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
@@ -31,6 +30,7 @@ import opennlp.tools.tokenize.SimpleTokenizer;
 public class BagOfWords {
 
 	String filepath = null;
+	Bug bug = null;
 	String words = null;
 	String wordsToken[] = null;
 
@@ -87,12 +87,13 @@ public class BagOfWords {
 	}
 
 	public BagOfWords(Bug bug) { // constructor when get a bug
-
+		this.bug=bug;
+		
 		words = bug.getBugShortDesc() + bug.getBugLongDesc();
 
 	}
 
-	public String[] getTokenizedText() { // get an array of tokenized text
+	private String[] getTokenizedText() { // get an array of tokenized text
 
 		@SuppressWarnings("deprecation")
 		SimpleTokenizer tokenizer = new SimpleTokenizer();
@@ -103,7 +104,7 @@ public class BagOfWords {
 
 	}
 
-	public String[] removeStopWords(String[] sourceString) { // remove stopwords the stop words dictionary download
+	private String[] removeStopWords(String[] sourceString) { // remove stopwords the stop words dictionary download
 																// from:
 																// https://gist.github.com/carloschavez9/63414d83f68b09b4ef2926cc20ad641c
 
@@ -165,7 +166,7 @@ public class BagOfWords {
 		return resultTextArray;
 	}
 
-	public String[] lemmatizingWords(String[] sourceString) {
+	private String[] lemmatizingWords(String[] sourceString) {
 
 		String[] resultTextArray;
 		POSTaggerME tagger = null;
@@ -215,6 +216,23 @@ public class BagOfWords {
 	
 	public String[] getBagOfWords() {
 		return this.lemmatizingWords(this.removeStopWords(this.getTokenizedText()));
+	}
+	
+	
+	public boolean isItSourceCode() {
+		if (filepath == null)
+			return false;
+		else return true;
+	}
+	
+	
+	
+	public Bug getBug() {
+		return bug;		
+	}
+	
+	public String getSourceCodeFilePath() {
+		return filepath;
 	}
 
 }

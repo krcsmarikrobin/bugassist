@@ -27,14 +27,14 @@ import bean.Bug;
  * -branch-without-changes-to-the-working-direct
  */
 
-public class GetGitRepoData {
+public class GitRepoData {
 	BugDaoGitSqliteImp dao = null;
 	Repository repo = null;
 	Git git = null;
 	RevWalk walk = null;
 	List<Ref> branches = null;
 
-	public GetGitRepoData(String repoFilePath, String dbFileNameWithPath) { // example "d:\\GIT\\gecko-dev\\.git"
+	public GitRepoData(String repoFilePath, String dbFileNameWithPath) { // example "d:\\GIT\\gecko-dev\\.git"
 		try {
 			repo = new FileRepository(repoFilePath);
 			git = new Git(repo);

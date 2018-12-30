@@ -37,15 +37,16 @@ public class GitRepoData implements Serializable {
 	Git git = null;
 	RevWalk walk = null;
 	List<Ref> branches = null;
-	String fileExtension = ".*";
+	String fileExtension = null;
 
-	public GitRepoData(String repoFilePath, String dbFileNameWithPath) { // example "d:\\GIT\\gecko-dev\\.git"
+	public GitRepoData(String repoFilePath, String dbFileNameWithPath, String fileExtension) { // example new GitRepoData("D:\\GIT\\gecko-dev\\.git", "D:\\GIT\\bugassist\\AutomaticBugAssigment\\OuterFiles\\db\\test.db", ".java");
 		try {
 			repo = new FileRepository(repoFilePath);
 			git = new Git(repo);
 			walk = new RevWalk(repo);
 			branches = git.branchList().call();
 			dao = new BugDaoGitSqliteImp(dbFileNameWithPath, repo);
+			this.fileExtension=fileExtension;
 
 		} catch (IOException | GitAPIException e1) {
 			e1.printStackTrace();
@@ -62,9 +63,9 @@ public class GitRepoData implements Serializable {
 		return dao;
 	}
 
-	public void collectCommitListToDao(String fileExtension) {
-		this.fileExtension=fileExtension;
-		// fileExtesion: get commits by file extension for example .java
+	public void collectCommitListToDao() {
+		
+		
 
 		// create a database to collect data
 		Integer bugId = null;

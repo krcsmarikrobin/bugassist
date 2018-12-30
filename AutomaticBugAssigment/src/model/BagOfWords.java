@@ -37,6 +37,7 @@ public class BagOfWords implements Serializable {
 	Bug bug = null;
 	String words = null;
 	String wordsToken[] = null;
+	String bagOfWords[] = null;
 
 	public BagOfWords(File file) throws IOException { // constructor when get a source code filepath
 		this.file = file;
@@ -216,10 +217,15 @@ public class BagOfWords implements Serializable {
 		return resultTextArray;
 	}
 	
+
+	
+	public void buildBagOfWords() {
+		bagOfWords = this.lemmatizingWords(this.removeStopWords(this.getTokenizedText()));
+	}
 	
 	
 	public String[] getBagOfWords() {
-		return this.lemmatizingWords(this.removeStopWords(this.getTokenizedText()));
+		return this.bagOfWords;
 	}
 	
 	
@@ -235,8 +241,8 @@ public class BagOfWords implements Serializable {
 		return bug;		
 	}
 	
-	public String getSourceCodeFilePath() {
-		return file.getAbsolutePath();
+	public File getFile() {
+		return file;
 	}
 
 }

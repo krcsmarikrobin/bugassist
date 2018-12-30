@@ -32,19 +32,6 @@ public class IOBugObjectDataFromMemory implements Serializable {
 	}
 
 	
-	public static void saveData(Object o) {
-		ObjectOutput out;
-		try {
-			out = new ObjectOutputStream(new FileOutputStream("AutomaticBugAssigment\\OuterFiles\\SaveState.data"));
-			out.writeObject(o);
-			out.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	
-	
 	
 	
 	public static List<Bug> loadData() {
@@ -61,16 +48,5 @@ public class IOBugObjectDataFromMemory implements Serializable {
 	}
 	
 	
-	public static VSM loadVSMData() {
-		ObjectInput in;
-		VSM vsm = null;
-		try {
-			in = new ObjectInputStream(new FileInputStream("AutomaticBugAssigment\\OuterFiles\\SaveState.data"));
-			vsm = (VSM) in.readObject();
-			in.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return vsm;
-	}
+	
 }

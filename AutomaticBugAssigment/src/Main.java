@@ -21,9 +21,9 @@ public class Main {
 
 	public static void main(String[] args) throws IOException {
 
-		GitRepoData repoData = new GitRepoData("D:\\GIT\\gecko-dev\\.git", "D:\\GIT\\bugassist\\AutomaticBugAssigment\\OuterFiles\\db\\test.db");
+		GitRepoData repoData = new GitRepoData("D:\\GIT\\gecko-dev\\.git", "D:\\GIT\\bugassist\\AutomaticBugAssigment\\OuterFiles\\db\\test.db", ".java");
 		
-		//repoData.collectCommitListToDao(".java");
+		//repoData.collectCommitListToDao("");
 
 		//GetHttpBugData httpData = new GetHttpBugData("https://bugzilla.mozilla.org", repoData);
 		
@@ -67,19 +67,47 @@ public class Main {
 	*/
 		
 		
+//to save VSM data after vsm init just new VSM();
 
-	
 		long a = System.currentTimeMillis();
 		System.out.println("Start! ");
 		
 		VSM vsm = new VSM(repoData);
-		
-		IOBugObjectDataFromMemory.saveData(vsm);
+		vsm.saveData();
 		
 		a = (System.currentTimeMillis() - a)/1000;
 		System.out.println("Vége! Futási idõ másodperc: " + a);     //470 sec ~ 8 min
 		
+
+
+/*
+		long a = System.currentTimeMillis();
+		System.out.println("Start! ");
+		VSM vsm = new VSM();
+		List<BagOfWords> bows = vsm.getBagWords();
+				
+		FileOutputStream os = new FileOutputStream("D:\\eredmeny.txt");
+		PrintWriter out = new PrintWriter(os);
+		int piece = bows.size();
+		int cc = 0;
+		for (BagOfWords b : bows) {
+			if (b.isItSourceCode())
+				out.println(b.getFile().getAbsolutePath());
+			else
+				out.println(b.getBug().getBugId() + ": " + b.getBug().getBugStatus());
+			System.out.println("Feldolgozás: " + ++cc + "/" + piece);
+		}
+		a = (System.currentTimeMillis() - a)/1000;
+		System.out.println("Vége! Futási idõ másodperc: " + a);
+		out.close();
+*/		
 	
+		
+		
+		
+		
+		
+		
 	}
 }
 

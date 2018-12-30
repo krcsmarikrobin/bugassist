@@ -107,7 +107,7 @@ public class Main {
 		
 */
 		
-	
+/*	
 		long a = System.currentTimeMillis();
 		System.out.println("Start! ");
 		VSM vsm = new VSM();
@@ -122,14 +122,16 @@ public class Main {
           }
 		
         executor.shutdown();
-        while (!executor.isTerminated()) {
-        	 System.out.println("Finished all threads");         	
+        while (!executor.isTerminated()) {	   	
         }
-        vsm.saveData();    
+       
+        
+        vsm.saveData();
+        
         a = (System.currentTimeMillis() - a)/1000;
-        System.out.println("Futási idõ másodperc: " + a);
+        System.out.println("Vége! Futási idõ másodperc: " + a); Futási idõ: 3117 sec ~ 52 perc
 	
-		
+*/		
 		
 	}
 }

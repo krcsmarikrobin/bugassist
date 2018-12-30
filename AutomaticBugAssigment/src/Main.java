@@ -68,14 +68,17 @@ public class Main {
 		
 		
 
-		
+	
 		long a = System.currentTimeMillis();
 		System.out.println("Start! ");
 		
 		VSM vsm = new VSM(repoData);
 		
+		IOBugObjectDataFromMemory.saveData(vsm);
+		
 		a = (System.currentTimeMillis() - a)/1000;
-		System.out.println("Vége! Futási idõ másodperc: " + a);
+		System.out.println("Vége! Futási idõ másodperc: " + a);     //470 sec ~ 8 min
+		
 	
 	}
 }

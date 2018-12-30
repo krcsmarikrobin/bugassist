@@ -1,13 +1,14 @@
 package model;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,15 +28,18 @@ import opennlp.tools.tokenize.SimpleTokenizer;
  * 
  **/
 
-public class BagOfWords {
+public class BagOfWords implements Serializable {
 
-	String filepath = null;
+	
+	private static final long serialVersionUID = -8589648061274982318L;
+	
+	File file = null;
 	Bug bug = null;
 	String words = null;
 	String wordsToken[] = null;
 
-	public BagOfWords(String filepath) throws IOException { // constructor when get a source code filepath
-		this.filepath = filepath;
+	public BagOfWords(File file) throws IOException { // constructor when get a source code filepath
+		this.file = file;
 
 		StringBuilder s = new StringBuilder();
 		int c;
@@ -45,7 +49,7 @@ public class BagOfWords {
 
 		/* Read Input file */
 		try {
-			fin = new FileInputStream(filepath);
+			fin = new FileInputStream(file);
 		} catch (FileNotFoundException fex) {
 			fex.printStackTrace();
 			System.err.println(0);
@@ -220,7 +224,7 @@ public class BagOfWords {
 	
 	
 	public boolean isItSourceCode() {
-		if (filepath == null)
+		if (file == null)
 			return false;
 		else return true;
 	}
@@ -232,7 +236,7 @@ public class BagOfWords {
 	}
 	
 	public String getSourceCodeFilePath() {
-		return filepath;
+		return file.getAbsolutePath();
 	}
 
 }

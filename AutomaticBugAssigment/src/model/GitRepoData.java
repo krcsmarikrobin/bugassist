@@ -1,6 +1,7 @@
 package model;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,12 +28,16 @@ import bean.Bug;
  * -branch-without-changes-to-the-working-direct
  */
 
-public class GitRepoData {
+public class GitRepoData implements Serializable {
+	
+	private static final long serialVersionUID = -1841132796179898579L;
+	
 	BugDaoGitSqliteImp dao = null;
 	Repository repo = null;
 	Git git = null;
 	RevWalk walk = null;
 	List<Ref> branches = null;
+	String fileExtension = ".*";
 
 	public GitRepoData(String repoFilePath, String dbFileNameWithPath) { // example "d:\\GIT\\gecko-dev\\.git"
 		try {
@@ -58,6 +63,7 @@ public class GitRepoData {
 	}
 
 	public void collectCommitListToDao(String fileExtension) {
+		this.fileExtension=fileExtension;
 		// fileExtesion: get commits by file extension for example .java
 
 		// create a database to collect data

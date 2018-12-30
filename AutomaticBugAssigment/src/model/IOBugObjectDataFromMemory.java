@@ -3,13 +3,9 @@ package model;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
-
 import java.io.FileInputStream;
-
 import java.io.FileOutputStream;
-
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 
@@ -35,11 +31,27 @@ public class IOBugObjectDataFromMemory implements Serializable {
 		}
 	}
 
+	
+	public static void saveData(Object o) {
+		ObjectOutput out;
+		try {
+			out = new ObjectOutputStream(new FileOutputStream("AutomaticBugAssigment\\OuterFiles\\SaveState.data"));
+			out.writeObject(o);
+			out.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	
+	
+	
 	public static List<Bug> loadData() {
 		ObjectInput in;
 		List<Bug> bugs = null;
 		try {
-			in = new ObjectInputStream(new FileInputStream("AutomaticBugAssigment\\OuterFiles\\bugSaveState.data"));
+			in = new ObjectInputStream(new FileInputStream("AutomaticBugAssigment\\OuterFiles\\SaveState.data"));
 			bugs = (List<Bug>) in.readObject();
 			in.close();
 		} catch (Exception e) {
@@ -47,5 +59,18 @@ public class IOBugObjectDataFromMemory implements Serializable {
 		}
 		return bugs;
 	}
-
+	
+	
+	public static VSM loadVSMData() {
+		ObjectInput in;
+		VSM vsm = null;
+		try {
+			in = new ObjectInputStream(new FileInputStream("AutomaticBugAssigment\\OuterFiles\\SaveState.data"));
+			vsm = (VSM) in.readObject();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return vsm;
+	}
 }

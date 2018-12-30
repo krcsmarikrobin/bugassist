@@ -92,7 +92,9 @@ public class GitRepoData implements Serializable {
 						if (commitModifyFileList.toString().contains(fileExtension)) {
 							Bug bug = new Bug();
 							bug.setBugId(bugId);
-							bug.setBugCommit(commit);
+							List<RevCommit> commitList = new ArrayList<RevCommit>();
+							commitList.add(commit);
+							bug.setBugCommit(commitList);
 							bug.setBugSourceCodeFileList(commitModifyFileList);
 
 							// export data

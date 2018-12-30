@@ -19,7 +19,7 @@ public class Bug implements Serializable {
 
 	private static final long serialVersionUID = 1877870992422006289L;
 	private Integer bugId = null;
-	private RevCommit bugCommit = null;
+	private List<RevCommit> bugCommits = null;
 	private String bugShortDesc = null;
 	private String bugLongDesc = null;
 	private String bugProductName = null;
@@ -53,12 +53,12 @@ public class Bug implements Serializable {
 			this.bugId = bugId;
 	}
 
-	public RevCommit getBugCommit() {
-		return bugCommit;
+	public List<RevCommit> getBugCommit() {
+		return bugCommits;
 	}
 
-	public void setBugCommit(RevCommit bugCommit) {
-		this.bugCommit = bugCommit;
+	public void setBugCommit(List<RevCommit> bugCommits) {
+		this.bugCommits = bugCommits;
 	}
 
 	public String getBugShortDesc() {

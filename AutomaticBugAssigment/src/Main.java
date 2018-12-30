@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.omg.CORBA.Environment;
 
@@ -68,7 +70,7 @@ public class Main {
 		
 		
 //to save VSM data after vsm init just new VSM();
-
+/*
 		long a = System.currentTimeMillis();
 		System.out.println("Start! ");
 		
@@ -76,9 +78,9 @@ public class Main {
 		vsm.saveData();
 		
 		a = (System.currentTimeMillis() - a)/1000;
-		System.out.println("Vége! Futási idõ másodperc: " + a);     //470 sec ~ 8 min
+		System.out.println("Vége! Futási idõ másodperc: " + a);     //484 sec ~ 8 min
 		
-
+*/
 
 /*
 		long a = System.currentTimeMillis();
@@ -91,21 +93,42 @@ public class Main {
 		int piece = bows.size();
 		int cc = 0;
 		for (BagOfWords b : bows) {
-			if (b.isItSourceCode())
-				out.println(b.getFile().getAbsolutePath());
-			else
-				out.println(b.getBug().getBugId() + ": " + b.getBug().getBugStatus());
-			System.out.println("Feldolgozás: " + ++cc + "/" + piece);
-		}
+			System.out.println(cc++ + "/" + piece);
+			b.buildBagOfWords();
+			
+			
+			}
+				
+			
+		
 		a = (System.currentTimeMillis() - a)/1000;
 		System.out.println("Vége! Futási idõ másodperc: " + a);
 		out.close();
-*/		
+		
+*/
+		
 	
+		long a = System.currentTimeMillis();
+		System.out.println("Start! ");
+		VSM vsm = new VSM();
+		List<BagOfWords> bows = vsm.getBagWords();
 		
 		
+		ExecutorService executor = Executors.newFixedThreadPool(10);
 		
+		for (BagOfWords bo : bows) {
+        	
+            executor.execute(bo);
+          }
 		
+        executor.shutdown();
+        while (!executor.isTerminated()) {
+        	 System.out.println("Finished all threads");         	
+        }
+        vsm.saveData();    
+        a = (System.currentTimeMillis() - a)/1000;
+        System.out.println("Futási idõ másodperc: " + a);
+	
 		
 		
 	}

@@ -28,7 +28,7 @@ import opennlp.tools.tokenize.SimpleTokenizer;
  * 
  **/
 
-public class BagOfWords implements Serializable {
+public class BagOfWords implements Serializable, Runnable {
 
 	
 	private static final long serialVersionUID = -8589648061274982318L;
@@ -38,6 +38,9 @@ public class BagOfWords implements Serializable {
 	String words = null;
 	String wordsToken[] = null;
 	String bagOfWords[] = null;
+	
+	
+	
 
 	public BagOfWords(File file) throws IOException { // constructor when get a source code filepath
 		this.file = file;
@@ -120,8 +123,8 @@ public class BagOfWords implements Serializable {
 
 		/* Read StopWord files */
 		try {
-			fileR = new FileReader(".\\OuterFiles\\nlp_en_stop_words.txt");
-			fileR2 = new FileReader(".\\OuterFiles\\java_stop_words.txt");
+			fileR = new FileReader(".\\AutomaticBugAssigment\\OuterFiles\\nlp_en_stop_words.txt");
+			fileR2 = new FileReader(".\\AutomaticBugAssigment\\OuterFiles\\java_stop_words.txt");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			System.err.println(0);
@@ -176,7 +179,7 @@ public class BagOfWords implements Serializable {
 		String[] resultTextArray;
 		POSTaggerME tagger = null;
 		
-		try (InputStream modelIn = new FileInputStream(".\\OuterFiles\\en-pos-maxent.bin")) {
+		try (InputStream modelIn = new FileInputStream(".\\AutomaticBugAssigment\\OuterFiles\\en-pos-maxent.bin")) {
 			
 			POSModel model = new POSModel(modelIn);
 			tagger = new POSTaggerME(model);
@@ -190,7 +193,7 @@ public class BagOfWords implements Serializable {
 		DictionaryLemmatizer lemmatizer = null;
 		
 		
-		try (InputStream modelIn = new FileInputStream(".\\OuterFiles\\en-lemmatizer.dict")) {
+		try (InputStream modelIn = new FileInputStream(".\\AutomaticBugAssigment\\OuterFiles\\en-lemmatizer.dict")) {
 			lemmatizer = new DictionaryLemmatizer(modelIn);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -243,6 +246,12 @@ public class BagOfWords implements Serializable {
 	
 	public File getFile() {
 		return file;
+	}
+
+	@Override
+	public void run() {
+		this.buildBagOfWords();
+		
 	}
 
 }

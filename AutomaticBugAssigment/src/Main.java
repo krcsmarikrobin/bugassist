@@ -16,6 +16,7 @@ import java.util.concurrent.Executors;
 import org.omg.CORBA.Environment;
 
 import bean.Bug;
+import bean.VsmModel;
 import model.GitRepoData;
 import model.HttpBugData;
 import model.IOBugObjectDataFromMemory;
@@ -85,7 +86,12 @@ public class Main {
 		a = (System.currentTimeMillis() - a)/1000;
 		System.out.println("Vége! Futási idõ másodperc: " + a);     //~ ??? sec ~ ? min
 		
-*/		
+*/
+		
+		PreprocessVSM preprocessVSM = new PreprocessVSM();
+		System.out.println("Start!");
+		VsmModel vsm = new VsmModel(preprocessVSM.getCorpusDictionary(), preprocessVSM.getBagOfWordsObjects(), repoData);
+		
 		
 		
 	}

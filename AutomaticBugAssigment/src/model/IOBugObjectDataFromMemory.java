@@ -38,7 +38,7 @@ public class IOBugObjectDataFromMemory implements Serializable {
 		ObjectInput in;
 		List<Bug> bugs = null;
 		try {
-			in = new ObjectInputStream(new FileInputStream("AutomaticBugAssigment\\OuterFiles\\SaveState.data"));
+			in = new ObjectInputStream(new FileInputStream("AutomaticBugAssigment\\OuterFiles\\bugSaveState.data"));
 			bugs = (List<Bug>) in.readObject();
 			in.close();
 		} catch (Exception e) {

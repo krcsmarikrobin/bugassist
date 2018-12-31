@@ -2,6 +2,9 @@ package bean;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import model.BagOfWords;
 import model.GitRepoData;
 
@@ -26,17 +29,19 @@ public class VsmModel {
 		this.repoData = repoData;
 
 		// initialize and fill the vsmArray, each object get the words array and fill
-		// the matrix
-		vsmArray = new int[corpusDictionary.size()][bagOfWordsObjects.size()];
-		for (int jj = 0; jj < bagOfWordsObjects.size(); ++jj) {
-			BagOfWords bow = bagOfWordsObjects.get(jj);
-			String[] bagWords = bow.getBagOfWords();
-			for (String word : bagWords)
-				++vsmArray[corpusDictionary.indexOf(word)][jj];
+		// the matrix with inner class and executor for threads
 
+		vsmArray = new int[corpusDictionary.size()][bagOfWordsObjects.size()];
+		ExecutorService executor = Executors.newFixedThreadPool(10);
+		for (int jj = 0; jj < bagOfWordsObjects.size(); ++jj)
+			executor.execute(new PasteVsmArray(jj));
+
+		executor.shutdown();
+		while (!executor.isTerminated()) {
 		}
 
 		// initialize the relation array
+
 		int i = 0, j = 0;
 		for (BagOfWords bow : bagOfWordsObjects) {
 			if (!bow.isItSourceCode())
@@ -64,15 +69,32 @@ public class VsmModel {
 		for (int ii = 0; ii < bowBugs.size(); ++ii) {
 			List<String> bugSourceCodeFileList = bowBugs.get(ii).getBug().getBugSourceCodeFileList();
 			for (String filePath : bugSourceCodeFileList) {
-//////////////////////////lecsekkolni az egyezést!!!!
-
-				int jj = sourceCodeFilePathes.indexOf(repoData.getRepo().getWorkTree().getPath() + filePath);
+				int jj = sourceCodeFilePathes
+						.indexOf(repoData.getRepo().getWorkTree().getPath() + "\\" + filePath.replace("/", "\\"));
 				if (jj != -1)
 					bugAndFileRelation[ii][jj] = 1;
 
 			}
 		}
 
+	}
+
+	// inner class to build vsmArray in the constructor with threads
+	private class PasteVsmArray implements Runnable {
+		private int jj;
+
+		private PasteVsmArray(int jj) {
+			this.jj = jj;
+		}
+
+		@Override
+		public void run() {
+			BagOfWords bow = bagOfWordsObjects.get(jj);
+			String[] bagWords = bow.getBagOfWords();
+			for (String word : bagWords)
+				++vsmArray[corpusDictionary.indexOf(word)][jj];
+
+		}
 	}
 
 }

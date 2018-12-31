@@ -249,7 +249,6 @@ public class BagOfWords implements Serializable, Runnable {
 	}
 
 	@Override
-	//run for multithreading
 	public void run() {
 		this.buildBagOfWords();
 		

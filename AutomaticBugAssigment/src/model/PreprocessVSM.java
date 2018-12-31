@@ -27,24 +27,23 @@ public class PreprocessVSM implements Serializable {
 	 */
 
 	private static final long serialVersionUID = 4354302558206806918L;
-	
-	GitRepoData repo = null;
-	List<Bug> bugs = null;
 
-	List<BagOfWords> bagOfWordsObjects = new ArrayList<BagOfWords>();
-	List<File> files = new ArrayList<File>();
-	Set<String> corpusDictionary = new HashSet<String>();
+	private GitRepoData repo = null;
+	private List<BagOfWords> bagOfWordsObjects = null;
+	private List<File> files = null;
+	private List<String> corpusDictionary = new ArrayList<String>();
 
 	public PreprocessVSM(GitRepoData repo) {
 
 		this.repo = repo;
 
-		bugs = repo.getDao().getAllBugs(); // get all bugs with properites
-
+		List<Bug> bugs = repo.getDao().getAllBugs(); // get all bugs with properites
+		bagOfWordsObjects = new ArrayList<BagOfWords>();
 		for (Bug bug : bugs)
 			bagOfWordsObjects.add(new BagOfWords(bug)); // build bagofwords object from bug
 
-		listf(repo.getRepo().getWorkTree().getPath(), files); // get all files
+		files = new ArrayList<File>();
+		listf(repo.getRepo().getWorkTree().getPath(), files); // get all files for a given file extensions
 
 		for (File file : files)
 			try {
@@ -53,57 +52,15 @@ public class PreprocessVSM implements Serializable {
 				e.printStackTrace();
 			}
 
-		// Build bag of words with tokenizer, lemmatizer and stopwords remover. It use
-		// multithreading. It takes approximately 53 mins.
-		ExecutorService executor = Executors.newFixedThreadPool(10);
-
-		for (BagOfWords bo : bagOfWordsObjects)
-			executor.execute(bo);
-
-		executor.shutdown();
-		while (!executor.isTerminated()) {
-		}
-
-		// build the dictionary
-		for (BagOfWords bo : bagOfWordsObjects) {
-			String[] str = bo.getBagOfWords();
-			corpusDictionary.addAll(Arrays.asList(str));
-
-			// save data objects for load next time
-			ObjectOutput out;
-			try {
-				out = new ObjectOutputStream(
-						new FileOutputStream("AutomaticBugAssigment\\OuterFiles\\SaveStateBOWs.data"));
-				out.writeObject(this.bagOfWordsObjects);
-				out.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+		this.buildBagOfWords(); // it takes ~ 54 mins
+		this.buildDictionary();
 
 	}
 
-	@SuppressWarnings("unchecked")
 	public PreprocessVSM() {
+		this.loadData();
+		this.buildDictionary();
 
-		// load data from local disk
-		ObjectInput in;
-		try {
-			in = new ObjectInputStream(new FileInputStream("AutomaticBugAssigment\\OuterFiles\\SaveStateBOWs.data"));
-			bagOfWordsObjects = (List<BagOfWords>) in.readObject();
-			in.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-	}
-
-	public List<BagOfWords> getBagOfWordsObjects() {
-		return bagOfWordsObjects;
-	}
-
-	public Set<String> getCorpusDictionary() {
-		return corpusDictionary;
 	}
 
 	private void listf(String directoryName, List<File> files) { // list given extensions file recursive
@@ -123,4 +80,70 @@ public class PreprocessVSM implements Serializable {
 			}
 	}
 
+	public void saveData() {
+
+		// save data objects for load next time
+		ObjectOutput out;
+		try {
+			out = new ObjectOutputStream(
+					new FileOutputStream("AutomaticBugAssigment\\OuterFiles\\SaveStatePreprocessVsm.data"));
+			out.writeObject(this.bagOfWordsObjects);
+			out.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void loadData() {
+		// load data from local disk
+		ObjectInput in;
+		try {
+			in = new ObjectInputStream(
+					new FileInputStream("AutomaticBugAssigment\\OuterFiles\\SaveStatePreprocessVsm.data"));
+			bagOfWordsObjects = (List<BagOfWords>) in.readObject();
+			in.close();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	// Build bag of words with tokenizer, lemmatizer and stopwords remover. It use
+	// multithreading. It takes approximately 60 mins.
+	private void buildBagOfWords() {
+
+		ExecutorService executor = Executors.newFixedThreadPool(10);
+
+		for (BagOfWords bo : bagOfWordsObjects)
+			executor.execute(bo);
+
+		executor.shutdown();
+		while (!executor.isTerminated()) {
+		}
+	}
+
+	// build the dictionary
+	private void buildDictionary() {
+
+		Set<String> dict = new HashSet<String>();
+		for (BagOfWords bo : bagOfWordsObjects) {
+			String[] str = bo.getBagOfWords();
+			dict.addAll(Arrays.asList(str));
+			corpusDictionary = new ArrayList<String>(dict);
+		}
+	}
+
+	public List<BagOfWords> getBagOfWordsObjects() {
+		return bagOfWordsObjects;
+	}
+
+	public List<String> getCorpusDictionary() {
+		return corpusDictionary;
+
+	}
+
+	public GitRepoData getRepoData() {
+		return repo;
+	}
 }

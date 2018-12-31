@@ -73,17 +73,19 @@ public class Main {
 		
 		
 //to save VSM data after vsm init just new VSM();
-
+/*
 		long a = System.currentTimeMillis();
 		System.out.println("Start! ");
 		
 		PreprocessVSM preprocessVSM = new PreprocessVSM(repoData);
 		
+		System.out.println("Buildelés kész! Részfutási idõ: " + ((System.currentTimeMillis() - a)/1000));
+		preprocessVSM.saveData();
 		
 		a = (System.currentTimeMillis() - a)/1000;
-		System.out.println("Vége! Futási idõ másodperc: " + a);     //484 sec ~ 8 min
+		System.out.println("Vége! Futási idõ másodperc: " + a);     //~ ??? sec ~ ? min
 		
-		
+*/		
 		
 		
 	}

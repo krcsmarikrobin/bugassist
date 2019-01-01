@@ -2,26 +2,13 @@
 
 
 
-import java.io.FileOutputStream;
+
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-import org.omg.CORBA.Environment;
-
-import bean.Bug;
-import bean.VsmModel;
 import model.GitRepoData;
-import model.HttpBugData;
-import model.IOBugObjectDataFromMemory;
 import model.PreprocessVSM;
-import model.BagOfWords;
+import model.VsmModel;
+
 
 public class Main {
 
@@ -76,23 +63,31 @@ public class Main {
 //to save VSM data after vsm init just new VSM();
 /*
 		long a = System.currentTimeMillis();
-		System.out.println("Start! ");
+		System.out.println("Start! VsmPreprocess");
 		
 		PreprocessVSM preprocessVSM = new PreprocessVSM(repoData);
 		
-		System.out.println("Buildelés kész! Részfutási idõ: " + ((System.currentTimeMillis() - a)/1000));
+		System.out.println("Buildelés kész! Részfutási idõ: " + ((System.currentTimeMillis() - a)/1000));  //~ 3468 sec ~ 60 min
+		System.out.println("Mentés!");
 		preprocessVSM.saveData();
 		
 		a = (System.currentTimeMillis() - a)/1000;
-		System.out.println("Vége! Futási idõ másodperc: " + a);     //~ ??? sec ~ ? min
 		
 */
 		
-		PreprocessVSM preprocessVSM = new PreprocessVSM();
-		System.out.println("Start!");
-		VsmModel vsm = new VsmModel(preprocessVSM.getCorpusDictionary(), preprocessVSM.getBagOfWordsObjects(), repoData);
 		
+		long b = System.currentTimeMillis();
+		System.out.println("Start! VSM preprocess betöltés és VSM model létrehozása!");
 		
+		PreprocessVSM preprocessVSM2 = new PreprocessVSM();
+		VsmModel vsm = new VsmModel(preprocessVSM2.getCorpusDictionary(), preprocessVSM2.getBagOfWordsObjects(), repoData);
+		vsm.saveDataToCheck();
+		
+		b = (System.currentTimeMillis() - b)/1000;
+		System.out.println("Vége! Futási idõ másodperc: " + b); //~ 106 sec ~ 2 min
+
+		
+	
 		
 	}
 }

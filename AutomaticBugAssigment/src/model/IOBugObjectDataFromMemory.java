@@ -34,6 +34,7 @@ public class IOBugObjectDataFromMemory implements Serializable {
 	
 	
 	
+	@SuppressWarnings("unchecked")
 	public static List<Bug> loadData() {
 		ObjectInput in;
 		List<Bug> bugs = null;

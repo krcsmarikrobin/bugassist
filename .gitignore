@@ -27,3 +27,6 @@
 
 ./AutomaticBugAssigment/bin
 
+/AutomaticBugAssigment/
+/target/
+/.gradle/

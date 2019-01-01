@@ -30,17 +30,13 @@ import opennlp.tools.tokenize.SimpleTokenizer;
 
 public class BagOfWords implements Serializable, Runnable {
 
-	
 	private static final long serialVersionUID = -8589648061274982318L;
-	
+
 	File file = null;
 	Bug bug = null;
 	String words = null;
 	String wordsToken[] = null;
 	String bagOfWords[] = null;
-	
-	
-	
 
 	public BagOfWords(File file) throws IOException { // constructor when get a source code filepath
 		this.file = file;
@@ -95,8 +91,8 @@ public class BagOfWords implements Serializable, Runnable {
 	}
 
 	public BagOfWords(Bug bug) { // constructor when get a bug
-		this.bug=bug;
-		
+		this.bug = bug;
+
 		words = bug.getBugShortDesc() + bug.getBugLongDesc();
 
 	}
@@ -116,10 +112,16 @@ public class BagOfWords implements Serializable, Runnable {
 																// from:
 																// https://gist.github.com/carloschavez9/63414d83f68b09b4ef2926cc20ad641c
 
-		String[] resultTextArray;
 		ArrayList<String> wordsList = new ArrayList<String>(Arrays.asList(sourceString));
 		FileReader fileR = null;
 		FileReader fileR2 = null;
+
+		// If the wordsList contains word with non a-z characters must remove it
+
+		for (int jj = 0; jj < wordsList.size(); ++jj) {
+			if (!wordsList.get(jj).matches("[a-z]+"))
+				wordsList.remove(jj--);
+		}
 
 		/* Read StopWord files */
 		try {
@@ -136,24 +138,20 @@ public class BagOfWords implements Serializable, Runnable {
 
 			BufferedReader br = new BufferedReader(fileR);
 
-			
-			while ((sCurrentLine = br.readLine()) != null) 
+			while ((sCurrentLine = br.readLine()) != null)
 				stopwords.add(sCurrentLine);
-		
-			
 
 			br = new BufferedReader(fileR2);
 
-			while ((sCurrentLine = br.readLine()) != null) 
+			while ((sCurrentLine = br.readLine()) != null)
 				stopwords.add(sCurrentLine);
-			
-			
+
 			Collections.sort(stopwords);
 			Collections.sort(wordsList);
-			
+
 			stopwords.replaceAll(String::toLowerCase);
 			wordsList.replaceAll(String::toLowerCase);
-			
+
 			for (int ii = 0; ii < wordsList.size(); ii++) {
 				for (int jj = 0; jj < stopwords.size(); jj++) {
 					if (stopwords.get(jj).contains(wordsList.get(ii).toLowerCase())) {
@@ -168,82 +166,66 @@ public class BagOfWords implements Serializable, Runnable {
 			System.err.println(0);
 		}
 
-		
-		resultTextArray = wordsList.toArray(new String[wordsList.size()]);
-		
-		return resultTextArray;
+		return wordsList.toArray(new String[wordsList.size()]);
 	}
 
 	private String[] lemmatizingWords(String[] sourceString) {
 
-		String[] resultTextArray;
 		POSTaggerME tagger = null;
-		
+
 		try (InputStream modelIn = new FileInputStream(".\\AutomaticBugAssigment\\OuterFiles\\en-pos-maxent.bin")) {
-			
+
 			POSModel model = new POSModel(modelIn);
 			tagger = new POSTaggerME(model);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.err.println(0);
 		}
-		
+
 		String postags[] = tagger.tag(sourceString);
-		
+
 		DictionaryLemmatizer lemmatizer = null;
-		
-		
+
 		try (InputStream modelIn = new FileInputStream(".\\AutomaticBugAssigment\\OuterFiles\\en-lemmatizer.dict")) {
 			lemmatizer = new DictionaryLemmatizer(modelIn);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.err.println(0);
-		} 
-		
-		
-		
-	
-	
-		resultTextArray = lemmatizer.lemmatize(sourceString, postags);
-		
-		//We get the lemma for every token. “O” indicates that the lemma could not be determined as the word is a proper noun. 
-		//Must fill the original word these records:
-		
+		}
+
+		String[] resultTextArray = lemmatizer.lemmatize(sourceString, postags);
+
+		// We get the lemma for every token. “O” indicates that the lemma could not be
+		// determined as the word is a proper noun.
+		// Must fill the original word these records:
+
 		for (int i = 0; i < resultTextArray.length; i++) {
 			if (resultTextArray[i] == "O")
 				resultTextArray[i] = sourceString[i];
 		}
-		
-		
-		
-		
+
 		return resultTextArray;
 	}
-	
 
-	
 	public void buildBagOfWords() {
 		bagOfWords = this.lemmatizingWords(this.removeStopWords(this.getTokenizedText()));
 	}
-	
-	
+
 	public String[] getBagOfWords() {
 		return this.bagOfWords;
 	}
-	
-	
+
 	public boolean isItSourceCode() {
 		if (file == null)
 			return false;
-		else return true;
+		else
+			return true;
 	}
-	
-	
-	
+
 	public Bug getBug() {
-		return bug;		
+		return bug;
 	}
-	
+
 	public File getFile() {
 		return file;
 	}
@@ -251,7 +233,7 @@ public class BagOfWords implements Serializable, Runnable {
 	@Override
 	public void run() {
 		this.buildBagOfWords();
-		
+
 	}
 
 }

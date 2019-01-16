@@ -60,7 +60,7 @@ public class Main {
 */
 		
 		
-//to save VSM data after vsm init just new VSM();
+//to save VSM data after vsm init just new PreprocessVSM();
 /*
 		long a = System.currentTimeMillis();
 		System.out.println("Start! VsmPreprocess");
@@ -81,10 +81,22 @@ public class Main {
 		
 		PreprocessVSM preprocessVSM2 = new PreprocessVSM();
 		VsmModel vsm = new VsmModel(preprocessVSM2.getCorpusDictionary(), preprocessVSM2.getBagOfWordsObjects(), repoData);
+		
+		//csekkolni a szótár tartalmát
 		vsm.saveDataToCheck();
 		
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("Vége! Futási idõ másodperc: " + b); //~ 106 sec ~ 2 min
+		
+		System.out.println("TfIdf generálása kezdõdik!");
+		b = System.currentTimeMillis();
+		
+		vsm.computeTfIdfArray();
+		
+		b = (System.currentTimeMillis() - b)/1000;
+		System.out.println("Vége! Futási idõ másodperc: " + b);
+		
+		
 
 		
 	

@@ -22,6 +22,8 @@ public class VsmModel {
 	int bugAndFileRelation[][]; // 2d first: rows of bug, second: columns of files. If i bug fixed in j file
 								// int[i][j]=1 else int[i][j]=0;
 
+	int tfIdf[][]; // tfidf with entropy weight matrix;
+
 	public VsmModel(List<String> corpusDictionary, List<BagOfWords> bagOfWordsObjects, GitRepoData repoData) {
 		this.corpusDictionary = corpusDictionary;
 		this.bagOfWordsObjects = bagOfWordsObjects;
@@ -113,4 +115,52 @@ public class VsmModel {
 	}
 //////////////////////////////////////////////////////////////////////törölni
 
+	// this method compute the tf-idf weighted model in wich the term frequency
+	// factors are normalized
+	// weight[term][document] = numberFrequenty[term][document]*idf[term]
+	// numberFrequenty[term][document]=0.5 +
+	// 0.5*termFrequenty[term][document]/(maximum of a document
+	// termFrequenty[term][document])
+	// idf[term] = log(N/documentFrequenty[term])
+	// documentFrequenty[term] represents the number of documents in the repository
+	// that contain term t
+
+	public void computeTfIdfArray() {
+		tfIdf = new int[vsmArray.length][vsmArray[0].length];
+		int N = bagOfWordsObjects.size();
+		int term = vsmArray.length;
+		int document = vsmArray[0].length;
+		int docFreq[] = new int[term];
+		int maxTermFreq[] = new int[document];
+		double idf[] = new double[term];
+
+		// compute documentFrequenty[term]
+		for (int t = 0; t < term; ++t) {
+			for (int d = 0; d < document; ++d) {
+				if (vsmArray[t][d] > 0)
+					++docFreq[t];
+			}
+		}
+
+		// compute idf[term]
+		for (int t = 0; t < term; ++t) {
+			idf[t] = Math.log(N / docFreq[t]);
+		}
+
+		// compute (maximum of a document termFrequenty[term][document]
+
+		for (int d = 0; d < document; ++d) {
+			for (int t = 0; t < term; ++t) {
+				if (maxTermFreq[d] < vsmArray[t][d])
+					maxTermFreq[d] = vsmArray[t][d];
+			}
+		}
+
+		// compute weight[term][document] = numberFrequenty[term][document]*idf[term]
+
+		for (int t = 0; t < term; ++t)
+			for (int d = 0; d < document; ++d)
+				tfIdf[t][d] = new Double( (0.5 + 0.5 * vsmArray[t][d] / maxTermFreq[d]) * idf[t] ).intValue();
+
+	}
 }

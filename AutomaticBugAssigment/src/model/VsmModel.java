@@ -19,8 +19,9 @@ public class VsmModel {
 
 	int vsmArray[][]; // 3d first: rows of dictionary, second: columns of bug or files BagOfWords
 						// object
-	int bugAndFileRelation[][]; // 2d first: rows of bug, second: columns of files. If i bug fixed in j file
-								// int[i][j]=1 else int[i][j]=0;
+	int bugAndFileRelation[][][]; // 3d first: rows of bug report, second: columns of files. third: parameters of
+									// computed values. If i bug fixed in j file
+									// int[i][j]=1 else int[i][j]=0;
 
 	int tfIdf[][]; // tfidf with entropy weight matrix;
 
@@ -50,7 +51,7 @@ public class VsmModel {
 			else
 				++j;
 		}
-		bugAndFileRelation = new int[i][j];
+		bugAndFileRelation = new int[i][j][6];
 
 		// fill the relation array
 
@@ -73,7 +74,7 @@ public class VsmModel {
 				int jj = sourceCodeFilePathes
 						.indexOf(repoData.getRepo().getWorkTree().getPath() + "\\" + filePath.replace("/", "\\"));
 				if (jj != -1)
-					bugAndFileRelation[ii][jj] = 1;
+					bugAndFileRelation[ii][jj][0] = 1;
 
 			}
 		}
@@ -160,7 +161,37 @@ public class VsmModel {
 
 		for (int t = 0; t < term; ++t)
 			for (int d = 0; d < document; ++d)
-				tfIdf[t][d] = new Double( (0.5 + 0.5 * vsmArray[t][d] / maxTermFreq[d]) * idf[t] ).intValue();
+				tfIdf[t][d] = new Double((0.5 + 0.5 * vsmArray[t][d] / maxTermFreq[d]) * idf[t]).intValue();
 
 	}
+
+	// compute the cosine similiraty from bug report and files
+	public void computeS1() {
+		for (int r = 0; r < bugAndFileRelation.length; ++r) {
+			int vsmArrayIndexR = bagOfWordsObjects.indexOf(bowBugs.get(r));
+			for (int s = 0; s < bugAndFileRelation[0].length; ++s) {
+				int vsmArrayIndexS = bagOfWordsObjects.indexOf(bowFiles.get(s));
+				double vectorMultiplication = 0, euclideanNormR = 0, euclideanNormS = 0;
+				for (int v = 0; v < vsmArray.length; ++v) {
+					vectorMultiplication += vsmArray[v][vsmArrayIndexR] * vsmArray[v][vsmArrayIndexS];
+					euclideanNormR += vsmArray[v][vsmArrayIndexR] * vsmArray[v][vsmArrayIndexR];
+					euclideanNormS += vsmArray[v][vsmArrayIndexS] * vsmArray[v][vsmArrayIndexS];
+				}
+
+				Double cosinSimiliraty = vectorMultiplication / Math.sqrt(euclideanNormR * euclideanNormS);
+				bugAndFileRelation[r][s][1] = cosinSimiliraty.intValue();
+
+			}
+		}
+	}
+	
+	public void computeS2() {
+		
+	}
+	
+	
+	
+	
+	
+
 }

@@ -23,17 +23,17 @@ public class PreprocessVSM implements Serializable {
 
 	/*
 	 * This class can build a Vector Space Model from a List of BagofWords It need a
-	 * GitRepoData object to collect bugs and source Files path
+	 * CollectGitRepoData object to collect bugs and source Files path
 	 */
 
 	private static final long serialVersionUID = 4354302558206806918L;
 
-	private GitRepoData repo = null;
+	private CollectGitRepoData repo = null;
 	private List<BagOfWords> bagOfWordsObjects = null;
 	private List<File> files = null;
 	private List<String> corpusDictionary = new ArrayList<String>();
 
-	public PreprocessVSM(GitRepoData repo) {
+	public PreprocessVSM(CollectGitRepoData repo) {
 
 		this.repo = repo;
 
@@ -143,7 +143,7 @@ public class PreprocessVSM implements Serializable {
 
 	}
 
-	public GitRepoData getRepoData() {
+	public CollectGitRepoData getRepoData() {
 		return repo;
 	}
 }

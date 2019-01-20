@@ -6,7 +6,7 @@
 import java.io.File;
 import java.io.IOException;
 
-import model.GitRepoData;
+import model.CollectGitRepoData;
 import model.PreprocessVSM;
 import model.VsmModel;
 
@@ -15,19 +15,30 @@ public class Main {
 
 	public static void main(String[] args) throws IOException {
 
-		GitRepoData repoData = new GitRepoData("D:\\GIT\\gecko-dev\\.git", "D:\\GIT\\bugassist\\AutomaticBugAssigment\\OuterFiles\\db\\test.db", ".java");
+		CollectGitRepoData repoData = new CollectGitRepoData("D:\\GIT\\gecko-dev\\.git", "D:\\GIT\\bugassist\\AutomaticBugAssigment\\OuterFiles\\db\\test.db", ".java");
 /*		
-		repoData.collectCommitListToDao("");
+		repoData.collectBugGitData();
 
-		GetHttpBugData httpData = new GetHttpBugData("https://bugzilla.mozilla.org", repoData);
+		CollectHttpBugData httpData = new tHttpBugData("https://bugzilla.mozilla.org", repoData);
 		
 		
 		httpData.collectBugHttpData(repoData.getDao().getAllBugsBugIdAndCommitNameWhereNotHaveHttpData());
 		
-		System.out.println("Deleted bug: " + repoData.getDao().cleanBugDataWhereNoneAndUnfinished());
+		System.out.println("Deleted bug: " + repoData.getDao().cleanZeroIdBug());
 */		
+
 		
-		/*String[] pre = new BagOfWords("D:\\!pre\\Tokenizer.java").getBagOfWords();
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+/*      String[] pre = new BagOfWords("D:\\!pre\\Tokenizer.java").getBagOfWords();
 		FileOutputStream os = new FileOutputStream("D:\\eredmeny.txt");
 		PrintWriter out = new PrintWriter(os);
 		for (int i = 0; i < pre.length; ++i)

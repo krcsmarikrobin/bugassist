@@ -2,7 +2,6 @@ package model;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,24 +27,24 @@ import bean.Bug;
  * -branch-without-changes-to-the-working-direct
  */
 
-public class GitRepoData implements Serializable {
+public class CollectGitRepoData implements Serializable {
 	
 	private static final long serialVersionUID = -1841132796179898579L;
 	
-	BugDaoGitSqliteImp dao = null;
-	Repository repo = null;
-	Git git = null;
-	RevWalk walk = null;
-	List<Ref> branches = null;
+	private DaoSqliteImp dao = null;
+	private Repository repo = null;
+	private Git git = null;
+	private RevWalk walk = null;
+	private List<Ref> branches = null;
 	String fileExtension = null;
 
-	public GitRepoData(String repoFilePath, String dbFileNameWithPath, String fileExtension) { // example new GitRepoData("D:\\GIT\\gecko-dev\\.git", "D:\\GIT\\bugassist\\AutomaticBugAssigment\\OuterFiles\\db\\test.db", ".java");
+	public CollectGitRepoData(String repoFilePath, String dbFileNameWithPath, String fileExtension) { // example new CollectGitRepoData("D:\\GIT\\gecko-dev\\.git", "D:\\GIT\\bugassist\\AutomaticBugAssigment\\OuterFiles\\db\\test.db", ".java");
 		try {
 			repo = new FileRepository(repoFilePath);
 			git = new Git(repo);
 			walk = new RevWalk(repo);
 			branches = git.branchList().call();
-			dao = new BugDaoGitSqliteImp(dbFileNameWithPath, repo);
+			dao = new DaoSqliteImp(dbFileNameWithPath, repo);
 			this.fileExtension=fileExtension;
 
 		} catch (IOException | GitAPIException e1) {
@@ -59,16 +58,17 @@ public class GitRepoData implements Serializable {
 		return repo;
 	}
 
-	public BugDaoGitSqliteImp getDao() {
+	public DaoSqliteImp getDao() {
 		return dao;
 	}
 
-	public void collectCommitListToDao() {
+	public void collectBugGitData() {
 		
 		
 
 		// create a database to collect data
 		Integer bugId = null;
+		List<Bug> bugs = new ArrayList<Bug>();
 		try {
 			for (int i = 0; i < branches.size(); i++) {
 
@@ -97,8 +97,8 @@ public class GitRepoData implements Serializable {
 							bug.setBugCommit(commitList);
 							bug.setBugSourceCodeFileList(commitModifyFileList);
 
-							// export data
-							dao.addBugDataFromRepo(bug);
+							
+							bugs.add(bug);
 
 						}
 
@@ -110,11 +110,8 @@ public class GitRepoData implements Serializable {
 		} catch (GitAPIException | IOException e) {
 			e.printStackTrace();
 		}
-		try {
-			dao.conn.commit(); // need commit for sqlite Database to save data
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+			
+		dao.saveAllBugs(bugs);
 
 	}
 

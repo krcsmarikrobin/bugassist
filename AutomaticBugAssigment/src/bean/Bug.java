@@ -16,15 +16,43 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 public class Bug implements Serializable {
 
-
 	private static final long serialVersionUID = 1877870992422006289L;
-	private Integer bugId = null;
+	private static List<Bug> allBugs = null;
+
+	private Integer bugId = 0;
 	private List<RevCommit> bugCommits = null;
-	private String bugShortDesc = null;
-	private String bugLongDesc = null;
-	private String bugProductName = null;
+	private String bugShortDesc = "null";
+	private String bugLongDesc = "null";
+	private String bugProductName = "null";
 	private List<String> bugSourceCodeFileList = null;
-	private String bugStatus = null;
+	private String bugStatus = "null";
+	private String bugDate = "null";
+	private List<String> bugBagOfWords = null;
+
+
+	public static List<Bug> getAllBugs() {
+		return allBugs;
+	}
+
+	public static void setAllBugs(List<Bug> allBugs) {
+		Bug.allBugs = allBugs;
+	}
+
+	public List<RevCommit> getBugCommits() {
+		return bugCommits;
+	}
+
+	public void setBugCommits(List<RevCommit> bugCommits) {
+		this.bugCommits = bugCommits;
+	}
+
+	public String getBugDate() {
+		return bugDate;
+	}
+
+	public void setBugDate(String bugDate) {
+		this.bugDate = bugDate;
+	}
 
 	public String getBugStatus() {
 		return bugStatus;
@@ -85,4 +113,20 @@ public class Bug implements Serializable {
 		this.bugSourceCodeFileList = bugSourceCodeFileList;
 	}
 
+	public List<String> getBugBagOfWords() {
+		return bugBagOfWords;
+	}
+
+	public void setBugBagOfWords(List<String> bugBagOfWords) {
+		this.bugBagOfWords = bugBagOfWords;
+	}
+
+	public String getBugBagOfWordsToString() {
+		StringBuffer bowString = new StringBuffer();
+		for (String words : bugBagOfWords) {
+			bowString.append(words + " ");
+		}
+
+		return bowString.toString();
+	}
 }

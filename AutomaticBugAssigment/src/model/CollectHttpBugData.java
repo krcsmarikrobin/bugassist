@@ -6,30 +6,41 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONObject;
 
 import bean.Bug;
 
-public class HttpBugData {
+public class CollectHttpBugData {
 	String HttpUrl;
 	HttpURLConnection connection = null;
 
-	GitRepoData repoData;
+	CollectGitRepoData repoData;
 
-	public HttpBugData(String httpUrl, GitRepoData repoData) {
+	public CollectHttpBugData(String httpUrl, CollectGitRepoData repoData) {
 		this.HttpUrl = httpUrl;
 		this.repoData = repoData;
 
 	}
 
 	public void collectBugHttpData(List<Bug> bugs) {
+		
+		List<Bug> emptyBugs = new ArrayList<Bug>();
+		for (Bug bug : bugs)
+			if (bug.getBugShortDesc() == "null" && bug.getBugId() != 0 )
+				emptyBugs.add(bug);
+		
 		int s = 0;
-		final int f = bugs.size();
-		for (Bug bug : bugs) {
-			this.setBugHttpData(bug);
-			if (repoData.dao.addBugDataFromHttp(bug))
-				System.out.println("Processed: " + ++s + "/" + f);
+		int f = emptyBugs.size();
+		
+		for (Bug bug : emptyBugs) {
+			if (bug.getBugShortDesc() == "null" || bug.getBugLongDesc() == "null") {
+				this.setBugHttpData(bug);
+				repoData.getDao().saveAllBugs(bug);
+			}
+				
+			System.out.println("Processed: " + ++s + "/" + f);
 		}
 	}
 
@@ -55,6 +66,9 @@ public class HttpBugData {
 			bug.setBugShortDesc(jsonObj.getJSONArray("bugs").getJSONObject(0).getString("summary"));
 			bug.setBugProductName(jsonObj.getJSONArray("bugs").getJSONObject(0).getString("product"));
 			bug.setBugStatus(jsonObj.getJSONArray("bugs").getJSONObject(0).getString("status"));
+			
+			String[] bugDate = (jsonObj.getJSONArray("bugs").getJSONObject(0).getString("last_change_time")).split("T"); // for example: 2016-07-29T21:21:23Z
+			bug.setBugDate(bugDate[0]);
 
 		} catch (UnknownHostException e2) {
 			System.out.println("Unable to connect Host!");
@@ -62,9 +76,7 @@ public class HttpBugData {
 			System.exit(0);
 		} catch (Exception e) {
 			e.printStackTrace();
-			bug.setBugShortDesc("none");
-			bug.setBugProductName("none");
-			bug.setBugStatus("none");
+			bug.setBugId(0); // if none description set bugid 0
 
 		} finally {
 			if (connection != null) {

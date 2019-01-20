@@ -11,7 +11,7 @@ public class VsmModel {
 
 	List<BagOfWords> bagOfWordsObjects;
 	List<String> corpusDictionary;
-	GitRepoData repoData;
+	CollectGitRepoData repoData;
 
 	// detach the BagOfWordsObjects two part (bug and files)
 	List<BagOfWords> bowBugs = new ArrayList<BagOfWords>();
@@ -25,7 +25,7 @@ public class VsmModel {
 
 	int tfIdf[][]; // tfidf with entropy weight matrix;
 
-	public VsmModel(List<String> corpusDictionary, List<BagOfWords> bagOfWordsObjects, GitRepoData repoData) {
+	public VsmModel(List<String> corpusDictionary, List<BagOfWords> bagOfWordsObjects, CollectGitRepoData repoData) {
 		this.corpusDictionary = corpusDictionary;
 		this.bagOfWordsObjects = bagOfWordsObjects;
 		this.repoData = repoData;

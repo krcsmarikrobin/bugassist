@@ -33,10 +33,10 @@ public class BagOfWords implements Serializable, Runnable {
 	private static final long serialVersionUID = -8589648061274982318L;
 
 	File file = null;
-	Bug bug = null;
-	String words = null;
+	private Bug bug = null;
+	private String words = null;
 	String wordsToken[] = null;
-	String bagOfWords[] = null;
+	private String bagOfWords[] = null;
 
 	public BagOfWords(File file) throws IOException { // constructor when get a source code filepath
 		this.file = file;

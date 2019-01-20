@@ -3,6 +3,7 @@
 
 
 
+import java.io.File;
 import java.io.IOException;
 
 import model.GitRepoData;
@@ -74,6 +75,9 @@ public class Main {
 		a = (System.currentTimeMillis() - a)/1000;
 		
 */
+	
+		
+		
 		
 		
 		long b = System.currentTimeMillis();
@@ -88,16 +92,36 @@ public class Main {
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("Vége! Futási idõ másodperc: " + b); //~ 106 sec ~ 2 min
 		
-		System.out.println("TfIdf generálása kezdõdik!");
+		
+		System.out.println("computeTfIdfArray() kezdõdik!");
 		b = System.currentTimeMillis();
 		
 		vsm.computeTfIdfArray();
 		
 		b = (System.currentTimeMillis() - b)/1000;
-		System.out.println("Vége! Futási idõ másodperc: " + b);
+		System.out.println("computeTfIdfArray() vége! Futási idõ másodperc: " + b);
+	
+		
+	
 		
 		
-
+		
+		/*System.out.println("computeS1() kezdõdik!");
+		b = System.currentTimeMillis();
+		
+		vsm.computeS1();
+		
+		b = (System.currentTimeMillis() - b)/1000;
+		System.out.println("computeS1() vége! Futási idõ másodperc: " + b);*/
+		
+		
+		/*System.out.println("computeS2() kezdõdik!");
+		b = System.currentTimeMillis();
+		
+		vsm.computeS2();
+		
+		b = (System.currentTimeMillis() - b)/1000;
+		System.out.println("computeS2() vége! Futási idõ másodperc: " + b);*/
 		
 	
 		

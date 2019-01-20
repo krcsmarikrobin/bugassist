@@ -165,17 +165,25 @@ public class VsmModel {
 
 	}
 
-	// compute the cosine similiraty from bug report and files
+	// compute the cosine similiraty from bug report and files s1 = sim(r,s) =
+	// cos(r,s) = (rT * s) / (||r|| * ||s||)
+	// Let r the bug report index, let s the source code file index.
 	public void computeS1() {
-		for (int r = 0; r < bugAndFileRelation.length; ++r) {
-			int vsmArrayIndexR = bagOfWordsObjects.indexOf(bowBugs.get(r));
-			for (int s = 0; s < bugAndFileRelation[0].length; ++s) {
-				int vsmArrayIndexS = bagOfWordsObjects.indexOf(bowFiles.get(s));
+		for (int r = 0; r < bugAndFileRelation.length; ++r) { // for the bug report rows first
+			int vsmArrayIndexR = bagOfWordsObjects.indexOf(bowBugs.get(r)); // get a vsmArray second index (vsmArray
+																			// first index is the vocab) from a bowBugs
+																			// list and the bow index
+			for (int s = 0; s < bugAndFileRelation[0].length; ++s) { // for the source code list columns second
+				int vsmArrayIndexS = bagOfWordsObjects.indexOf(bowFiles.get(s)); // get a vsmArray second index
+																					// (vsmArray first index is the
+																					// vocab) from bowFiles list and the
+																					// bow index
 				double vectorMultiplication = 0, euclideanNormR = 0, euclideanNormS = 0;
-				for (int v = 0; v < vsmArray.length; ++v) {
-					vectorMultiplication += vsmArray[v][vsmArrayIndexR] * vsmArray[v][vsmArrayIndexS];
-					euclideanNormR += vsmArray[v][vsmArrayIndexR] * vsmArray[v][vsmArrayIndexR];
-					euclideanNormS += vsmArray[v][vsmArrayIndexS] * vsmArray[v][vsmArrayIndexS];
+				for (int v = 0; v < tfIdf.length; ++v) { // for the vector length, the vector length is a vsmArray first
+															// index (vocab length)
+					vectorMultiplication += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexS];
+					euclideanNormR += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexR];
+					euclideanNormS += tfIdf[v][vsmArrayIndexS] * tfIdf[v][vsmArrayIndexS];
 				}
 
 				Double cosinSimiliraty = vectorMultiplication / Math.sqrt(euclideanNormR * euclideanNormS);
@@ -184,14 +192,100 @@ public class VsmModel {
 			}
 		}
 	}
-	
-	public void computeS2() {
-		
-	}
-	
-	
-	
-	
-	
 
+	// Given a bug report r and a source code file s, let br(r,s) be the set of bug
+	// reports for which file s was fixed
+	// before r was reported. The collaborative filtering feature is then defined as
+	// follows: s2 = sim (r,br(r,s)).
+	// The feature computes the textual similarity betwwen the text of the current
+	// bug report r and the summaries
+	// of all the bug reports in br(r,s).
+	public void computeS2() {
+		for (int s = 0; s < bugAndFileRelation[0].length; ++s) { // for column first, because we must compute the
+																	// br(r,s) for each source code files
+																	// (bugAndFileRelation second index the source code
+																	// files)
+
+			int sumVector[] = new int[tfIdf.length]; // this is the br(r,s)
+
+			for (int r = 0; r < bugAndFileRelation.length; ++r) {
+				if (bugAndFileRelation[r][s][0] == 1) {
+					int vsmArrayIndexR = bagOfWordsObjects.indexOf(bowBugs.get(r));
+					for (int i = 0; i < sumVector.length; ++i) {
+						sumVector[i] += tfIdf[i][vsmArrayIndexR];
+					}
+				}
+			} // compute br(r,s) to a column
+
+			for (int r = 0; r < bugAndFileRelation.length; ++r) {
+				int vsmArrayIndexR = bagOfWordsObjects.indexOf(bowBugs.get(r));
+				double vectorMultiplication = 0, euclideanNormR = 0, euclideanNormV = 0;
+
+				if (bugAndFileRelation[r][s][0] == 1) { // if this bug report r fixed this file s we must neg its vector
+														// value
+					vsmArrayIndexR = bagOfWordsObjects.indexOf(bowBugs.get(r));
+					for (int i = 0; i < sumVector.length; ++i) {
+						sumVector[i] -= tfIdf[i][vsmArrayIndexR];
+					}
+				}
+
+				for (int v = 0; v < tfIdf.length; ++v) {
+					vectorMultiplication += tfIdf[v][vsmArrayIndexR] * sumVector[v];
+					euclideanNormR += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexR];
+					euclideanNormV += sumVector[v] * sumVector[v];
+				}
+
+				Double cosinSimiliraty = vectorMultiplication / Math.sqrt(euclideanNormR * euclideanNormV);
+				bugAndFileRelation[r][s][2] = cosinSimiliraty.intValue();
+
+				if (bugAndFileRelation[r][s][0] == 1) { // if this bug report r fixed this file s we must plus this
+														// vector value
+					for (int i = 0; i < sumVector.length; ++i) {
+						sumVector[i] += tfIdf[i][vsmArrayIndexR];
+					}
+
+				}
+			}
+
+		}
+	}
+
+	//The signal becomes stronger when the class name is longer and thus more specific. Let s.class denote the name of the main class implemented in source file s, 
+	//and |s.class| the name length. Based on the observation above, define a class name similarity feature as follows:
+	// s3 = |s.class| if the bug report contains s.class, else 0
+	
+	public void computeS3() {
+		for (int s = 0; s < bugAndFileRelation[0].length; ++s) { // for the source code list columns first
+			BagOfWords bowFile = bowFiles.get(s);
+			String fileName = bowFile.file.getName().toLowerCase();
+			fileName = fileName.substring(0, fileName.lastIndexOf('.'));
+
+			if (corpusDictionary.contains(fileName)) {
+				int vsmArrayFirstIndex = corpusDictionary.indexOf(fileName);
+				for (int r = 0; r < bugAndFileRelation.length; ++r) { // for the bug report rows second
+					int vsmArrayIndexR = bagOfWordsObjects.indexOf(bowBugs.get(r)); // get a vsmArray second index
+																					// (vsmArray
+																					// first index is the vocab) from a
+																					// bowBugs list and the bow index
+					if (vsmArray[vsmArrayFirstIndex][vsmArrayIndexR] > 0)
+					bugAndFileRelation[r][s][3] = fileName.length();
+
+				}
+
+			}
+		}
+
+	}
+
+	public void computeS4() {
+		
+		
+		
+		
+
+	}
+
+	public void computeS5() {
+
+	}
 }

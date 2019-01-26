@@ -5,8 +5,12 @@
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import bean.Bug;
 import model.CollectGitRepoData;
+import model.CollectHttpBugData;
 import model.PreprocessVSM;
 import model.VsmModel;
 
@@ -15,27 +19,48 @@ public class Main {
 
 	public static void main(String[] args) throws IOException {
 
-		CollectGitRepoData repoData = new CollectGitRepoData("D:\\GIT\\gecko-dev\\.git", "D:\\GIT\\bugassist\\AutomaticBugAssigment\\OuterFiles\\db\\test.db", ".java");
-/*		
+		CollectGitRepoData repoData = new CollectGitRepoData("D:\\GIT\\gecko-dev\\.git", "D:\\GIT\\bugassist\\AutomaticBugAssigment\\OuterFiles\\db\\test2.db", ".java");
+		
+/*
+		
+		long a = System.currentTimeMillis();
+		System.out.println("Start collectBugGitData()");
+		
 		repoData.collectBugGitData();
+			
+		a = (System.currentTimeMillis() - a)/1000;
+	 	System.out.println("Finished collectBugGitData() running time sec: " + a);     //13 min 15 sec
 
-		CollectHttpBugData httpData = new tHttpBugData("https://bugzilla.mozilla.org", repoData);
-		
-		
-		httpData.collectBugHttpData(repoData.getDao().getAllBugsBugIdAndCommitNameWhereNotHaveHttpData());
-		
-		System.out.println("Deleted bug: " + repoData.getDao().cleanZeroIdBug());
 */		
+		
+		
+		
+		
+		
+		
+		
+	/*	
+	
+	
+		CollectHttpBugData httpData = new CollectHttpBugData("https://bugzilla.mozilla.org", repoData);
+		
+		
+		long ab = System.currentTimeMillis();
+		System.out.println("Start collect http data");
+		
+		httpData.collectBugHttpData();
+		
+		ab = (System.currentTimeMillis() - ab)/1000;
+		System.out.println("Finished load all bugs running time sec: " + ab); // 64689
+		
+		
+	
+		
+		*/
+		
+		
 
-		
-		
-		
-		
-		
-		
-		
-		
-		
+	
 		
 		
 /*      String[] pre = new BagOfWords("D:\\!pre\\Tokenizer.java").getBagOfWords();
@@ -88,7 +113,7 @@ public class Main {
 */
 	
 		
-		
+/*		
 		
 		
 		long b = System.currentTimeMillis();
@@ -112,7 +137,7 @@ public class Main {
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("computeTfIdfArray() vége! Futási idõ másodperc: " + b);
 	
-		
+*/		
 	
 		
 		

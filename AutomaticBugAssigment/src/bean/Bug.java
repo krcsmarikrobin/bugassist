@@ -17,7 +17,6 @@ import org.eclipse.jgit.revwalk.RevCommit;
 public class Bug implements Serializable {
 
 	private static final long serialVersionUID = 1877870992422006289L;
-	private static List<Bug> allBugs = null;
 
 	private Integer bugId = 0;
 	private List<RevCommit> bugCommits = null;
@@ -28,15 +27,9 @@ public class Bug implements Serializable {
 	private String bugStatus = "null";
 	private String bugDate = "null";
 	private List<String> bugBagOfWords = null;
-
-
-	public static List<Bug> getAllBugs() {
-		return allBugs;
-	}
-
-	public static void setAllBugs(List<Bug> allBugs) {
-		Bug.allBugs = allBugs;
-	}
+	
+	
+	
 
 	public List<RevCommit> getBugCommits() {
 		return bugCommits;

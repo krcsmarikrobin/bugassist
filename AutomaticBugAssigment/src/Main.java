@@ -19,9 +19,9 @@ public class Main {
 
 	public static void main(String[] args) throws IOException {
 
-		CollectGitRepoData repoData = new CollectGitRepoData("D:\\GIT\\gecko-dev\\.git", "D:\\GIT\\bugassist\\AutomaticBugAssigment\\OuterFiles\\db\\test2.db", ".java");
+		CollectGitRepoData repoData = new CollectGitRepoData("D:\\GIT\\gecko-dev\\.git", "D:\\GIT\\bugassist\\AutomaticBugAssigment\\OuterFiles\\db\\test.db", ".java");
 		
-/*
+
 		
 		long a = System.currentTimeMillis();
 		System.out.println("Start collectBugGitData()");
@@ -31,15 +31,11 @@ public class Main {
 		a = (System.currentTimeMillis() - a)/1000;
 	 	System.out.println("Finished collectBugGitData() running time sec: " + a);     //13 min 15 sec
 
-*/		
+	
 		
 		
 		
-		
-		
-		
-		
-	/*	
+/*	
 	
 	
 		CollectHttpBugData httpData = new CollectHttpBugData("https://bugzilla.mozilla.org", repoData);
@@ -51,39 +47,29 @@ public class Main {
 		httpData.collectBugHttpData();
 		
 		ab = (System.currentTimeMillis() - ab)/1000;
-		System.out.println("Finished load all bugs running time sec: " + ab); // 64689
+		System.out.println("Finished load all bugs running time sec: " + ab); // 64689 sec ~ 18 hour
 		
+			
 		
-	
-		
-		*/
+*/
 		
 		
 
-	
-		
-		
-/*      String[] pre = new BagOfWords("D:\\!pre\\Tokenizer.java").getBagOfWords();
-		FileOutputStream os = new FileOutputStream("D:\\eredmeny.txt");
-		PrintWriter out = new PrintWriter(os);
-		for (int i = 0; i < pre.length; ++i)
-			out.println(pre[i]);
-		out.close();*/
-		
 /*		
 		
-		long a = System.currentTimeMillis();
+		long b = System.currentTimeMillis();
 		System.out.println("Start! ");
 		
 		List<Bug> bugs = repoData.getDao().getAllBugs();
-		IOBugObjectDataFromMemory.saveData(bugs);
+		//IOBugObjectDataFromMemory.saveData(bugs);
 		
-		a = (System.currentTimeMillis() - a)/1000;
-		System.out.println("Vége! Futási idõ másodperc: " + a);
+		b = (System.currentTimeMillis() - b)/1000;
+		System.out.println("Vége! Futási idõ másodperc: " + b);
 		
 		System.out.println("Feldolgozott bugok: " + bugs.size());
-*/		
 		
+*/
+	 	
 /*		
 		List<Bug> bugs = IOBugObjectDataFromMemory.loadData();
 		

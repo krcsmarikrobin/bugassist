@@ -48,7 +48,7 @@ public class DaoSqliteImp {
 		// SQL statement for creating a new table
 		String sql1 = "CREATE TABLE IF NOT EXISTS bug(commitname text, bugid integer);";
 		String sql2 = "CREATE TABLE IF NOT EXISTS bugfiles(commitname text, filename text);";
-		String sql3 = "CREATE TABLE IF NOT EXISTS bughttpdata(bugid integer, shortdesc text, longdesc text, productname text, status text, bugdate text);";
+		String sql3 = "CREATE TABLE IF NOT EXISTS bughttpdata(bugid integer, shortdesc text, longdesc text, productname text, status text, bugdate text, bagofwords text);";
 		try {
 
 			Statement stmt = conn.createStatement();

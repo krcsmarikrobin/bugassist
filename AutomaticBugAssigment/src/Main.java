@@ -37,7 +37,7 @@ public class Main {
 		
 
 	
-/*	
+	
 		CollectHttpBugData httpData = new CollectHttpBugData("https://bugzilla.mozilla.org", repoData);
 		
 		
@@ -49,7 +49,7 @@ public class Main {
 		ab = (System.currentTimeMillis() - ab)/1000;
 		System.out.println("Finished load all bugs running time sec: " + ab); // 64689 sec ~ 18 hour
 		
-*/			
+		
 		
 
 		

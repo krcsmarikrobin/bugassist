@@ -30,10 +30,11 @@ public class CollectHttpBugData {
 	public void collectBugHttpData() {
 		int s = 0;
 		for (Bug bug : bugs) {
-			if (this.setBugHttpData(bug)) 
-				repoData.getDao().saveBugHttpData(bug);
+			this.setBugHttpData(bug);
+			repoData.getDao().saveBugHttpData(bug);
 
 			System.out.println("Processed: " + ++s + "/" + bugs.size());
+
 			try {
 				TimeUnit.SECONDS.sleep(3);
 			} catch (InterruptedException e) {
@@ -45,6 +46,7 @@ public class CollectHttpBugData {
 	public boolean setBugHttpData(Bug bug) { // get the bug data from bugzilla (short desc, long
 												// desc, product name, status
 		boolean success = true;
+
 		try { // add short desc, product name and the status to bug from bugzilla
 				// Create connection
 			URL url = new URL(HttpUrl + "/rest/bug/" + bug.getBugId().toString());
@@ -91,7 +93,7 @@ public class CollectHttpBugData {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			
+
 			URL url = new URL(HttpUrl + "/rest/bug/" + bug.getBugId().toString() + "/comment");
 			connection = (HttpURLConnection) url.openConnection();
 
@@ -116,6 +118,7 @@ public class CollectHttpBugData {
 				connection.disconnect();
 			}
 		}
+
 		return success;
 	}
 

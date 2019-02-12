@@ -290,6 +290,7 @@ public class DaoSqliteImp {
 			pstmt.setString(4, bug.getBugStatus());
 			pstmt.setInt(5, bug.getBugId());
 			pstmt.setString(6, bug.getBugDate());
+			pstmt.executeUpdate();
 			pstmt.close();
 			conn.commit();
 

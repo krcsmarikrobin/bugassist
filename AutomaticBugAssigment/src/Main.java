@@ -19,10 +19,10 @@ public class Main {
 
 	public static void main(String[] args) throws IOException {
 
-		CollectGitRepoData repoData = new CollectGitRepoData("D:\\GIT\\gecko-dev\\.git", "D:\\GIT\\bugassist\\AutomaticBugAssigment\\OuterFiles\\db\\test.db", ".java");
+		CollectGitRepoData repoData = new CollectGitRepoData("..\\gecko-dev\\.git", "AutomaticBugAssigment\\OuterFiles\\db\\test.db", ".java");
 		
 
-		
+/*		
 		long a = System.currentTimeMillis();
 		System.out.println("Start collectBugGitData()");
 		
@@ -33,11 +33,11 @@ public class Main {
 
 	
 		
+*/		
 		
-		
+
+	
 /*	
-	
-	
 		CollectHttpBugData httpData = new CollectHttpBugData("https://bugzilla.mozilla.org", repoData);
 		
 		
@@ -49,9 +49,9 @@ public class Main {
 		ab = (System.currentTimeMillis() - ab)/1000;
 		System.out.println("Finished load all bugs running time sec: " + ab); // 64689 sec ~ 18 hour
 		
-			
+*/			
 		
-*/
+
 		
 		
 

@@ -1,1 +1,1 @@
-D:\GIT\bugassist\AutomaticBugAssigment\OuterFiles\db\sqlite3.exe D:\GIT\bugassist\AutomaticBugAssigment\OuterFiles\db\test2.db
+C:\GIT\bugassist\AutomaticBugAssigment\OuterFiles\db\sqlite3.exe C:\GIT\bugassist\AutomaticBugAssigment\OuterFiles\db\test.db

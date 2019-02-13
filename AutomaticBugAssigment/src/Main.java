@@ -11,6 +11,7 @@ import java.util.List;
 import bean.Bug;
 import model.CollectGitRepoData;
 import model.CollectHttpBugData;
+import model.IOBugObjectDataFromMemory;
 import model.PreprocessVSM;
 import model.VsmModel;
 
@@ -36,7 +37,7 @@ public class Main {
 */		
 		
 
-	
+/*	
 	
 		CollectHttpBugData httpData = new CollectHttpBugData("https://bugzilla.mozilla.org", repoData);
 		
@@ -50,25 +51,25 @@ public class Main {
 		System.out.println("Finished load all bugs running time sec: " + ab); // 64689 sec ~ 18 hour
 		
 		
-		
+*/		
 
 		
 		
 
-/*		
+
 		
 		long b = System.currentTimeMillis();
 		System.out.println("Start! ");
 		
 		List<Bug> bugs = repoData.getDao().getAllBugs();
-		//IOBugObjectDataFromMemory.saveData(bugs);
+		IOBugObjectDataFromMemory.saveData(bugs);
 		
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("Vége! Futási idõ másodperc: " + b);
 		
-		System.out.println("Feldolgozott bugok: " + bugs.size());
+		System.out.println("Feldolgozott bugok: " + bugs.size()); // 263 sec
 		
-*/
+
 	 	
 /*		
 		List<Bug> bugs = IOBugObjectDataFromMemory.loadData();

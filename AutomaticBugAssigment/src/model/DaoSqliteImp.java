@@ -175,6 +175,7 @@ public class DaoSqliteImp {
 				bug.setBugProductName(rs.getString("productname"));
 				bug.setBugStatus(rs.getString("status"));
 				String bugBowString = rs.getString("bagofWords");
+				if (bugBowString != null)
 				bug.setBugBagOfWords(Arrays.asList(bugBowString.split(" ")));
 				bug.setBugDate(rs.getString("bugdate"));
 

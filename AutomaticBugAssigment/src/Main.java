@@ -56,7 +56,7 @@ public class Main {
 		
 		
 
-
+/*
 		
 		long b = System.currentTimeMillis();
 		System.out.println("Start! ");
@@ -67,25 +67,29 @@ public class Main {
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("Vége! Futási idõ másodperc: " + b);
 		
-		System.out.println("Feldolgozott bugok: " + bugs.size()); // 263 sec
+		System.out.println("Feldolgozott bugok: " + bugs.size()); // 496 sec
 		
-
-	 	
-/*		
-		List<Bug> bugs = IOBugObjectDataFromMemory.loadData();
-		
-		System.out.println("Feldolgozott bugok: " + bugs.size());
-		
-		System.out.println("Feldolgozott bug1: " + bugs.get(2).getBugLongDesc());
-		System.out.println("Feldolgozott bug2: " + bugs.get(17700).getBugLongDesc());
-		
-		for (int i=0; i<bugs.size(); ++i)
-			System.out.println("Feldolgozott bugId: " + bugs.get(i).getBugId());
 */
+		
+/*		
+		long bca = System.currentTimeMillis();
+		System.out.println("Start! ");
+	
+		List<Bug> bugs2 = IOBugObjectDataFromMemory.loadData();
+		
+		
+		bca = (System.currentTimeMillis() - bca)/1000;
+		System.out.println("Vége! Futási idõ másodperc: " + bca);
+		System.out.println("Feldolgozott bugok: " + bugs2.size()); // 8 sec
+		
+*/
+
 		
 		
 //to save VSM data after vsm init just new PreprocessVSM();
-/*
+
+		
+		
 		long a = System.currentTimeMillis();
 		System.out.println("Start! VsmPreprocess");
 		
@@ -97,7 +101,8 @@ public class Main {
 		
 		a = (System.currentTimeMillis() - a)/1000;
 		
-*/
+		
+
 	
 		
 /*		

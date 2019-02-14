@@ -226,20 +226,78 @@ public class DaoSqliteImp {
 		return bugs;
 	}
 
-////////////////feldolgozni
-	public int cleanZeroIdBug() {
-		int deletedBug = 0;
-		List<Bug> bugs = this.getAllBugs();
+	public List<Bug> getAllBugsWhereHaveHttpData() {
 
-		for (Bug bug : bugs)
-			if (bug.getBugId() == 0) {
-				bugs.remove(bug);
-				++deletedBug;
+		List<Bug> bugs = new ArrayList<Bug>();
+
+		String sql = "SELECT bugid, shortdesc, longdesc, productname, status, bagofwords, bugdate FROM bughttpdata WHERE longdesc != \"null\"";
+		String sql2 = "SELECT commitname FROM bug where bugid = ?";
+		String sql3 = "SELECT filename FROM bugfiles WHERE commitname = ?";
+		try {
+			Statement stmt = conn.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
+			PreparedStatement pstmt2 = conn.prepareStatement(sql2);
+			PreparedStatement pstmt3 = conn.prepareStatement(sql3);
+
+			while (rs.next()) {
+				Bug bug = new Bug();
+				List<RevCommit> commits = new ArrayList<RevCommit>();
+				List<String> bugFiles = new ArrayList<String>();
+				bug.setBugId(rs.getInt("bugid"));
+				bug.setBugShortDesc(rs.getString("shortdesc"));
+				bug.setBugLongDesc(rs.getString("longdesc"));
+				bug.setBugProductName(rs.getString("productname"));
+				bug.setBugStatus(rs.getString("status"));
+				String bugBowString = rs.getString("bagofWords");
+				if (bugBowString != null)
+				bug.setBugBagOfWords(Arrays.asList(bugBowString.split(" ")));
+				bug.setBugDate(rs.getString("bugdate"));
+
+				pstmt2.setInt(1, bug.getBugId());
+				ResultSet rs2 = pstmt2.executeQuery();
+
+				while (rs2.next()) {
+					ObjectId commitId = ObjectId.fromString(rs2.getString("commitname"));
+					RevWalk revWalk = new RevWalk(repo);
+					RevCommit commit = revWalk.parseCommit(commitId);
+					commits.add(commit);
+					revWalk.close();
+				}
+				bug.setBugCommit(commits);
+				rs2.close();
+
+				for (RevCommit commit : commits) {
+					pstmt3.setString(1, commit.getName());
+					ResultSet rs3 = pstmt3.executeQuery();
+
+					while (rs3.next()) {
+						bugFiles.add(rs3.getString("filename"));
+					}
+					rs3.close();
+				}
+
+				bug.setBugSourceCodeFileList(bugFiles);
+				bugs.add(bug);
 			}
+			rs.close();
+			stmt.close();
+			pstmt2.close();
+			pstmt3.close();
+		} catch (SQLException e) {
+			System.out.println("Error get bug data from database!" + e.getMessage());
+			e.printStackTrace();
+		} catch (MissingObjectException e) {
+			System.out.println("Error get bug data from database!" + e.getMessage());
+			e.printStackTrace();
+		} catch (IncorrectObjectTypeException e) {
+			System.out.println("Error get bug data from database!" + e.getMessage());
+			e.printStackTrace();
+		} catch (IOException e) {
+			System.out.println("Error get bug data from database!" + e.getMessage());
+			e.printStackTrace();
+		}
 
-		// this.saveAllBugs(bugs);
-
-		return deletedBug;
+		return bugs;
 	}
 
 	public List<Bug> getAllBugsWhereNotHaveHttpData() {

@@ -37,7 +37,7 @@ public class PreprocessVSM implements Serializable {
 
 		this.repo = repo;
 
-		List<Bug> bugs = repo.getDao().getAllBugs(); // get all bugs with properites
+		List<Bug> bugs = repo.getDao().getAllBugsWhereHaveHttpData(); // get all bugs where have description from bugzilla
 		bagOfWordsObjects = new ArrayList<BagOfWords>();
 		for (Bug bug : bugs)
 			bagOfWordsObjects.add(new BagOfWords(bug)); // build bagofwords object from bug

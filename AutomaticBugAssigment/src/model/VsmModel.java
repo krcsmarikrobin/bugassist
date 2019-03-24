@@ -1,13 +1,17 @@
 package model;
 
 import java.io.FileOutputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class VsmModel {
+public class VsmModel implements Serializable {
 
 	List<BagOfWords> bagOfWordsObjects;
 	List<String> corpusDictionary;
@@ -21,7 +25,7 @@ public class VsmModel {
 						// object
 	int bugAndFileRelation[][][]; // 3d first: rows of bug report, second: columns of files. third: parameters of
 									// computed values. If i bug fixed in j file
-									// int[i][j]=1 else int[i][j]=0;
+									// int[i][j][0]=1 else int[i][j][0]=0;
 
 	int tfIdf[][]; // tfidf with entropy weight matrix;
 
@@ -115,6 +119,11 @@ public class VsmModel {
 		}
 	}
 //////////////////////////////////////////////////////////////////////törölni
+	
+	
+	
+	
+	
 
 	// this method compute the tf-idf weighted model in wich the term frequency
 	// factors are normalized
@@ -169,28 +178,51 @@ public class VsmModel {
 	// cos(r,s) = (rT * s) / (||r|| * ||s||)
 	// Let r the bug report index, let s the source code file index.
 	public void computeS1() {
-		for (int r = 0; r < bugAndFileRelation.length; ++r) { // for the bug report rows first
-			int vsmArrayIndexR = bagOfWordsObjects.indexOf(bowBugs.get(r)); // get a vsmArray second index (vsmArray
-																			// first index is the vocab) from a bowBugs
-																			// list and the bow index
-			for (int s = 0; s < bugAndFileRelation[0].length; ++s) { // for the source code list columns second
-				int vsmArrayIndexS = bagOfWordsObjects.indexOf(bowFiles.get(s)); // get a vsmArray second index
-																					// (vsmArray first index is the
-																					// vocab) from bowFiles list and the
-																					// bow index
-				double vectorMultiplication = 0, euclideanNormR = 0, euclideanNormS = 0;
-				for (int v = 0; v < tfIdf.length; ++v) { // for the vector length, the vector length is a vsmArray first
-															// index (vocab length)
-					vectorMultiplication += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexS];
-					euclideanNormR += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexR];
-					euclideanNormS += tfIdf[v][vsmArrayIndexS] * tfIdf[v][vsmArrayIndexS];
+
+		class ComputeS1Row implements Runnable {
+			private int rr;
+
+			private ComputeS1Row(int rr) {
+				this.rr = rr;
+			}
+
+			@Override
+			public void run() {
+				int vsmArrayIndexR = bagOfWordsObjects.indexOf(bowBugs.get(rr)); // get a vsmArray second index
+																					// (vsmArray
+																					// first index is the vocab) from a
+																					// bowBugs
+																					// list and the bow index
+				for (int s = 0; s < bugAndFileRelation[0].length; ++s) { // for the source code list columns second
+					int vsmArrayIndexS = bagOfWordsObjects.indexOf(bowFiles.get(s)); // get a vsmArray second index
+																						// (vsmArray first index is the
+																						// vocab) from bowFiles list and
+																						// the
+																						// bow index
+					double vectorMultiplication = 0, euclideanNormR = 0, euclideanNormS = 0;
+					for (int v = 0; v < tfIdf.length; ++v) { // for the vector length, the vector length is a
+																// vsmArray first
+																// index (vocab length)
+						vectorMultiplication += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexS];
+						euclideanNormR += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexR];
+						euclideanNormS += tfIdf[v][vsmArrayIndexS] * tfIdf[v][vsmArrayIndexS];
+					}
+
+					Double cosinSimiliraty = vectorMultiplication / Math.sqrt(euclideanNormR * euclideanNormS);
+					bugAndFileRelation[rr][s][1] = cosinSimiliraty.intValue();
+
 				}
-
-				Double cosinSimiliraty = vectorMultiplication / Math.sqrt(euclideanNormR * euclideanNormS);
-				bugAndFileRelation[r][s][1] = cosinSimiliraty.intValue();
-
 			}
 		}
+
+		ExecutorService executor = Executors.newFixedThreadPool(10);
+		for (int r = 0; r < bugAndFileRelation.length; ++r) // for the bug report rows first
+			executor.execute(new ComputeS1Row(r));
+
+		executor.shutdown();
+		while (!executor.isTerminated()) {
+		}
+
 	}
 
 	// Given a bug report r and a source code file s, let br(r,s) be the set of bug
@@ -250,10 +282,13 @@ public class VsmModel {
 		}
 	}
 
-	//The signal becomes stronger when the class name is longer and thus more specific. Let s.class denote the name of the main class implemented in source file s, 
-	//and |s.class| the name length. Based on the observation above, define a class name similarity feature as follows:
+	// The signal becomes stronger when the class name is longer and thus more
+	// specific. Let s.class denote the name of the main class implemented in source
+	// file s,
+	// and |s.class| the name length. Based on the observation above, define a class
+	// name similarity feature as follows:
 	// s3 = |s.class| if the bug report contains s.class, else 0
-	
+
 	public void computeS3() {
 		for (int s = 0; s < bugAndFileRelation[0].length; ++s) { // for the source code list columns first
 			BagOfWords bowFile = bowFiles.get(s);
@@ -268,7 +303,7 @@ public class VsmModel {
 																					// first index is the vocab) from a
 																					// bowBugs list and the bow index
 					if (vsmArray[vsmArrayFirstIndex][vsmArrayIndexR] > 0)
-					bugAndFileRelation[r][s][3] = fileName.length();
+						bugAndFileRelation[r][s][3] = fileName.length();
 
 				}
 
@@ -277,15 +312,68 @@ public class VsmModel {
 
 	}
 
+	/*
+	 * computeS4(): The change history of source codes provides information that can
+	 * help predict fault-prone files. For example, a source code file that was
+	 * fixed very recently is more likely to still contain bugs than a file that was
+	 * last fixed long time in the past, or never fixed. Let br(r,s) be the set of
+	 * bug reports for which file s was fixed before bug report r was created. Let
+	 * last(r, s) contains br(r, s) be the most recent previously fixed bug. Also,
+	 * for any bug report r, let r.month denote the month when the bug report was
+	 * created. We then define the bug-fixing recently feature to be the inverse of
+	 * the distance in months between r and last(r,s): phi5(r,s) = (r.month -
+	 * last(r,s).month + 1)^-1
+	 * 
+	 * Thus, if s was last fixed in the same month that r was created, phi5(r,s) is
+	 * 1. If s was last fixed one month before r was created, phi5(r,s) is 0.5.
+	 * 
+	 */
 	public void computeS4() {
-		
-		
-		
-		
+		for (int s = 0; s < bugAndFileRelation[0].length; ++s) {
+			ArrayList<Integer> dateValueList = new ArrayList<Integer>();
+			int[] dateValueArray = new int[bugAndFileRelation.length];
 
-	}
+			for (int r = 0; r < bugAndFileRelation.length; ++r) {
+				if (bugAndFileRelation[r][s][0] == 1 && bowBugs.get(r).getBug().getBugDate() != "null") {
+					String[] strDate = bowBugs.get(r).getBug().getBugDate().split("-");
+					int[] intArray = new int[strDate.length];
+					for (int i = 0; i < strDate.length; i++)
+						intArray[i] = Integer.parseInt(strDate[i]);
 
-	public void computeS5() {
+					dateValueArray[r] = intArray[0] * 12 + intArray[1];
+					dateValueList.add(dateValueArray[r]);
+
+				} else {
+					dateValueArray[r] = 0;
+				}
+			}
+
+			Collections.sort(dateValueList);
+
+			for (int r = 0; r < bugAndFileRelation.length; ++r) {
+				if (bugAndFileRelation[r][s][0] == 1 && bowBugs.get(r).getBug().getBugDate() != "null") {
+					int rMonth = dateValueArray[r];
+					int rMonthIndex = dateValueList.lastIndexOf(rMonth);
+					int lastMonth = 0;
+					if (rMonthIndex > 1)
+						lastMonth = dateValueList.get(--rMonthIndex);
+
+					bugAndFileRelation[r][s][4] = (1 / (rMonth - lastMonth + 1)) * 100;
+
+					/*
+					 * Bug-Fixing Frequency A source file that has been frequently fixed may be a
+					 * fault- prone file. Consequently, we decline a bug-fixing frequency feature as
+					 * the number of times a source file has been fixed before the current bug
+					 * report: phi6(r,s) = |br(r, s)|
+					 * 
+					 */
+
+					// computeS5():
+					bugAndFileRelation[r][s][5] = dateValueList.lastIndexOf(rMonth);
+				}
+			}
+
+		}
 
 	}
 }

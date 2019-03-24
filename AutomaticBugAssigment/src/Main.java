@@ -4,7 +4,10 @@
 
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -108,8 +111,8 @@ public class Main {
 
 	
 		
-/*		
-		
+	
+	
 		
 		long b = System.currentTimeMillis();
 		System.out.println("Start! VSM preprocess betöltés és VSM model létrehozása!");
@@ -121,7 +124,7 @@ public class Main {
 		vsm.saveDataToCheck();
 		
 		b = (System.currentTimeMillis() - b)/1000;
-		System.out.println("Vége! Futási idõ másodperc: " + b); //~ 106 sec ~ 2 min
+		System.out.println("Vége! Futási idõ másodperc: " + b); //~ 52 sec 
 		
 		
 		System.out.println("computeTfIdfArray() kezdõdik!");
@@ -130,30 +133,112 @@ public class Main {
 		vsm.computeTfIdfArray();
 		
 		b = (System.currentTimeMillis() - b)/1000;
-		System.out.println("computeTfIdfArray() vége! Futási idõ másodperc: " + b);
-	
-*/		
+		System.out.println("computeTfIdfArray() vége! Futási idõ másodperc: " + b); //~ 9 sec
 	
 		
+
 		
 		
-		/*System.out.println("computeS1() kezdõdik!");
+		
+		System.out.println("computeS1() kezdõdik!");
 		b = System.currentTimeMillis();
 		
 		vsm.computeS1();
 		
 		b = (System.currentTimeMillis() - b)/1000;
-		System.out.println("computeS1() vége! Futási idõ másodperc: " + b);*/
+		System.out.println("computeS1() vége! Futási idõ másodperc: " + b); //~ 3244 sec
 		
 		
-		/*System.out.println("computeS2() kezdõdik!");
+		// save data objects for load next time
+		ObjectOutput out;
+		try {
+			out = new ObjectOutputStream(
+					new FileOutputStream("AutomaticBugAssigment\\OuterFiles\\SaveStateVsmModelS1.data"));
+			out.writeObject(vsm);
+			out.close();
+		} catch (Exception e) {
+				e.printStackTrace();
+		}
+		
+		
+
+		
+		
+		System.out.println("computeS2() kezdõdik!");
 		b = System.currentTimeMillis();
 		
 		vsm.computeS2();
 		
 		b = (System.currentTimeMillis() - b)/1000;
-		System.out.println("computeS2() vége! Futási idõ másodperc: " + b);*/
+		System.out.println("computeS2() vége! Futási idõ másodperc: " + b); //~ X sec
 		
+
+		
+		// save data objects for load next time
+				ObjectOutput out2;
+				try {
+					out2 = new ObjectOutputStream(
+							new FileOutputStream("AutomaticBugAssigment\\OuterFiles\\SaveStateVsmModelS2.data"));
+					out2.writeObject(vsm);
+					out2.close();
+				} catch (Exception e) {
+						e.printStackTrace();
+				}
+				
+		
+		
+		
+		
+		
+		System.out.println("computeS3() kezdõdik!");
+		b = System.currentTimeMillis();
+		
+		vsm.computeS3();
+		
+		b = (System.currentTimeMillis() - b)/1000;
+		System.out.println("computeS3() vége! Futási idõ másodperc: " + b); //~ X sec
+		
+		
+		// save data objects for load next time
+		ObjectOutput out3;
+		try {
+			out3 = new ObjectOutputStream(
+					new FileOutputStream("AutomaticBugAssigment\\OuterFiles\\SaveStateVsmModelS3.data"));
+			out3.writeObject(vsm);
+			out3.close();
+		} catch (Exception e) {
+				e.printStackTrace();
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		System.out.println("computeS4() kezdõdik!");
+		b = System.currentTimeMillis();
+		
+		vsm.computeS4();
+	
+		
+		b = (System.currentTimeMillis() - b)/1000;
+		System.out.println("computeS4() vége! Futási idõ másodperc: " + b); //~ X sec
+		
+		
+		// save data objects for load next time
+				ObjectOutput out4;
+				try {
+					out4 = new ObjectOutputStream(
+							new FileOutputStream("AutomaticBugAssigment\\OuterFiles\\SaveStateVsmModelS4.data"));
+					out4.writeObject(vsm);
+					out4.close();
+				} catch (Exception e) {
+						e.printStackTrace();
+				}
 	
 		
 	}

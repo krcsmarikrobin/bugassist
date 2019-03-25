@@ -1,7 +1,9 @@
 package model;
 
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.ObjectOutput;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
@@ -11,7 +13,9 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class VsmModel implements Serializable {
+import bean.Bug;
+
+public class VsmModel {
 
 	List<BagOfWords> bagOfWordsObjects;
 	List<String> corpusDictionary;
@@ -56,6 +60,11 @@ public class VsmModel implements Serializable {
 				++j;
 		}
 		bugAndFileRelation = new int[i][j][6];
+		
+		for (int ii=0; ii < bugAndFileRelation.length; ++ii)
+			for (int jj=0; jj < bugAndFileRelation[0].length; ++jj)
+				for (int kk=0; kk < 6; ++kk)
+					bugAndFileRelation[ii][jj][kk] = 0;
 
 		// fill the relation array
 
@@ -119,11 +128,6 @@ public class VsmModel implements Serializable {
 		}
 	}
 //////////////////////////////////////////////////////////////////////törölni
-	
-	
-	
-	
-	
 
 	// this method compute the tf-idf weighted model in wich the term frequency
 	// factors are normalized
@@ -233,53 +237,77 @@ public class VsmModel implements Serializable {
 	// bug report r and the summaries
 	// of all the bug reports in br(r,s).
 	public void computeS2() {
-		for (int s = 0; s < bugAndFileRelation[0].length; ++s) { // for column first, because we must compute the
-																	// br(r,s) for each source code files
-																	// (bugAndFileRelation second index the source code
-																	// files)
 
-			int sumVector[] = new int[tfIdf.length]; // this is the br(r,s)
+		class ComputeS2Column implements Runnable {
+			int s;
 
-			for (int r = 0; r < bugAndFileRelation.length; ++r) {
-				if (bugAndFileRelation[r][s][0] == 1) {
+			ComputeS2Column(int s) {
+				this.s = s;
+			}
+
+			@Override
+			public void run() {
+
+				int sumVector[] = new int[tfIdf.length]; // this is the br(r,s)
+
+				for (int r = 0; r < bugAndFileRelation.length; ++r) {
+					if (bugAndFileRelation[r][s][0] == 1) {
+						int vsmArrayIndexR = bagOfWordsObjects.indexOf(bowBugs.get(r));
+						for (int i = 0; i < sumVector.length; ++i) {
+							sumVector[i] += tfIdf[i][vsmArrayIndexR];
+						}
+					}
+				} // compute br(r,s) to a column
+
+				for (int r = 0; r < bugAndFileRelation.length; ++r) {
 					int vsmArrayIndexR = bagOfWordsObjects.indexOf(bowBugs.get(r));
-					for (int i = 0; i < sumVector.length; ++i) {
-						sumVector[i] += tfIdf[i][vsmArrayIndexR];
-					}
-				}
-			} // compute br(r,s) to a column
+					double vectorMultiplication = 0, euclideanNormR = 0, euclideanNormV = 0;
 
-			for (int r = 0; r < bugAndFileRelation.length; ++r) {
-				int vsmArrayIndexR = bagOfWordsObjects.indexOf(bowBugs.get(r));
-				double vectorMultiplication = 0, euclideanNormR = 0, euclideanNormV = 0;
-
-				if (bugAndFileRelation[r][s][0] == 1) { // if this bug report r fixed this file s we must neg its vector
-														// value
-					vsmArrayIndexR = bagOfWordsObjects.indexOf(bowBugs.get(r));
-					for (int i = 0; i < sumVector.length; ++i) {
-						sumVector[i] -= tfIdf[i][vsmArrayIndexR];
-					}
-				}
-
-				for (int v = 0; v < tfIdf.length; ++v) {
-					vectorMultiplication += tfIdf[v][vsmArrayIndexR] * sumVector[v];
-					euclideanNormR += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexR];
-					euclideanNormV += sumVector[v] * sumVector[v];
-				}
-
-				Double cosinSimiliraty = vectorMultiplication / Math.sqrt(euclideanNormR * euclideanNormV);
-				bugAndFileRelation[r][s][2] = cosinSimiliraty.intValue();
-
-				if (bugAndFileRelation[r][s][0] == 1) { // if this bug report r fixed this file s we must plus this
-														// vector value
-					for (int i = 0; i < sumVector.length; ++i) {
-						sumVector[i] += tfIdf[i][vsmArrayIndexR];
+					if (bugAndFileRelation[r][s][0] == 1) { // if this bug report r fixed this file s we must neg
+															// its vector
+															// value
+						vsmArrayIndexR = bagOfWordsObjects.indexOf(bowBugs.get(r));
+						for (int i = 0; i < sumVector.length; ++i) {
+							sumVector[i] -= tfIdf[i][vsmArrayIndexR];
+						}
 					}
 
+					for (int v = 0; v < tfIdf.length; ++v) {
+						vectorMultiplication += tfIdf[v][vsmArrayIndexR] * sumVector[v];
+						euclideanNormR += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexR];
+						euclideanNormV += sumVector[v] * sumVector[v];
+					}
+
+					Double cosinSimiliraty = vectorMultiplication / Math.sqrt(euclideanNormR * euclideanNormV);
+					bugAndFileRelation[r][s][2] = cosinSimiliraty.intValue();
+
+					if (bugAndFileRelation[r][s][0] == 1) { // if this bug report r fixed this file s we must plus
+															// this
+															// vector value
+						for (int i = 0; i < sumVector.length; ++i) {
+							sumVector[i] += tfIdf[i][vsmArrayIndexR];
+						}
+
+					}
 				}
+
 			}
 
 		}
+
+		ExecutorService executor = Executors.newFixedThreadPool(10);
+		for (int s = 0; s < bugAndFileRelation[0].length; ++s) { // for column first, because we must compute the
+			// br(r,s) for each source code files
+			// (bugAndFileRelation second index the source code
+			// files)
+			executor.execute(new ComputeS2Column(s));
+
+		}
+
+		executor.shutdown();
+		while (!executor.isTerminated()) {
+		}
+
 	}
 
 	// The signal becomes stronger when the class name is longer and thus more
@@ -330,10 +358,11 @@ public class VsmModel implements Serializable {
 	 */
 	public void computeS4() {
 		for (int s = 0; s < bugAndFileRelation[0].length; ++s) {
-			ArrayList<Integer> dateValueList = new ArrayList<Integer>();
+			ArrayList<Integer> dateValueList = new ArrayList<Integer>(); // for each source code file collect the all
+																			// bug report date
 			int[] dateValueArray = new int[bugAndFileRelation.length];
 
-			for (int r = 0; r < bugAndFileRelation.length; ++r) {
+			for (int r = 0; r < bugAndFileRelation.length; ++r) { // for each bugs
 				if (bugAndFileRelation[r][s][0] == 1 && bowBugs.get(r).getBug().getBugDate() != "null") {
 					String[] strDate = bowBugs.get(r).getBug().getBugDate().split("-");
 					int[] intArray = new int[strDate.length];
@@ -350,7 +379,7 @@ public class VsmModel implements Serializable {
 
 			Collections.sort(dateValueList);
 
-			for (int r = 0; r < bugAndFileRelation.length; ++r) {
+			for (int r = 0; r < bugAndFileRelation.length; ++r) { // for each bugs
 				if (bugAndFileRelation[r][s][0] == 1 && bowBugs.get(r).getBug().getBugDate() != "null") {
 					int rMonth = dateValueArray[r];
 					int rMonthIndex = dateValueList.lastIndexOf(rMonth);
@@ -376,4 +405,105 @@ public class VsmModel implements Serializable {
 		}
 
 	}
+
+	public List<BagOfWords> getBowBugs() {
+		return bowBugs;
+	}
+
+	public List<BagOfWords> getBowFiles() {
+		return bowFiles;
+	}
+
+	public int[][][] getBugAndFileRelation() {
+		return bugAndFileRelation;
+	}
+
+	
+	class Packet implements Serializable{
+		private static final long serialVersionUID = 3428913803916305639L;
+		int[][][] a;
+		public Packet(int[][][] a) {
+			this.a = a;
+		}
+		public int[][][] get() {
+			return a;
+		}	
+	}
+	
+	public void saveVsmData() {
+
+		ObjectOutputStream outBowBugs;
+		try {
+			outBowBugs = new ObjectOutputStream(
+					new FileOutputStream("AutomaticBugAssigment\\OuterFiles\\bowBugs.data"));
+			outBowBugs.writeObject(bowBugs);
+			outBowBugs.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		ObjectOutputStream outBowFiles;
+		try {
+			outBowFiles = new ObjectOutputStream(
+					new FileOutputStream("AutomaticBugAssigment\\OuterFiles\\bowFiles.data"));
+			outBowFiles.writeObject(bowFiles);
+			outBowFiles.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+		
+		
+				
+		ObjectOutputStream outbugAndFileRelation;
+		try {
+			outbugAndFileRelation = new ObjectOutputStream(
+					new FileOutputStream("AutomaticBugAssigment\\OuterFiles\\bugAndFileRelation.data"));
+			outbugAndFileRelation.writeObject(new Packet(bugAndFileRelation));
+			outbugAndFileRelation.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public void loadVsmData() {
+
+		ObjectInput inBowBugs;
+		List<BagOfWords> bowBugs = null;
+		try {
+			inBowBugs = new ObjectInputStream(new FileInputStream("AutomaticBugAssigment\\OuterFiles\\bowBugs.data"));
+			bowBugs = (List<BagOfWords>) inBowBugs.readObject();
+			inBowBugs.close();
+			this.bowBugs = bowBugs;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		ObjectInput inBowFiles;
+		List<BagOfWords> bowFiles = null;
+		try {
+			inBowFiles = new ObjectInputStream(new FileInputStream("AutomaticBugAssigment\\OuterFiles\\bowFiles.data"));
+			bowFiles = (List<BagOfWords>) inBowFiles.readObject();
+			inBowFiles.close();
+			this.bowFiles = bowFiles;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		ObjectInput inBugAndFileRelation;
+		int[][][] bugAndFileRelation = null;
+		try {
+			inBugAndFileRelation = new ObjectInputStream(
+					new FileInputStream("AutomaticBugAssigment\\OuterFiles\\bugAndFileRelation.data"));
+			bugAndFileRelation = ((Packet) inBugAndFileRelation.readObject()).get();
+			inBugAndFileRelation.close();
+			this.bugAndFileRelation = bugAndFileRelation;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
 }

@@ -226,7 +226,7 @@ public class VsmModel {
 					}
 
 					Double cosinSimiliraty = vectorMultiplication / Math.sqrt(euclideanNormR * euclideanNormS);
-					bugAndFileRelation[rr][s][1] = cosinSimiliraty.intValue();
+					bugAndFileRelation[rr][s][1] = cosinSimiliraty.floatValue();
 
 				}
 			}
@@ -292,7 +292,7 @@ public class VsmModel {
 					}
 
 					Double cosinSimiliraty = vectorMultiplication / Math.sqrt(euclideanNormR * euclideanNormV);
-					bugAndFileRelation[r][s][2] = cosinSimiliraty.intValue();
+					bugAndFileRelation[r][s][2] = cosinSimiliraty.floatValue();
 
 					if (bugAndFileRelation[r][s][0] == 1) { // if this bug report r fixed this file s we must plus
 															// this
@@ -530,7 +530,10 @@ public class VsmModel {
 					ii = 0;
 				} else {
 					for (int jj = 0; jj < bugAndFileRelation[0].length; ++jj) {
-						bugAndFileRelation[ii][jj][kk] = Float.parseFloat(stLine[jj]);
+						if (stLine[jj].equals("NaN"))
+							bugAndFileRelation[ii][jj][kk] = 0;
+						else
+							bugAndFileRelation[ii][jj][kk] = Float.parseFloat(stLine[jj]);
 					}
 					++ii;
 				}

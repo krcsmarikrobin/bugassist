@@ -135,11 +135,7 @@ public class Main {
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("computeTfIdfArray() vége! Futási idõ másodperc: " + b); //~ 9 sec
 	
-		
-
-		
-		
-		
+	
 		System.out.println("computeS1() kezdõdik!");
 		b = System.currentTimeMillis();
 		
@@ -157,7 +153,7 @@ public class Main {
 		vsm.computeS2();
 		
 		b = (System.currentTimeMillis() - b)/1000;
-		System.out.println("computeS2() vége! Futási idõ másodperc: " + b); //~ 10212 sec
+		System.out.println("computeS2() vége! Futási idõ másodperc: " + b); //~ 2417 sec
 		
 
 	
@@ -191,7 +187,7 @@ public class Main {
 		System.out.println("savevsmdata() vége! Futási idõ másodperc: " + b); //~ 128 sec
 		
 		
-		
+	
 		System.out.println("loadvsmdata() kezdõdik!");
 		b = System.currentTimeMillis();
 		
@@ -201,7 +197,7 @@ public class Main {
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("loadvsmdata() vége! Futási idõ másodperc: " + b); //~ 88 sec
 		
-		
+	
 		
 		
 		

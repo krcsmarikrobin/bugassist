@@ -148,8 +148,8 @@ public class Main {
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("computeS1() vége! Futási idõ másodperc: " + b); //~ 3244 sec
 		
-		
 	*/	
+		
 	/*	
 		System.out.println("computeS2() kezdõdik!");
 		b = System.currentTimeMillis();
@@ -160,7 +160,8 @@ public class Main {
 		System.out.println("computeS2() vége! Futási idõ másodperc: " + b); //~ 10212 sec
 		
 
-	*/	
+	*/
+	
 		System.out.println("computeS3() kezdõdik!");
 		b = System.currentTimeMillis();
 		
@@ -187,7 +188,7 @@ public class Main {
 	
 		
 		b = (System.currentTimeMillis() - b)/1000;
-		System.out.println("savevsmdata() vége! Futási idõ másodperc: " + b); //~ X sec
+		System.out.println("savevsmdata() vége! Futási idõ másodperc: " + b); //~ 128 sec
 		
 		
 		

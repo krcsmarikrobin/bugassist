@@ -138,7 +138,7 @@ public class Main {
 		
 
 		
-	/*	
+		
 		
 		System.out.println("computeS1() kezdõdik!");
 		b = System.currentTimeMillis();
@@ -148,9 +148,9 @@ public class Main {
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("computeS1() vége! Futási idõ másodperc: " + b); //~ 3244 sec
 		
-	*/	
 		
-	/*	
+		
+		
 		System.out.println("computeS2() kezdõdik!");
 		b = System.currentTimeMillis();
 		
@@ -160,7 +160,7 @@ public class Main {
 		System.out.println("computeS2() vége! Futási idõ másodperc: " + b); //~ 10212 sec
 		
 
-	*/
+	
 	
 		System.out.println("computeS3() kezdõdik!");
 		b = System.currentTimeMillis();
@@ -184,11 +184,22 @@ public class Main {
 		System.out.println("savevsmdata() kezdõdik!");
 		b = System.currentTimeMillis();
 		
-		vsm.saveVsmData();;
+		vsm.saveVsmData();
 	
 		
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("savevsmdata() vége! Futási idõ másodperc: " + b); //~ 128 sec
+		
+		
+		
+		System.out.println("loadvsmdata() kezdõdik!");
+		b = System.currentTimeMillis();
+		
+		vsm.loadVsmData();
+	
+		
+		b = (System.currentTimeMillis() - b)/1000;
+		System.out.println("loadvsmdata() vége! Futási idõ másodperc: " + b); //~ 88 sec
 		
 		
 		

@@ -1,9 +1,11 @@
 package model;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.ObjectInput;
@@ -31,7 +33,7 @@ public class VsmModel {
 
 	int vsmArray[][]; // 3d first: rows of dictionary, second: columns of bug or files BagOfWords
 						// object
-	int bugAndFileRelation[][][]; // 3d first: rows of bug report, second: columns of files. third: parameters of
+	float bugAndFileRelation[][][]; // 3d first: rows of bug report, second: columns of files. third: parameters of
 									// computed values. If i bug fixed in j file
 									// int[i][j][0]=1 else int[i][j][0]=0;
 
@@ -63,7 +65,7 @@ public class VsmModel {
 			else
 				++j;
 		}
-		bugAndFileRelation = new int[i][j][6];
+		bugAndFileRelation = new float[i][j][6];
 
 		for (int ii = 0; ii < bugAndFileRelation.length; ++ii)
 			for (int jj = 0; jj < bugAndFileRelation[0].length; ++jj)
@@ -79,7 +81,7 @@ public class VsmModel {
 				bowFiles.add(bow);
 				String fileName = bow.getFile().getAbsolutePath();
 				sourceCodeFilePathes.add(fileName);
-				
+
 			} else {
 				bowBugs.add(bow);
 			}
@@ -88,18 +90,18 @@ public class VsmModel {
 
 		for (int ii = 0; ii < bowBugs.size(); ++ii) {
 			List<String> bugSourceCodeFileList = bowBugs.get(ii).getBug().getBugSourceCodeFileList();
-			
+
 			for (String filePath : bugSourceCodeFileList) {
-				
+
 				filePath.replace("]", "");
 				filePath.replace("[", "");
-				
-				int jj = sourceCodeFilePathes
-						.indexOf(repoData.getRepo().getWorkTree().getAbsolutePath() + "\\" + filePath.replace("/", "\\"));
+
+				int jj = sourceCodeFilePathes.indexOf(
+						repoData.getRepo().getWorkTree().getAbsolutePath() + "\\" + filePath.replace("/", "\\"));
 				if (jj != -1) {
 					bugAndFileRelation[ii][jj][0] = 1;
 				}
-					
+
 			}
 		}
 
@@ -335,7 +337,7 @@ public class VsmModel {
 			fileName = fileName.substring(0, fileName.lastIndexOf('.'));
 
 			if (corpusDictionary.contains(fileName)) {
-				
+
 				int vsmArrayFirstIndex = corpusDictionary.indexOf(fileName);
 				for (int r = 0; r < bugAndFileRelation.length; ++r) { // for the bug report rows second
 					int vsmArrayIndexR = bagOfWordsObjects.indexOf(bowBugs.get(r)); // get a vsmArray second index
@@ -345,7 +347,6 @@ public class VsmModel {
 					if (vsmArray[vsmArrayFirstIndex][vsmArrayIndexR] > 0) {
 						bugAndFileRelation[r][s][3] = fileName.length();
 					}
-						
 
 				}
 
@@ -375,9 +376,9 @@ public class VsmModel {
 			ArrayList<Integer> dateValueList = new ArrayList<Integer>(); // for each source code file collect the all
 																			// bug report date
 			int[] dateValueArray = new int[bugAndFileRelation.length];
-			
+
 			for (int r = 0; r < bugAndFileRelation.length; ++r) { // for each bugs
-				
+
 				if (bugAndFileRelation[r][s][0] == 1 && bowBugs.get(r).getBug().getBugDate() != "null") {
 					String[] strDate = bowBugs.get(r).getBug().getBugDate().split("-");
 					int[] intArray = new int[strDate.length];
@@ -414,7 +415,7 @@ public class VsmModel {
 
 					// computeS5():
 					bugAndFileRelation[r][s][5] = dateValueList.lastIndexOf(rMonth);
-					
+
 				}
 			}
 
@@ -430,7 +431,7 @@ public class VsmModel {
 		return bowFiles;
 	}
 
-	public int[][][] getBugAndFileRelation() {
+	public float[][][] getBugAndFileRelation() {
 		return bugAndFileRelation;
 	}
 
@@ -467,7 +468,7 @@ public class VsmModel {
 					}
 					outbugAndFileRelation.write("\n");
 				}
-				outbugAndFileRelation.write("S" + kk + " end--------------------------------------------------------- S" + kk+1 + " start\n");
+				outbugAndFileRelation.write("---\n");
 			}
 
 			outbugAndFileRelation.close();
@@ -502,14 +503,39 @@ public class VsmModel {
 			e.printStackTrace();
 		}
 
-		ObjectInput inBugAndFileRelation;
-		int[][][] bugAndFileRelation = null;
+		BufferedReader inBugAndFileRelation;
+
+		int i = 0, j = 0;
+		for (BagOfWords bow : bagOfWordsObjects) {
+			if (!bow.isItSourceCode())
+				++i;
+			else
+				++j;
+		}
+
+		bugAndFileRelation = null;
+		System.gc();
+		bugAndFileRelation = new float[i][j][6];
+
 		try {
-			inBugAndFileRelation = new ObjectInputStream(
-					new FileInputStream("AutomaticBugAssigment\\OuterFiles\\bugAndFileRelation.data"));
-			bugAndFileRelation = ((Packet) inBugAndFileRelation.readObject()).get();
+			inBugAndFileRelation = new BufferedReader(
+					new FileReader(new File("AutomaticBugAssigment\\OuterFiles\\bugAndFileRelation.data")));
+
+			String st;
+			int kk = 0;
+			int ii = 0;
+			while ((st = inBugAndFileRelation.readLine()) != null) {
+				String[] stLine = st.split(";");
+				if (stLine[0].equals("---")) {
+					ii = 0;
+				} else {
+					for (int jj = 0; jj < bugAndFileRelation[0].length; ++jj) {
+						bugAndFileRelation[ii][jj][kk] = Float.parseFloat(stLine[jj]);
+					}
+					++ii;
+				}
+			}
 			inBugAndFileRelation.close();
-			this.bugAndFileRelation = bugAndFileRelation;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

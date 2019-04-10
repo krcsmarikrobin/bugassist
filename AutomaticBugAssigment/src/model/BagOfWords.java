@@ -37,6 +37,9 @@ public class BagOfWords implements Serializable, Runnable {
 	private String words = null;
 	String wordsToken[] = null;
 	private String bagOfWords[] = null;
+	
+	//for sort irrelevant files to RankSvm by cosine similiraty need a sorting array
+	private int[] fileSortedArray;
 
 	public BagOfWords(File file) throws IOException { // constructor when get a source code filepath
 		this.file = file;
@@ -234,6 +237,14 @@ public class BagOfWords implements Serializable, Runnable {
 	public void run() {
 		this.buildBagOfWords();
 
+	}
+
+	public int[] getFileSortedArray() {
+		return fileSortedArray;
+	}
+
+	public void setFileSortedArray(int[] fileSortedArray) {
+		this.fileSortedArray = fileSortedArray;
 	}
 
 }

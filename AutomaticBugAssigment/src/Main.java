@@ -16,13 +16,14 @@ import model.CollectGitRepoData;
 import model.CollectHttpBugData;
 import model.IOBugObjectDataFromMemory;
 import model.PreprocessVSM;
+import model.RankSvm;
 import model.VsmModel;
 
 
 public class Main {
 
 	public static void main(String[] args) throws IOException {
-
+		Long b;
 		CollectGitRepoData repoData = new CollectGitRepoData("..\\gecko-dev\\.git", "AutomaticBugAssigment\\OuterFiles\\db\\test.db", ".java");
 		
 
@@ -36,8 +37,8 @@ public class Main {
 	 	System.out.println("Finished collectBugGitData() running time sec: " + a);     //13 min 15 sec
 
 	
-		
 */		
+		
 		
 
 /*	
@@ -53,15 +54,15 @@ public class Main {
 		ab = (System.currentTimeMillis() - ab)/1000;
 		System.out.println("Finished load all bugs running time sec: " + ab); // 64689 sec ~ 18 hour
 		
-		
 */		
+	
 
 		
 		
 
-/*
+
 		
-		long b = System.currentTimeMillis();
+		b = System.currentTimeMillis();
 		System.out.println("Start! ");
 		
 		List<Bug> bugs = repoData.getDao().getAllBugs();
@@ -72,40 +73,40 @@ public class Main {
 		
 		System.out.println("Feldolgozott bugok: " + bugs.size()); // 496 sec
 		
-*/
+
 		
-/*		
-		long bca = System.currentTimeMillis();
+		
+		b = System.currentTimeMillis();
 		System.out.println("Start! ");
 	
 		List<Bug> bugs2 = IOBugObjectDataFromMemory.loadData();
 		
 		
-		bca = (System.currentTimeMillis() - bca)/1000;
-		System.out.println("Vége! Futási idõ másodperc: " + bca);
+		b = (System.currentTimeMillis() - b)/1000;
+		System.out.println("Vége! Futási idõ másodperc: " + b);
 		System.out.println("Feldolgozott bugok: " + bugs2.size()); // 8 sec
-		
-*/
+	
+
 
 		
 		
 
-/*
+
 		
 		//to save VSM data after vsm init just new PreprocessVSM();
-		long aadd = System.currentTimeMillis();
+		b = System.currentTimeMillis();
 		System.out.println("Start! VsmPreprocess");
 		
 		PreprocessVSM preprocessVSM = new PreprocessVSM(repoData);
 		
-		System.out.println("Buildelés kész! Futási idõ: " + ((System.currentTimeMillis() - aadd)/1000));  //~ 3468 sec ~ 60 min
+		System.out.println("Buildelés kész! Futási idõ: " + ((System.currentTimeMillis() - b)/1000));  //~ 3468 sec ~ 60 min
 		System.out.println("Mentés!");
-		aadd = System.currentTimeMillis();
+		b = System.currentTimeMillis();
 		preprocessVSM.saveData();
 		
-		System.out.println("Mentés kész! Futási idõ: " + ((System.currentTimeMillis() - aadd)/1000));
+		System.out.println("Mentés kész! Futási idõ: " + ((System.currentTimeMillis() - b)/1000));
 		
-*/		
+		
 		
 		
 
@@ -114,7 +115,7 @@ public class Main {
 	
 	
 		
-		long b = System.currentTimeMillis();
+		b = System.currentTimeMillis();
 		System.out.println("Start! VSM preprocess betöltés és VSM model létrehozása!");
 		
 		PreprocessVSM preprocessVSM2 = new PreprocessVSM();
@@ -126,7 +127,7 @@ public class Main {
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("Vége! Futási idõ másodperc: " + b); //~ 52 sec 
 		
-		
+/*		
 		System.out.println("computeTfIdfArray() kezdõdik!");
 		b = System.currentTimeMillis();
 		
@@ -186,7 +187,7 @@ public class Main {
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("savevsmdata() vége! Futási idõ másodperc: " + b); //~ 128 sec
 		
-		
+*/		
 	
 		System.out.println("loadvsmdata() kezdõdik!");
 		b = System.currentTimeMillis();
@@ -197,8 +198,15 @@ public class Main {
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("loadvsmdata() vége! Futási idõ másodperc: " + b); //~ 88 sec
 		
-	
 		
+		System.out.println("RankSvm létrehozás kezdõdik!");
+		b = System.currentTimeMillis();
+		
+		RankSvm rankSvm = new RankSvm(vsm.getBowBugs(), vsm.getBowFiles(), vsm.getBugAndFileRelation());
+		
+	
+		b = (System.currentTimeMillis() - b)/1000;
+		System.out.println("RankSvm létrehozás vége! Futási idõ másodperc: " + b); //~ 88 sec
 		
 		
 	}

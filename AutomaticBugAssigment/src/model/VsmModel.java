@@ -403,7 +403,7 @@ public class VsmModel {
 					if (rMonthIndex > 1)
 						lastMonth = dateValueList.get(--rMonthIndex);
 
-					bugAndFileRelation[r][s][4] = (1 / (rMonth - lastMonth + 1)) * 100;
+					bugAndFileRelation[r][s][4] = (1 / (rMonth - lastMonth + 1));
 
 					/*
 					 * Bug-Fixing Frequency A source file that has been frequently fixed may be a
@@ -528,6 +528,7 @@ public class VsmModel {
 				String[] stLine = st.split(";");
 				if (stLine[0].equals("---")) {
 					ii = 0;
+					++kk;
 				} else {
 					for (int jj = 0; jj < bugAndFileRelation[0].length; ++jj) {
 						if (stLine[jj].equals("NaN"))

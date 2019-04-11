@@ -28,10 +28,10 @@ public class Main {
 
 		Long b;
 		
-/*
+
 		CollectGitRepoData repoData = new CollectGitRepoData("..\\gecko-dev\\.git", "AutomaticBugAssigment\\OuterFiles\\db\\test.db", ".java");
 		
-*/
+
 	
 /*		
 		long a = System.currentTimeMillis();
@@ -118,7 +118,7 @@ public class Main {
 */
 	
 		
-/*	
+
 	
 		
 		b = System.currentTimeMillis();
@@ -133,12 +133,10 @@ public class Main {
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("Vége! Futási idõ másodperc: " + b); //~ 52 sec 
 
-*/		
+
 		
 		
 		
-		
-/*		
 		System.out.println("computeTfIdfArray() kezdõdik!");
 		b = System.currentTimeMillis();
 		
@@ -198,9 +196,9 @@ public class Main {
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("savevsmdata() vége! Futási idõ másodperc: " + b); //~ 128 sec
 		
-*/
+
 		
-/*
+
 	
 		System.out.println("loadvsmdata() kezdõdik!");
 		b = System.currentTimeMillis();
@@ -220,13 +218,13 @@ public class Main {
 	
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("RankSvm létrehozás vége! Futási idõ másodperc: " + b); //~ 88 sec
-*/
+
 		
 		
 		System.out.println("RankSvm() init kezdõdik!");
 		b = System.currentTimeMillis();
 		
-		RankSvm rankSvm = new RankSvm();
+		RankSvm rankSvm2 = new RankSvm();
 	
 		
 		b = (System.currentTimeMillis() - b)/1000;
@@ -237,26 +235,34 @@ public class Main {
 		System.out.println("SortCosSim kezdõdik!");
 		b = System.currentTimeMillis();
 		
-		rankSvm.sortFilesByCosSimiliraty();
+		rankSvm2.sortFilesByCosSimiliraty();
 	
 		
 		b = (System.currentTimeMillis() - b)/1000;
-		System.out.println("SortCosSim vége! Futási idõ másodperc: " + b); //~ XX sec
+		System.out.println("SortCosSim vége! Futási idõ másodperc: " + b); //~ 25168 sec
 		
 		
 		
 		System.out.println("SaveData kezdõdik!");
 		b = System.currentTimeMillis();
 		
-		rankSvm.saveData();
+		rankSvm2.saveData();
 	
 		
 		b = (System.currentTimeMillis() - b)/1000;
-		System.out.println("SaveData vége! Futási idõ másodperc: " + b); //~ XX sec
+		System.out.println("SaveData vége! Futási idõ másodperc: " + b); //~ 33 sec
 		
+
+		System.out.println("WriteTenFolds kezdõdik!");
+		b = System.currentTimeMillis();
 		
+		RankSvm rankSvm3 = new RankSvm();
+		rankSvm3.writeBugsTenFolds();
 		
+		b = (System.currentTimeMillis() - b)/1000;
+		System.out.println("\"WriteTenFolds vége! Futási idõ másodperc: " + b); //~ xx sec
 		
+
 		
 		
 		

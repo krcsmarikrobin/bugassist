@@ -22,11 +22,17 @@ import model.VsmModel;
 
 public class Main {
 
+	
 	public static void main(String[] args) throws IOException {
-		Long b;
-		CollectGitRepoData repoData = new CollectGitRepoData("..\\gecko-dev\\.git", "AutomaticBugAssigment\\OuterFiles\\db\\test.db", ".java");
 		
 
+		Long b;
+		
+/*
+		CollectGitRepoData repoData = new CollectGitRepoData("..\\gecko-dev\\.git", "AutomaticBugAssigment\\OuterFiles\\db\\test.db", ".java");
+		
+*/
+	
 /*		
 		long a = System.currentTimeMillis();
 		System.out.println("Start collectBugGitData()");
@@ -60,7 +66,7 @@ public class Main {
 		
 		
 
-
+/*
 		
 		b = System.currentTimeMillis();
 		System.out.println("Start! ");
@@ -74,8 +80,8 @@ public class Main {
 		System.out.println("Feldolgozott bugok: " + bugs.size()); // 496 sec
 		
 
-		
-		
+*/		
+/*		
 		b = System.currentTimeMillis();
 		System.out.println("Start! ");
 	
@@ -88,10 +94,10 @@ public class Main {
 	
 
 
-		
+*/		
 		
 
-
+/*
 		
 		//to save VSM data after vsm init just new PreprocessVSM();
 		b = System.currentTimeMillis();
@@ -109,10 +115,10 @@ public class Main {
 		
 		
 		
-
+*/
 	
 		
-	
+/*	
 	
 		
 		b = System.currentTimeMillis();
@@ -126,6 +132,11 @@ public class Main {
 		
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("Vége! Futási idõ másodperc: " + b); //~ 52 sec 
+
+*/		
+		
+		
+		
 		
 /*		
 		System.out.println("computeTfIdfArray() kezdõdik!");
@@ -187,7 +198,9 @@ public class Main {
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("savevsmdata() vége! Futási idõ másodperc: " + b); //~ 128 sec
 		
-*/		
+*/
+		
+/*
 	
 		System.out.println("loadvsmdata() kezdõdik!");
 		b = System.currentTimeMillis();
@@ -207,6 +220,44 @@ public class Main {
 	
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("RankSvm létrehozás vége! Futási idõ másodperc: " + b); //~ 88 sec
+*/
+		
+		
+		System.out.println("RankSvm() init kezdõdik!");
+		b = System.currentTimeMillis();
+		
+		RankSvm rankSvm = new RankSvm();
+	
+		
+		b = (System.currentTimeMillis() - b)/1000;
+		System.out.println("RankSvm() init vége! Futási idõ másodperc: " + b); //~ 70 sec
+		
+		
+		
+		System.out.println("SortCosSim kezdõdik!");
+		b = System.currentTimeMillis();
+		
+		rankSvm.sortFilesByCosSimiliraty();
+	
+		
+		b = (System.currentTimeMillis() - b)/1000;
+		System.out.println("SortCosSim vége! Futási idõ másodperc: " + b); //~ XX sec
+		
+		
+		
+		System.out.println("SaveData kezdõdik!");
+		b = System.currentTimeMillis();
+		
+		rankSvm.saveData();
+	
+		
+		b = (System.currentTimeMillis() - b)/1000;
+		System.out.println("SaveData vége! Futási idõ másodperc: " + b); //~ XX sec
+		
+		
+		
+		
+		
 		
 		
 	}

@@ -118,7 +118,7 @@ public class Main {
 */
 	
 		
-
+/*
 	
 		
 		b = System.currentTimeMillis();
@@ -219,7 +219,7 @@ public class Main {
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("RankSvm létrehozás vége! Futási idõ másodperc: " + b); //~ 88 sec
 
-		
+*/		
 		
 		System.out.println("RankSvm() init kezdõdik!");
 		b = System.currentTimeMillis();
@@ -231,7 +231,7 @@ public class Main {
 		System.out.println("RankSvm() init vége! Futási idõ másodperc: " + b); //~ 70 sec
 		
 		
-		
+/*		
 		System.out.println("SortCosSim kezdõdik!");
 		b = System.currentTimeMillis();
 		
@@ -239,7 +239,7 @@ public class Main {
 	
 		
 		b = (System.currentTimeMillis() - b)/1000;
-		System.out.println("SortCosSim vége! Futási idõ másodperc: " + b); //~ 25168 sec
+		System.out.println("SortCosSim vége! Futási idõ másodperc: " + b); //~ 1701 sec
 		
 		
 		
@@ -252,7 +252,7 @@ public class Main {
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("SaveData vége! Futási idõ másodperc: " + b); //~ 33 sec
 		
-
+*/
 		System.out.println("WriteTenFolds kezdõdik!");
 		b = System.currentTimeMillis();
 		
@@ -260,7 +260,7 @@ public class Main {
 		rankSvm3.writeBugsTenFolds();
 		
 		b = (System.currentTimeMillis() - b)/1000;
-		System.out.println("\"WriteTenFolds vége! Futási idõ másodperc: " + b); //~ xx sec
+		System.out.println("\"WriteTenFolds vége! Futási idõ másodperc: " + b); //~ 291 sec
 		
 
 		

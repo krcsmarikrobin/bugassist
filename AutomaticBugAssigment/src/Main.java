@@ -15,6 +15,7 @@ import bean.Bug;
 import model.CollectGitRepoData;
 import model.CollectHttpBugData;
 import model.IOBugObjectDataFromMemory;
+import model.KFoldTrainTest;
 import model.PreprocessVSM;
 import model.RankSvm;
 import model.VsmModel;
@@ -28,9 +29,9 @@ public class Main {
 
 		Long b;
 		
-
+/*
 		CollectGitRepoData repoData = new CollectGitRepoData("..\\gecko-dev\\.git", "AutomaticBugAssigment\\OuterFiles\\db\\test.db", ".java");
-		
+*/		
 
 	
 /*		
@@ -118,8 +119,8 @@ public class Main {
 */
 	
 		
-/*
-	
+
+/*	
 		
 		b = System.currentTimeMillis();
 		System.out.println("Start! VSM preprocess betöltés és VSM model létrehozása!");
@@ -196,9 +197,9 @@ public class Main {
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("savevsmdata() vége! Futási idõ másodperc: " + b); //~ 128 sec
 		
-
+*/
 		
-
+/*
 	
 		System.out.println("loadvsmdata() kezdõdik!");
 		b = System.currentTimeMillis();
@@ -219,8 +220,32 @@ public class Main {
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("RankSvm létrehozás vége! Futási idõ másodperc: " + b); //~ 88 sec
 
-*/		
+*/	
+/*
+//---------------------------------------------------------ha külön kell számolni
+
 		
+
+		System.out.println("CsakComputeS4S5 kezdõdik!");
+		b = System.currentTimeMillis();
+		
+		PreprocessVSM preprocessVSM2 = new PreprocessVSM();
+		VsmModel vsm = new VsmModel(preprocessVSM2.getCorpusDictionary(), preprocessVSM2.getBagOfWordsObjects(), repoData);
+		
+		vsm.loadVsmData();
+		vsm.computeS4();
+		vsm.saveVsmData();
+		vsm = null;
+		
+		b = (System.currentTimeMillis() - b)/1000;
+		System.out.println("CsakComputeS4S5 vége! Futási idõ másodperc: " + b); //~ 88 sec
+		
+		
+	//----------------------------------------------------------------------------	
+		
+		////heap space hiba ha nem ezzel indul???
+*/
+/*
 		System.out.println("RankSvm() init kezdõdik!");
 		b = System.currentTimeMillis();
 		
@@ -231,7 +256,7 @@ public class Main {
 		System.out.println("RankSvm() init vége! Futási idõ másodperc: " + b); //~ 70 sec
 		
 		
-/*		
+		
 		System.out.println("SortCosSim kezdõdik!");
 		b = System.currentTimeMillis();
 		
@@ -252,7 +277,7 @@ public class Main {
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("SaveData vége! Futási idõ másodperc: " + b); //~ 33 sec
 		
-*/
+
 		System.out.println("WriteTenFolds kezdõdik!");
 		b = System.currentTimeMillis();
 		
@@ -261,8 +286,21 @@ public class Main {
 		
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("\"WriteTenFolds vége! Futási idõ másodperc: " + b); //~ 291 sec
+*/
+		System.out.println("KFoldTrainTest kezdõdik!");
+		b = System.currentTimeMillis();
 		
-
+		KFoldTrainTest kfd = new KFoldTrainTest();
+		kfd.computeCValue();
+		System.out.println("C: " + kfd.getcValue());
+		
+		
+		b = (System.currentTimeMillis() - b)/1000;
+		System.out.println("\"KFoldTrainTest vége! Futási idõ másodperc: " + b); //~ 317 sec
+		
+		
+		
+	
 		
 		
 		

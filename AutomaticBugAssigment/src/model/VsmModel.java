@@ -372,55 +372,77 @@ public class VsmModel {
 	 * 
 	 */
 	public void computeS4() {
+		int seged = 0;
+		int segedbaj = 0;
 		for (int s = 0; s < bugAndFileRelation[0].length; ++s) {
 			ArrayList<Integer> dateValueList = new ArrayList<Integer>(); // for each source code file collect the all
 																			// bug report date
-			int[] dateValueArray = new int[bugAndFileRelation.length];
+
+			///////////////////// segéd törölni
 
 			for (int r = 0; r < bugAndFileRelation.length; ++r) { // for each bugs
 
-				if (bugAndFileRelation[r][s][0] == 1 && bowBugs.get(r).getBug().getBugDate() != "null") {
+				if (bugAndFileRelation[r][s][0] == 1 && !bowBugs.get(r).getBug().getBugDate().equals("null")) {
 					String[] strDate = bowBugs.get(r).getBug().getBugDate().split("-");
 					int[] intArray = new int[strDate.length];
 					for (int i = 0; i < strDate.length; i++)
 						intArray[i] = Integer.parseInt(strDate[i]);
 
-					dateValueArray[r] = intArray[0] * 12 + intArray[1];
-					dateValueList.add(dateValueArray[r]);
+					dateValueList.add(intArray[0] * 12 + intArray[1]);
 
-				} else {
-					dateValueArray[r] = 0;
 				}
 			}
 
 			Collections.sort(dateValueList);
 
 			for (int r = 0; r < bugAndFileRelation.length; ++r) { // for each bugs
-				if (bugAndFileRelation[r][s][0] == 1 && bowBugs.get(r).getBug().getBugDate() != "null") {
-					int rMonth = dateValueArray[r];
-					int rMonthIndex = dateValueList.lastIndexOf(rMonth);
-					int lastMonth = 0;
-					if (rMonthIndex > 1)
-						lastMonth = dateValueList.get(--rMonthIndex);
+				if (!bowBugs.get(r).getBug().getBugDate().equals("null")) {
 
-					bugAndFileRelation[r][s][4] = (1 / (rMonth - lastMonth + 1));
+					String[] strDate = bowBugs.get(r).getBug().getBugDate().split("-");
+					int[] intArray = new int[strDate.length];
+					for (int i = 0; i < strDate.length; i++)
+						intArray[i] = Integer.parseInt(strDate[i]);
 
-					/*
-					 * Bug-Fixing Frequency A source file that has been frequently fixed may be a
-					 * fault- prone file. Consequently, we decline a bug-fixing frequency feature as
-					 * the number of times a source file has been fixed before the current bug
-					 * report: phi6(r,s) = |br(r, s)|
-					 * 
-					 */
+					int rMonth = intArray[0] * 12 + intArray[1];
 
-					// computeS5():
-					bugAndFileRelation[r][s][5] = dateValueList.lastIndexOf(rMonth);
+					bugAndFileRelation[r][s][4] = 0;
+					bugAndFileRelation[r][s][5] = 0;
 
+					for (int jj = 0; jj < dateValueList.size(); ++jj) {
+						if (rMonth > dateValueList.get(jj)) {
+							++seged;
+							bugAndFileRelation[r][s][4] = (1 / (rMonth - dateValueList.get(jj) + 1));
+							/*
+							 * Bug-Fixing Frequency A source file that has been frequently fixed may be a
+							 * fault- prone file. Consequently, we decline a bug-fixing frequency feature as
+							 * the number of times a source file has been fixed before the current bug
+							 * report: phi6(r,s) = |br(r, s)|
+							 * 
+							 */
+
+							// computeS5():
+							bugAndFileRelation[r][s][5] = jj;
+							jj = dateValueList.size();
+						} else if (rMonth == dateValueList.get(jj)) {
+							++seged;
+							if (jj > 0) {
+								bugAndFileRelation[r][s][4] = (1 / (rMonth - dateValueList.get(jj - 1) + 1));
+								bugAndFileRelation[r][s][5] = jj;
+							}
+
+						}
+					}
+
+				} else {
+					bugAndFileRelation[r][s][4] = 0;
+					bugAndFileRelation[r][s][5] = 0;
+					segedbaj++;
 				}
 			}
-
 		}
-
+		System.out.println("Ennyinek van értéke: " + seged);
+		System.out.println("Ennyinél baj van: " + segedbaj);
+		
 	}
 
 	public List<BagOfWords> getBowBugs() {

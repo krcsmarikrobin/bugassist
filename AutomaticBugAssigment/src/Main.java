@@ -29,9 +29,9 @@ public class Main {
 
 		Long b;
 		
-/*
+
 		CollectGitRepoData repoData = new CollectGitRepoData("..\\gecko-dev\\.git", "AutomaticBugAssigment\\OuterFiles\\db\\test.db", ".java");
-*/		
+		
 
 	
 /*		
@@ -120,7 +120,7 @@ public class Main {
 	
 		
 
-/*	
+	
 		
 		b = System.currentTimeMillis();
 		System.out.println("Start! VSM preprocess betöltés és VSM model létrehozása!");
@@ -181,7 +181,7 @@ public class Main {
 		System.out.println("computeS4() kezdõdik!");
 		b = System.currentTimeMillis();
 		
-		vsm.computeS4();
+		vsm.computeS4S5();
 	
 		
 		b = (System.currentTimeMillis() - b)/1000;
@@ -197,7 +197,7 @@ public class Main {
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("savevsmdata() vége! Futási idõ másodperc: " + b); //~ 128 sec
 		
-*/
+
 		
 /*
 	
@@ -287,6 +287,8 @@ public class Main {
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("\"WriteTenFolds vége! Futási idõ másodperc: " + b); //~ 291 sec
 */
+		
+/*
 		System.out.println("KFoldTrainTest kezdõdik!");
 		b = System.currentTimeMillis();
 		
@@ -298,9 +300,29 @@ public class Main {
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("\"KFoldTrainTest vége! Futási idõ másodperc: " + b); //~ 317 sec
 		
+*/
+/*		
+		System.out.println("computeClassify kezdõdik!");
+		b = System.currentTimeMillis();
 		
+		KFoldTrainTest kfd = new KFoldTrainTest();
+		kfd.computeClassify();
 		
+		b = (System.currentTimeMillis() - b)/1000;
+		System.out.println("computeClassify vége! Futási idõ másodperc: " + b); //~ 348 sec
 	
+*/		
+/*	
+		System.out.println("RankSvmTest kezdõdik!");
+		b = System.currentTimeMillis();
+		
+		RankSvm rankSvm4 = new RankSvm();
+		rankSvm4.writeABugAndFileRelcolumn(6363);
+		
+		b = (System.currentTimeMillis() - b)/1000;
+		System.out.println("RankSvmTest! Futási idõ másodperc: " + b); //~ 65 sec
+*/		
+		
 		
 		
 		

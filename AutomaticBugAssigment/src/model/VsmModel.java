@@ -79,7 +79,8 @@ public class VsmModel {
 		for (BagOfWords bow : bagOfWordsObjects)
 			if (bow.isItSourceCode()) {
 				bowFiles.add(bow);
-				String fileName = bow.getFile().getAbsolutePath();
+				// only the file name need example: sourcefiles.java
+				String fileName =  bow.getFile().getName();
 				sourceCodeFilePathes.add(fileName);
 
 			} else {
@@ -92,12 +93,10 @@ public class VsmModel {
 			List<String> bugSourceCodeFileList = bowBugs.get(ii).getBug().getBugSourceCodeFileList();
 
 			for (String filePath : bugSourceCodeFileList) {
+				String[] fileNameArray = filePath.split("/");
+				filePath = fileNameArray[fileNameArray.length - 1];
 
-				filePath.replace("]", "");
-				filePath.replace("[", "");
-
-				int jj = sourceCodeFilePathes.indexOf(
-						repoData.getRepo().getWorkTree().getAbsolutePath() + "\\" + filePath.replace("/", "\\"));
+				int jj = sourceCodeFilePathes.indexOf(filePath);
 				if (jj != -1) {
 					bugAndFileRelation[ii][jj][0] = 1;
 				}
@@ -262,50 +261,33 @@ public class VsmModel {
 			public void run() {
 
 				int sumVector[] = new int[tfIdf.length]; // this is the br(r,s)
+				for (int i = 0; i < sumVector.length; ++i)
+					sumVector[i] = 0;
 
-				for (int r = 0; r < bugAndFileRelation.length; ++r) {
-					if (bugAndFileRelation[r][s][0] == 1) {
-						int vsmArrayIndexR = bagOfWordsObjects.indexOf(bowBugs.get(r));
-						for (int i = 0; i < sumVector.length; ++i) {
-							sumVector[i] += tfIdf[i][vsmArrayIndexR];
-						}
-					}
-				} // compute br(r,s) to a column
-
-				for (int r = 0; r < bugAndFileRelation.length; ++r) {
-					int vsmArrayIndexR = bagOfWordsObjects.indexOf(bowBugs.get(r));
+				for (int r = 0; r < bugAndFileRelation.length; ++r) { //for each bug report
+					int vsmArrayIndexR = bagOfWordsObjects.indexOf(bowBugs.get(r)); // r bug report vsm index
 					double vectorMultiplication = 0, euclideanNormR = 0, euclideanNormV = 0;
 
-					if (bugAndFileRelation[r][s][0] == 1) { // if this bug report r fixed this file s we must neg
-															// its vector
-															// value
-						vsmArrayIndexR = bagOfWordsObjects.indexOf(bowBugs.get(r));
-						for (int i = 0; i < sumVector.length; ++i) {
-							sumVector[i] -= tfIdf[i][vsmArrayIndexR];
-						}
+					for (int rBack = r - 1; rBack >= 0; ++rBack) { // for each before bug report while fixed s file
+						int vsmArrayIndexRBack = bagOfWordsObjects.indexOf(bowBugs.get(rBack));
+						
+						if (bugAndFileRelation[rBack][s][0] == 1)	
+							for (int i = 0; i < sumVector.length; ++i) 
+								sumVector[i] += tfIdf[i][vsmArrayIndexRBack];
 					}
 
-					for (int v = 0; v < tfIdf.length; ++v) {
+					for (int v = 0; v < tfIdf.length; ++v) { //compute sim(r,br(r,s))
 						vectorMultiplication += tfIdf[v][vsmArrayIndexR] * sumVector[v];
 						euclideanNormR += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexR];
 						euclideanNormV += sumVector[v] * sumVector[v];
 					}
 
 					Double cosinSimiliraty = vectorMultiplication / Math.sqrt(euclideanNormR * euclideanNormV);
+
 					bugAndFileRelation[r][s][2] = cosinSimiliraty.floatValue();
 
-					if (bugAndFileRelation[r][s][0] == 1) { // if this bug report r fixed this file s we must plus
-															// this
-															// vector value
-						for (int i = 0; i < sumVector.length; ++i) {
-							sumVector[i] += tfIdf[i][vsmArrayIndexR];
-						}
-
-					}
-				}
-
+				} // compute br(r,s) to a column
 			}
-
 		}
 
 		ExecutorService executor = Executors.newFixedThreadPool(10);
@@ -333,7 +315,10 @@ public class VsmModel {
 	public void computeS3() {
 		for (int s = 0; s < bugAndFileRelation[0].length; ++s) { // for the source code list columns first
 			BagOfWords bowFile = bowFiles.get(s);
-			String fileName = bowFile.file.getName().toLowerCase();
+			String fileName = bowFile.getFile().getName().toLowerCase();
+			
+			
+			
 			fileName = fileName.substring(0, fileName.lastIndexOf('.'));
 
 			if (corpusDictionary.contains(fileName)) {
@@ -349,7 +334,6 @@ public class VsmModel {
 					}
 
 				}
-
 			}
 		}
 
@@ -371,7 +355,7 @@ public class VsmModel {
 	 * 1. If s was last fixed one month before r was created, phi5(r,s) is 0.5.
 	 * 
 	 */
-	public void computeS4() {
+	public void computeS4S5() {
 		int seged = 0;
 		int segedbaj = 0;
 		for (int s = 0; s < bugAndFileRelation[0].length; ++s) {
@@ -442,7 +426,7 @@ public class VsmModel {
 		}
 		System.out.println("Ennyinek van értéke: " + seged);
 		System.out.println("Ennyinél baj van: " + segedbaj);
-		
+
 	}
 
 	public List<BagOfWords> getBowBugs() {

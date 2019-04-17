@@ -80,7 +80,7 @@ public class VsmModel {
 			if (bow.isItSourceCode()) {
 				bowFiles.add(bow);
 				// only the file name need example: sourcefiles.java
-				String fileName =  bow.getFile().getName();
+				String fileName = bow.getFile().getName();
 				sourceCodeFilePathes.add(fileName);
 
 			} else {
@@ -190,57 +190,12 @@ public class VsmModel {
 
 	}
 
+	// S1:
 	// compute the cosine similiraty from bug report and files s1 = sim(r,s) =
 	// cos(r,s) = (rT * s) / (||r|| * ||s||)
 	// Let r the bug report index, let s the source code file index.
-	public void computeS1() {
 
-		class ComputeS1Row implements Runnable {
-			private int rr;
-
-			private ComputeS1Row(int rr) {
-				this.rr = rr;
-			}
-
-			@Override
-			public void run() {
-				int vsmArrayIndexR = bagOfWordsObjects.indexOf(bowBugs.get(rr)); // get a vsmArray second index
-																					// (vsmArray
-																					// first index is the vocab) from a
-																					// bowBugs
-																					// list and the bow index
-				for (int s = 0; s < bugAndFileRelation[0].length; ++s) { // for the source code list columns second
-					int vsmArrayIndexS = bagOfWordsObjects.indexOf(bowFiles.get(s)); // get a vsmArray second index
-																						// (vsmArray first index is the
-																						// vocab) from bowFiles list and
-																						// the
-																						// bow index
-					double vectorMultiplication = 0, euclideanNormR = 0, euclideanNormS = 0;
-					for (int v = 0; v < tfIdf.length; ++v) { // for the vector length, the vector length is a
-																// vsmArray first
-																// index (vocab length)
-						vectorMultiplication += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexS];
-						euclideanNormR += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexR];
-						euclideanNormS += tfIdf[v][vsmArrayIndexS] * tfIdf[v][vsmArrayIndexS];
-					}
-
-					Double cosinSimiliraty = vectorMultiplication / Math.sqrt(euclideanNormR * euclideanNormS);
-					bugAndFileRelation[rr][s][1] = cosinSimiliraty.floatValue();
-
-				}
-			}
-		}
-
-		ExecutorService executor = Executors.newFixedThreadPool(10);
-		for (int r = 0; r < bugAndFileRelation.length; ++r) // for the bug report rows first
-			executor.execute(new ComputeS1Row(r));
-
-		executor.shutdown();
-		while (!executor.isTerminated()) {
-		}
-
-	}
-
+	// S2:
 	// Given a bug report r and a source code file s, let br(r,s) be the set of bug
 	// reports for which file s was fixed
 	// before r was reported. The collaborative filtering feature is then defined as
@@ -248,56 +203,67 @@ public class VsmModel {
 	// The feature computes the textual similarity betwwen the text of the current
 	// bug report r and the summaries
 	// of all the bug reports in br(r,s).
-	public void computeS2() {
 
-		class ComputeS2Column implements Runnable {
-			int s;
+	public void computeS1S2() {
 
-			ComputeS2Column(int s) {
+		class ComputeS1S2PerFile implements Runnable {
+			private int s;
+
+			private ComputeS1S2PerFile(int s) {
 				this.s = s;
 			}
 
 			@Override
 			public void run() {
+				// S2:
+				int sumVector[] = new int[tfIdf.length]; // this is the S2 br(r,s)
+				for (int i = 0; i < sumVector.length; ++i) // this is the S2 br(r,s)
+					sumVector[i] = 0; // this is the S2 br(r,s)
 
-				int sumVector[] = new int[tfIdf.length]; // this is the br(r,s)
-				for (int i = 0; i < sumVector.length; ++i)
-					sumVector[i] = 0;
+				// get a vsmArray second index (vsmArray first index is the vocab) from a
+				// bowBugs list and the bow index
+				int vsmArrayIndexS = bagOfWordsObjects.indexOf(bowFiles.get(s));
 
-				for (int r = 0; r < bugAndFileRelation.length; ++r) { //for each bug report
-					int vsmArrayIndexR = bagOfWordsObjects.indexOf(bowBugs.get(r)); // r bug report vsm index
-					double vectorMultiplication = 0, euclideanNormR = 0, euclideanNormV = 0;
+				for (int r = 0; r < bugAndFileRelation.length; ++r) { // for each bug
+					// get a vsmArray second index (vsmArray first index is the vocab) from a
+					// bowFiles list and the bow index
+					int vsmArrayIndexR = bagOfWordsObjects.indexOf(bowBugs.get(r)); // S1 S2
+					double vectorMultiplication = 0, euclideanNormR = 0, euclideanNormS = 0; // S1
+					double vectorMultiplicationS2 = 0, euclideanNormRS2 = 0, euclideanNormVS2 = 0; // S2
 
-					for (int rBack = r - 1; rBack >= 0; ++rBack) { // for each before bug report while fixed s file
-						int vsmArrayIndexRBack = bagOfWordsObjects.indexOf(bowBugs.get(rBack));
-						
-						if (bugAndFileRelation[rBack][s][0] == 1)	
-							for (int i = 0; i < sumVector.length; ++i) 
-								sumVector[i] += tfIdf[i][vsmArrayIndexRBack];
+					// for the vector length, the vector length is a vsmArray first index (vocab
+					// length)
+					for (int v = 0; v < tfIdf.length; ++v) { // compute similiraty
+						// S1:
+						vectorMultiplication += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexS]; // S1 compute
+						euclideanNormR += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexR]; // S1 compute
+						euclideanNormS += tfIdf[v][vsmArrayIndexS] * tfIdf[v][vsmArrayIndexS]; // S1 compute
+
+						// S2:
+						vectorMultiplicationS2 += tfIdf[v][vsmArrayIndexR] * sumVector[v]; // S2 compute sim(r,br(r,s))
+						euclideanNormRS2 += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexR]; // S2 compute
+																									// sim(r,br(r,s))
+						euclideanNormVS2 += sumVector[v] * sumVector[v]; // S2 compute sim(r,br(r,s))
+
 					}
+					// S1
+					Double cosinSimiliraty = vectorMultiplication / Math.sqrt(euclideanNormR * euclideanNormS);
+					bugAndFileRelation[r][s][1] = cosinSimiliraty.floatValue();
 
-					for (int v = 0; v < tfIdf.length; ++v) { //compute sim(r,br(r,s))
-						vectorMultiplication += tfIdf[v][vsmArrayIndexR] * sumVector[v];
-						euclideanNormR += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexR];
-						euclideanNormV += sumVector[v] * sumVector[v];
-					}
+					// S2
+					Double cosinSimiliratyS2 = vectorMultiplicationS2 / Math.sqrt(euclideanNormRS2 * euclideanNormVS2);
+					bugAndFileRelation[r][s][2] = cosinSimiliratyS2.floatValue();
+					if (bugAndFileRelation[r][s][0] == 1)
+						for (int i = 0; i < sumVector.length; ++i)
+							sumVector[i] += tfIdf[i][vsmArrayIndexR];
 
-					Double cosinSimiliraty = vectorMultiplication / Math.sqrt(euclideanNormR * euclideanNormV);
-
-					bugAndFileRelation[r][s][2] = cosinSimiliraty.floatValue();
-
-				} // compute br(r,s) to a column
+				}
 			}
 		}
 
 		ExecutorService executor = Executors.newFixedThreadPool(10);
-		for (int s = 0; s < bugAndFileRelation[0].length; ++s) { // for column first, because we must compute the
-			// br(r,s) for each source code files
-			// (bugAndFileRelation second index the source code
-			// files)
-			executor.execute(new ComputeS2Column(s));
-
-		}
+		for (int s = 0; s < bugAndFileRelation[0].length; ++s) // for the bug report rows first
+			executor.execute(new ComputeS1S2PerFile(s));
 
 		executor.shutdown();
 		while (!executor.isTerminated()) {
@@ -316,9 +282,7 @@ public class VsmModel {
 		for (int s = 0; s < bugAndFileRelation[0].length; ++s) { // for the source code list columns first
 			BagOfWords bowFile = bowFiles.get(s);
 			String fileName = bowFile.getFile().getName().toLowerCase();
-			
-			
-			
+
 			fileName = fileName.substring(0, fileName.lastIndexOf('.'));
 
 			if (corpusDictionary.contains(fileName)) {
@@ -356,13 +320,11 @@ public class VsmModel {
 	 * 
 	 */
 	public void computeS4S5() {
-		int seged = 0;
-		int segedbaj = 0;
 		for (int s = 0; s < bugAndFileRelation[0].length; ++s) {
 			ArrayList<Integer> dateValueList = new ArrayList<Integer>(); // for each source code file collect the all
 																			// bug report date
-
-			///////////////////// segéd törölni
+	
+			
 
 			for (int r = 0; r < bugAndFileRelation.length; ++r) { // for each bugs
 
@@ -380,6 +342,10 @@ public class VsmModel {
 			Collections.sort(dateValueList);
 
 			for (int r = 0; r < bugAndFileRelation.length; ++r) { // for each bugs
+				
+				bugAndFileRelation[r][s][4] = 0;
+				bugAndFileRelation[r][s][5] = 0;
+				
 				if (!bowBugs.get(r).getBug().getBugDate().equals("null")) {
 
 					String[] strDate = bowBugs.get(r).getBug().getBugDate().split("-");
@@ -389,13 +355,10 @@ public class VsmModel {
 
 					int rMonth = intArray[0] * 12 + intArray[1];
 
-					bugAndFileRelation[r][s][4] = 0;
-					bugAndFileRelation[r][s][5] = 0;
-
 					for (int jj = 0; jj < dateValueList.size(); ++jj) {
 						if (rMonth > dateValueList.get(jj)) {
-							++seged;
-							bugAndFileRelation[r][s][4] = (1 / (rMonth - dateValueList.get(jj) + 1));
+							bugAndFileRelation[r][s][4] = (float)(1.0 / (rMonth - dateValueList.get(jj) + 1));
+							bugAndFileRelation[r][s][5] = jj+1;
 							/*
 							 * Bug-Fixing Frequency A source file that has been frequently fixed may be a
 							 * fault- prone file. Consequently, we decline a bug-fixing frequency feature as
@@ -403,30 +366,15 @@ public class VsmModel {
 							 * report: phi6(r,s) = |br(r, s)|
 							 * 
 							 */
-
-							// computeS5():
-							bugAndFileRelation[r][s][5] = jj;
-							jj = dateValueList.size();
-						} else if (rMonth == dateValueList.get(jj)) {
-							++seged;
-							if (jj > 0) {
-								bugAndFileRelation[r][s][4] = (1 / (rMonth - dateValueList.get(jj - 1) + 1));
+	
+						} else if (rMonth == dateValueList.get(jj) && jj > 0) {
+								bugAndFileRelation[r][s][4] = (float)(1.0 / (rMonth - dateValueList.get(jj - 1) + 1));
 								bugAndFileRelation[r][s][5] = jj;
-							}
-
 						}
 					}
-
-				} else {
-					bugAndFileRelation[r][s][4] = 0;
-					bugAndFileRelation[r][s][5] = 0;
-					segedbaj++;
 				}
 			}
-		}
-		System.out.println("Ennyinek van értéke: " + seged);
-		System.out.println("Ennyinél baj van: " + segedbaj);
-
+		}	
 	}
 
 	public List<BagOfWords> getBowBugs() {

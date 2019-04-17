@@ -117,7 +117,7 @@ public class Main {
 		
 		
 */
-	
+/*	
 		
 
 	
@@ -147,24 +147,16 @@ public class Main {
 		System.out.println("computeTfIdfArray() vége! Futási idõ másodperc: " + b); //~ 9 sec
 	
 	
-		System.out.println("computeS1() kezdõdik!");
+		
+		
+		
+		System.out.println("computeS1S2() kezdõdik!");
 		b = System.currentTimeMillis();
 		
-		vsm.computeS1();
+		vsm.computeS1S2();
 		
 		b = (System.currentTimeMillis() - b)/1000;
-		System.out.println("computeS1() vége! Futási idõ másodperc: " + b); //~ 3244 sec
-		
-		
-		
-		
-		System.out.println("computeS2() kezdõdik!");
-		b = System.currentTimeMillis();
-		
-		vsm.computeS2();
-		
-		b = (System.currentTimeMillis() - b)/1000;
-		System.out.println("computeS2() vége! Futási idõ másodperc: " + b); //~ 2417 sec
+		System.out.println("computeS1S2() vége! Futási idõ másodperc: " + b); //~ 3361 sec
 		
 
 	
@@ -199,12 +191,17 @@ public class Main {
 		
 
 		
-/*
-	
+		vsm = null;
+		System.gc();
+*/		
+/*	
 		System.out.println("loadvsmdata() kezdõdik!");
 		b = System.currentTimeMillis();
 		
-		vsm.loadVsmData();
+		PreprocessVSM preprocessVSM3 = new PreprocessVSM();
+		VsmModel vsm3 = new VsmModel(preprocessVSM3.getCorpusDictionary(), preprocessVSM3.getBagOfWordsObjects(), repoData);
+		
+		vsm3.loadVsmData();
 	
 		
 		b = (System.currentTimeMillis() - b)/1000;
@@ -214,13 +211,13 @@ public class Main {
 		System.out.println("RankSvm létrehozás kezdõdik!");
 		b = System.currentTimeMillis();
 		
-		RankSvm rankSvm = new RankSvm(vsm.getBowBugs(), vsm.getBowFiles(), vsm.getBugAndFileRelation());
+		RankSvm rankSvm = new RankSvm(vsm3.getBowBugs(), vsm3.getBowFiles(), vsm3.getBugAndFileRelation());
 		
 	
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("RankSvm létrehozás vége! Futási idõ másodperc: " + b); //~ 88 sec
+*/
 
-*/	
 /*
 //---------------------------------------------------------ha külön kell számolni
 
@@ -233,18 +230,18 @@ public class Main {
 		VsmModel vsm = new VsmModel(preprocessVSM2.getCorpusDictionary(), preprocessVSM2.getBagOfWordsObjects(), repoData);
 		
 		vsm.loadVsmData();
-		vsm.computeS4();
+		vsm.computeS4S5();
 		vsm.saveVsmData();
 		vsm = null;
 		
 		b = (System.currentTimeMillis() - b)/1000;
-		System.out.println("CsakComputeS4S5 vége! Futási idõ másodperc: " + b); //~ 88 sec
+		System.out.println("CsakComputeS4S5 vége! Futási idõ másodperc: " + b); //~ 161 sec
 		
 		
-	//----------------------------------------------------------------------------	
-		
+//----------------------------------------------------------------------------	
+*/		
 		////heap space hiba ha nem ezzel indul???
-*/
+
 /*
 		System.out.println("RankSvm() init kezdõdik!");
 		b = System.currentTimeMillis();
@@ -264,7 +261,7 @@ public class Main {
 	
 		
 		b = (System.currentTimeMillis() - b)/1000;
-		System.out.println("SortCosSim vége! Futási idõ másodperc: " + b); //~ 1701 sec
+		System.out.println("SortCosSim vége! Futási idõ másodperc: " + b); //~ 783 sec
 		
 		
 		
@@ -276,8 +273,8 @@ public class Main {
 		
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("SaveData vége! Futási idõ másodperc: " + b); //~ 33 sec
-		
-
+*/		
+/*
 		System.out.println("WriteTenFolds kezdõdik!");
 		b = System.currentTimeMillis();
 		
@@ -288,31 +285,31 @@ public class Main {
 		System.out.println("\"WriteTenFolds vége! Futási idõ másodperc: " + b); //~ 291 sec
 */
 		
-/*
+
 		System.out.println("KFoldTrainTest kezdõdik!");
 		b = System.currentTimeMillis();
 		
 		KFoldTrainTest kfd = new KFoldTrainTest();
-		kfd.computeCValue();
+		kfd.computeCValueOptimum();
 		System.out.println("C: " + kfd.getcValue());
 		
 		
 		b = (System.currentTimeMillis() - b)/1000;
-		System.out.println("\"KFoldTrainTest vége! Futási idõ másodperc: " + b); //~ 317 sec
+		System.out.println("\"KFoldTrainTest vége! Futási idõ másodperc: " + b); //~ xx sec
 		
-*/
-/*		
+
+		
 		System.out.println("computeClassify kezdõdik!");
 		b = System.currentTimeMillis();
 		
-		KFoldTrainTest kfd = new KFoldTrainTest();
+		//KFoldTrainTest kfd = new KFoldTrainTest();
 		kfd.computeClassify();
 		
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("computeClassify vége! Futási idõ másodperc: " + b); //~ 348 sec
 	
-*/		
-/*	
+	
+	
 		System.out.println("RankSvmTest kezdõdik!");
 		b = System.currentTimeMillis();
 		
@@ -321,9 +318,8 @@ public class Main {
 		
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("RankSvmTest! Futási idõ másodperc: " + b); //~ 65 sec
-*/		
 		
-		
+			
 		
 		
 	}

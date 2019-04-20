@@ -38,7 +38,7 @@ public class BagOfWords implements Serializable, Runnable {
 	String wordsToken[] = null;
 	private String bagOfWords[] = null;
 	
-	//for sort irrelevant files to RankSvm by cosine similiraty need a sorting array
+	//for sort irrelevant filesWithRankList to RankSvm by cosine similiraty need a sorting array
 	private int[] fileSortedArray;
 
 	public BagOfWords(File file) throws IOException { // constructor when get a source code filepath
@@ -126,7 +126,7 @@ public class BagOfWords implements Serializable, Runnable {
 				wordsList.remove(jj--);
 		}
 
-		/* Read StopWord files */
+		/* Read StopWord filesWithRankList */
 		try {
 			fileR = new FileReader(".\\AutomaticBugAssigment\\OuterFiles\\nlp_en_stop_words.txt");
 			fileR2 = new FileReader(".\\AutomaticBugAssigment\\OuterFiles\\java_stop_words.txt");

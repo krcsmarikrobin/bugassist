@@ -285,7 +285,7 @@ public class Main {
 		System.out.println("\"WriteTenFolds vége! Futási idõ másodperc: " + b); //~ 291 sec
 */
 		
-
+/*
 		System.out.println("KFoldTrainTest kezdõdik!");
 		b = System.currentTimeMillis();
 		
@@ -297,19 +297,20 @@ public class Main {
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("\"KFoldTrainTest vége! Futási idõ másodperc: " + b); //~ xx sec
 		
-
-		
+*/
+/*		
 		System.out.println("computeClassify kezdõdik!");
 		b = System.currentTimeMillis();
 		
 		//KFoldTrainTest kfd = new KFoldTrainTest();
-		kfd.computeClassify();
+		KFoldTrainTest kfd2 = new KFoldTrainTest();
+		kfd2.computeClassify();
 		
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("computeClassify vége! Futási idõ másodperc: " + b); //~ 348 sec
+*/
 	
-	
-	
+/*	
 		System.out.println("RankSvmTest kezdõdik!");
 		b = System.currentTimeMillis();
 		
@@ -319,7 +320,22 @@ public class Main {
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("RankSvmTest! Futási idõ másodperc: " + b); //~ 65 sec
 		
-			
+*/
+		
+		System.out.println("getAccuracyKPercentage kezdõdik!");
+		b = System.currentTimeMillis();
+		
+		//KFoldTrainTest kfd = new KFoldTrainTest();
+		KFoldTrainTest kfd3 = new KFoldTrainTest();
+		int accuracy = kfd3.getAccuracyKPercentage(5, kfd3.collectResult());
+		
+		b = (System.currentTimeMillis() - b)/1000;
+		System.out.println("getAccuracyKPercentage vége! Futási idõ másodperc: " + b); //~ xx sec
+		System.out.println("Találati arány: " + accuracy + "%");
+		
+		
+		
+		
 		
 		
 	}

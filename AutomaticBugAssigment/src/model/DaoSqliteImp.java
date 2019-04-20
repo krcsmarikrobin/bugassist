@@ -141,7 +141,7 @@ public class DaoSqliteImp {
 
 				} catch (SQLException e1) {
 					System.out.println(
-							"Error insert bug files data to put database at saveGitRepoData()" + e1.getMessage());
+							"Error insert bug filesWithRankList data to put database at saveGitRepoData()" + e1.getMessage());
 					e1.printStackTrace();
 
 				}

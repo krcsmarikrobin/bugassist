@@ -7,19 +7,15 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.InputStreamReader;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import bean.Bug;
 
 public class VsmModel {
 
@@ -27,13 +23,13 @@ public class VsmModel {
 	List<String> corpusDictionary;
 	CollectGitRepoData repoData;
 
-	// detach the BagOfWordsObjects two part (bug and files)
+	// detach the BagOfWordsObjects two part (bug and filesWithRankList)
 	List<BagOfWords> bowBugs = new ArrayList<BagOfWords>();
 	List<BagOfWords> bowFiles = new ArrayList<BagOfWords>();
 
-	int vsmArray[][]; // 3d first: rows of dictionary, second: columns of bug or files BagOfWords
+	int vsmArray[][]; // 3d first: rows of dictionary, second: columns of bug or filesWithRankList BagOfWords
 						// object
-	float bugAndFileRelation[][][]; // 3d first: rows of bug report, second: columns of files. third: parameters of
+	float bugAndFileRelation[][][]; // 3d first: rows of bug report, second: columns of filesWithRankList. third: parameters of
 									// computed values. If i bug fixed in j file
 									// int[i][j][0]=1 else int[i][j][0]=0;
 
@@ -191,7 +187,7 @@ public class VsmModel {
 	}
 
 	// S1:
-	// compute the cosine similiraty from bug report and files s1 = sim(r,s) =
+	// compute the cosine similiraty from bug report and filesWithRankList s1 = sim(r,s) =
 	// cos(r,s) = (rT * s) / (||r|| * ||s||)
 	// Let r the bug report index, let s the source code file index.
 
@@ -305,7 +301,7 @@ public class VsmModel {
 
 	/*
 	 * computeS4(): The change history of source codes provides information that can
-	 * help predict fault-prone files. For example, a source code file that was
+	 * help predict fault-prone filesWithRankList. For example, a source code file that was
 	 * fixed very recently is more likely to still contain bugs than a file that was
 	 * last fixed long time in the past, or never fixed. Let br(r,s) be the set of
 	 * bug reports for which file s was fixed before bug report r was created. Let

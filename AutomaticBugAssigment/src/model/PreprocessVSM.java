@@ -43,7 +43,7 @@ public class PreprocessVSM implements Serializable {
 			bagOfWordsObjects.add(new BagOfWords(bug)); // build bagofwords object from bug
 
 		files = new ArrayList<File>();
-		listf(repo.getRepo().getWorkTree().getPath(), files); // get all files for a given file extensions
+		listf(repo.getRepo().getWorkTree().getPath(), files); // get all filesWithRankList for a given file extensions
 
 		for (File file : files)
 			try {
@@ -66,7 +66,7 @@ public class PreprocessVSM implements Serializable {
 	private void listf(String directoryName, List<File> files) { // list given extensions file recursive
 		File directory = new File(directoryName);
 
-		// Get all files from a directory.
+		// Get all filesWithRankList from a directory.
 
 		File[] fList = directory.listFiles();
 

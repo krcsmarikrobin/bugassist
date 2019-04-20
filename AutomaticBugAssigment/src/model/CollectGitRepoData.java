@@ -118,7 +118,7 @@ public class CollectGitRepoData implements Serializable {
 				 * diff.getChangeType().name(), diff.getNewMode().getBits(),
 				 * diff.getNewPath()));
 				 */
-				if (diff.getNewPath().contains(fileExtension)) // only add .java extension files
+				if (diff.getNewPath().contains(fileExtension)) // only add .java extension filesWithRankList
 					fileList.add(diff.getNewPath());
 				df.close();
 				rw.close();

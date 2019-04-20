@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import bean.Bug;
+import controller.BugassistController;
 import model.CollectGitRepoData;
 import model.CollectHttpBugData;
 import model.IOBugObjectDataFromMemory;
@@ -321,7 +322,7 @@ public class Main {
 		System.out.println("RankSvmTest! Futási idõ másodperc: " + b); //~ 65 sec
 		
 */
-		
+/*		
 		System.out.println("getAccuracyKPercentage kezdõdik!");
 		b = System.currentTimeMillis();
 		
@@ -333,9 +334,10 @@ public class Main {
 		System.out.println("getAccuracyKPercentage vége! Futási idõ másodperc: " + b); //~ xx sec
 		System.out.println("Találati arány: " + accuracy + "%");
 		
+*/		
 		
-		
-		
+		BugassistController controller = new BugassistController();
+		controller.startDesktop();
 		
 		
 	}

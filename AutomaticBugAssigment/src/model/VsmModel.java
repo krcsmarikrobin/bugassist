@@ -120,22 +120,6 @@ public class VsmModel {
 		}
 	}
 
-//////////////////////////////////////////////////////////////////////törölni	
-	public void saveDataToCheck() {
-
-		PrintWriter outDictionary;
-		try {
-			outDictionary = new PrintWriter(new FileOutputStream("D:\\vsmDictionary.txt"));
-			corpusDictionary.sort(String::compareToIgnoreCase);
-			for (String word : corpusDictionary) {
-				outDictionary.println(word);
-			}
-			outDictionary.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-//////////////////////////////////////////////////////////////////////törölni
 
 	// this method compute the tf-idf weighted model in wich the term frequency
 	// factors are normalized

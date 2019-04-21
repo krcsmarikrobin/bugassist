@@ -27,13 +27,13 @@ public class Main {
 	
 	public static void main(String[] args) throws IOException {
 		
-
+/*
 		Long b;
 		
 
-		CollectGitRepoData repoData = new CollectGitRepoData("..\\gecko-dev\\.git", "AutomaticBugAssigment\\OuterFiles\\db\\test.db", ".java");
+		CollectGitRepoData repoData = new CollectGitRepoData("..\\gecko-dev\\.git", "AutomaticBugAssigment\\OuterFiles\\db\\bugassist.db", ".java");
 		
-
+*/
 	
 /*		
 		long a = System.currentTimeMillis();

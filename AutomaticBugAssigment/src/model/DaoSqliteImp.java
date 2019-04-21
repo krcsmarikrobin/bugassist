@@ -25,7 +25,6 @@ import bean.Bug;
 public class DaoSqliteImp {
 	Connection conn;
 	String url;
-	int counter = 0;
 	Repository repo = null;
 
 	public DaoSqliteImp(String dbFileNameWithPath, Repository repo) { // dbFileNameWithPath for example
@@ -95,9 +94,6 @@ public class DaoSqliteImp {
 
 		@Override
 		public void run() {
-///////////////////////////////////////////////////////////////////////////////////////törölni
-			System.out.println(++counter);
-///////////////////////////////////////////////////////////////////////////////////////törölni
 
 			String sql1 = "SELECT 1 FROM bug WHERE bugid = ? AND commitname = ?";
 			String sql2 = "INSERT INTO bug(bugid, commitname) VALUES(?,?)";

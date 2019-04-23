@@ -1,5 +1,5 @@
 D:\GIT\bugassist\AutomaticBugAssigment
-D:\GIT\bugassist\gecko-dev
+D:\GIT\gecko-dev
 https://bugzilla.mozilla.org
 10
 5

@@ -10,7 +10,6 @@ import java.io.FileWriter;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -369,12 +368,12 @@ public class VsmModel {
 		return bugAndFileRelation;
 	}
 
-	public void saveVsmData() {
+	public void saveVsmData(String path) {
 
 		ObjectOutputStream outBowBugs;
 		try {
 			outBowBugs = new ObjectOutputStream(
-					new FileOutputStream("AutomaticBugAssigment\\OuterFiles\\bowBugs.data"));
+					new FileOutputStream(path + "\\OuterFiles\\bowBugs.data"));
 			outBowBugs.writeObject(bowBugs);
 			outBowBugs.close();
 		} catch (Exception e) {
@@ -384,7 +383,7 @@ public class VsmModel {
 		ObjectOutputStream outBowFiles;
 		try {
 			outBowFiles = new ObjectOutputStream(
-					new FileOutputStream("AutomaticBugAssigment\\OuterFiles\\bowFiles.data"));
+					new FileOutputStream(path + "\\OuterFiles\\bowFiles.data"));
 			outBowFiles.writeObject(bowFiles);
 			outBowFiles.close();
 		} catch (Exception e) {
@@ -394,7 +393,7 @@ public class VsmModel {
 		BufferedWriter outbugAndFileRelation;
 		try {
 			outbugAndFileRelation = new BufferedWriter(
-					new FileWriter(new File("AutomaticBugAssigment\\OuterFiles\\bugAndFileRelation.data")));
+					new FileWriter(new File(path + "\\OuterFiles\\bugAndFileRelation.data")));
 			for (int kk = 0; kk < 6; ++kk) {
 				for (int ii = 0; ii < bugAndFileRelation.length; ++ii) {
 					for (int jj = 0; jj < bugAndFileRelation[0].length; ++jj) {
@@ -413,12 +412,12 @@ public class VsmModel {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void loadVsmData() {
+	public void loadVsmData(String path) {
 
 		ObjectInput inBowBugs;
 		List<BagOfWords> bowBugs = null;
 		try {
-			inBowBugs = new ObjectInputStream(new FileInputStream("AutomaticBugAssigment\\OuterFiles\\bowBugs.data"));
+			inBowBugs = new ObjectInputStream(new FileInputStream(path + "\\OuterFiles\\bowBugs.data"));
 			bowBugs = (List<BagOfWords>) inBowBugs.readObject();
 			inBowBugs.close();
 			this.bowBugs = bowBugs;
@@ -429,7 +428,7 @@ public class VsmModel {
 		ObjectInput inBowFiles;
 		List<BagOfWords> bowFiles = null;
 		try {
-			inBowFiles = new ObjectInputStream(new FileInputStream("AutomaticBugAssigment\\OuterFiles\\bowFiles.data"));
+			inBowFiles = new ObjectInputStream(new FileInputStream(path + "\\OuterFiles\\bowFiles.data"));
 			bowFiles = (List<BagOfWords>) inBowFiles.readObject();
 			inBowFiles.close();
 			this.bowFiles = bowFiles;
@@ -453,7 +452,7 @@ public class VsmModel {
 
 		try {
 			inBugAndFileRelation = new BufferedReader(
-					new FileReader(new File("AutomaticBugAssigment\\OuterFiles\\bugAndFileRelation.data")));
+					new FileReader(new File(path + "\\OuterFiles\\bugAndFileRelation.data")));
 
 			String st;
 			int kk = 0;

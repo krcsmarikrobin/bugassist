@@ -1,31 +1,14 @@
-
-
-
-
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import bean.Bug;
 import controller.BugassistController;
-import model.CollectGitRepoData;
-import model.CollectHttpBugData;
-import model.IOBugObjectDataFromMemory;
-import model.KFoldTrainTest;
-import model.PreprocessVSM;
-import model.RankSvm;
-import model.VsmModel;
-
 
 public class Main {
-
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
+		
+		BugassistController controller = new BugassistController();
+		controller.startDesktop();
+	}
+}
+
 		
 /*
 		Long b;
@@ -335,11 +318,4 @@ public class Main {
 		System.out.println("Találati arány: " + accuracy + "%");
 		
 */		
-		
-		BugassistController controller = new BugassistController();
-		controller.startDesktop();
-		
-		
-	}
-}
 

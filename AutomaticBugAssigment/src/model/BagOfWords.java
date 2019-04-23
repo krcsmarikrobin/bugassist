@@ -32,6 +32,10 @@ public class BagOfWords implements Serializable, Runnable {
 
 	private static final long serialVersionUID = -8589648061274982318L;
 
+	
+	private String workingDir;
+	
+	
 	File file = null;
 	private Bug bug = null;
 	private String words = null;
@@ -41,8 +45,9 @@ public class BagOfWords implements Serializable, Runnable {
 	//for sort irrelevant filesWithRankList to RankSvm by cosine similiraty need a sorting array
 	private int[] fileSortedArray;
 
-	public BagOfWords(File file) throws IOException { // constructor when get a source code filepath
+	public BagOfWords(File file, String workingDir) throws IOException { // constructor when get a source code filepath
 		this.file = file;
+		this.workingDir = workingDir;
 
 		StringBuilder s = new StringBuilder();
 		int c;
@@ -93,9 +98,9 @@ public class BagOfWords implements Serializable, Runnable {
 
 	}
 
-	public BagOfWords(Bug bug) { // constructor when get a bug
+	public BagOfWords(Bug bug, String workingDir) { // constructor when get a bug
 		this.bug = bug;
-
+		this.workingDir = workingDir;
 		words = bug.getBugShortDesc() + bug.getBugLongDesc();
 
 	}
@@ -128,8 +133,8 @@ public class BagOfWords implements Serializable, Runnable {
 
 		/* Read StopWord filesWithRankList */
 		try {
-			fileR = new FileReader(".\\AutomaticBugAssigment\\OuterFiles\\nlp_en_stop_words.txt");
-			fileR2 = new FileReader(".\\AutomaticBugAssigment\\OuterFiles\\java_stop_words.txt");
+			fileR = new FileReader(workingDir + "\\OuterFiles\\nlp_en_stop_words.txt");
+			fileR2 = new FileReader(workingDir + "\\OuterFiles\\java_stop_words.txt");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			System.err.println(0);
@@ -176,7 +181,7 @@ public class BagOfWords implements Serializable, Runnable {
 
 		POSTaggerME tagger = null;
 
-		try (InputStream modelIn = new FileInputStream(".\\AutomaticBugAssigment\\OuterFiles\\en-pos-maxent.bin")) {
+		try (InputStream modelIn = new FileInputStream(workingDir + "\\OuterFiles\\en-pos-maxent.bin")) {
 
 			POSModel model = new POSModel(modelIn);
 			tagger = new POSTaggerME(model);
@@ -189,7 +194,7 @@ public class BagOfWords implements Serializable, Runnable {
 
 		DictionaryLemmatizer lemmatizer = null;
 
-		try (InputStream modelIn = new FileInputStream(".\\AutomaticBugAssigment\\OuterFiles\\en-lemmatizer.dict")) {
+		try (InputStream modelIn = new FileInputStream(workingDir + "\\OuterFiles\\en-lemmatizer.dict")) {
 			lemmatizer = new DictionaryLemmatizer(modelIn);
 		} catch (IOException e) {
 			e.printStackTrace();

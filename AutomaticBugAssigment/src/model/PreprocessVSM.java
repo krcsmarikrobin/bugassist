@@ -32,22 +32,24 @@ public class PreprocessVSM implements Serializable {
 	private List<BagOfWords> bagOfWordsObjects = null;
 	private List<File> files = null;
 	private List<String> corpusDictionary = new ArrayList<String>();
+	
+	private String workingDir;
 
-	public PreprocessVSM(CollectGitRepoData repo) {
-
+	public PreprocessVSM(CollectGitRepoData repo, String workingDir) {
+		this.workingDir = workingDir;
 		this.repo = repo;
 
 		List<Bug> bugs = repo.getDao().getAllBugsWhereHaveHttpData(); // get all bugs where have description from bugzilla
 		bagOfWordsObjects = new ArrayList<BagOfWords>();
 		for (Bug bug : bugs)
-			bagOfWordsObjects.add(new BagOfWords(bug)); // build bagofwords object from bug
+			bagOfWordsObjects.add(new BagOfWords(bug, workingDir)); // build bagofwords object from bug
 
 		files = new ArrayList<File>();
 		listf(repo.getRepo().getWorkTree().getPath(), files); // get all filesWithRankList for a given file extensions
 
 		for (File file : files)
 			try {
-				bagOfWordsObjects.add(new BagOfWords(file)); // build bagofwords object from file
+				bagOfWordsObjects.add(new BagOfWords(file, workingDir)); // build bagofwords object from file
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -57,7 +59,8 @@ public class PreprocessVSM implements Serializable {
 
 	}
 
-	public PreprocessVSM() {
+	public PreprocessVSM(String workingDir) {
+		this.workingDir = workingDir;
 		this.loadData();
 		this.buildDictionary();
 
@@ -86,7 +89,7 @@ public class PreprocessVSM implements Serializable {
 		ObjectOutput out;
 		try {
 			out = new ObjectOutputStream(
-					new FileOutputStream("AutomaticBugAssigment\\OuterFiles\\SaveStatePreprocessVsm.data"));
+					new FileOutputStream(workingDir + "\\OuterFiles\\SaveStatePreprocessVsm.data"));
 			out.writeObject(this.bagOfWordsObjects);
 			out.close();
 		} catch (Exception e) {
@@ -100,7 +103,7 @@ public class PreprocessVSM implements Serializable {
 		ObjectInput in;
 		try {
 			in = new ObjectInputStream(
-					new FileInputStream("AutomaticBugAssigment\\OuterFiles\\SaveStatePreprocessVsm.data"));
+					new FileInputStream(workingDir + "\\OuterFiles\\SaveStatePreprocessVsm.data"));
 			bagOfWordsObjects = (List<BagOfWords>) in.readObject();
 			in.close();
 

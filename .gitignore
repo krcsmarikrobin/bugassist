@@ -35,3 +35,5 @@
 
 ./target/
 ./.gradle/
+/AutomaticBugAssigment/
+/target/

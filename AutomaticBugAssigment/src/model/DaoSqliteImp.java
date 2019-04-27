@@ -26,7 +26,7 @@ public class DaoSqliteImp {
 	Connection conn;
 	String url;
 	Repository repo = null;
-
+    //Az adatbázis kezeléséhez
 	public DaoSqliteImp(String dbFileNameWithPath, Repository repo) { // dbFileNameWithPath például
 																		// D:\\GIT\\bugassist\\dbfiles\\test.db
 		this.repo = repo;
@@ -44,7 +44,7 @@ public class DaoSqliteImp {
 			System.out.println("Error create database!");
 		}
 
-		// SQL statement for creating a new table
+		// SQL parancs az új tábla készítéséhez
 		String sql1 = "CREATE TABLE IF NOT EXISTS bug(commitname text, bugid integer);";
 		String sql2 = "CREATE TABLE IF NOT EXISTS bugfiles(commitname text, filename text);";
 		String sql3 = "CREATE TABLE IF NOT EXISTS bughttpdata(bugid integer, shortdesc text, longdesc text, productname text, status text, bugdate text, bagofwords text);";
@@ -137,7 +137,7 @@ public class DaoSqliteImp {
 
 				} catch (SQLException e1) {
 					System.out.println(
-							"Error insert bug filesWithRankList data to put database at saveGitRepoData()" + e1.getMessage());
+							e1.getMessage());
 					e1.printStackTrace();
 
 				}
@@ -223,6 +223,7 @@ public class DaoSqliteImp {
 	}
 
 	public List<Bug> getAllBugsWhereHaveHttpData() {
+		
 		//A VSM model elõfeldolgozásához listázzuk a felhasználható hibabajelentéseket
 
 		List<Bug> bugs = new ArrayList<Bug>();
@@ -282,9 +283,8 @@ public class DaoSqliteImp {
 					}
 
 					bug.setBugSourceCodeFileList(bugFiles);
-					bugs.add(bug);
-/********************************törölni****************************/ System.out.println("(DaoSqLiteImp üzenete)Ennyi a felhasználható hibabejelentés szám: " + bugs.size());
-					
+					bugs.add(bug);		
+				
 				}
 				rs4.close();
 				
@@ -294,19 +294,19 @@ public class DaoSqliteImp {
 			pstmt2.close();
 			pstmt3.close();
 		} catch (SQLException e) {
-			System.out.println("Error get bug data from database!" + e.getMessage());
+			e.getMessage();
 			e.printStackTrace();
 		} catch (MissingObjectException e) {
-			System.out.println("Error get bug data from database!" + e.getMessage());
+			e.getMessage();
 			e.printStackTrace();
 		} catch (IncorrectObjectTypeException e) {
-			System.out.println("Error get bug data from database!" + e.getMessage());
+			e.getMessage();
 			e.printStackTrace();
 		} catch (IOException e) {
-			System.out.println("Error get bug data from database!" + e.getMessage());
+			e.getMessage();
 			e.printStackTrace();
 		}
-
+		/********************************törölni****************************/ System.out.println("(DaoSqLiteImp üzenete)Ennyi a felhasználható hibabejelentés szám: " + bugs.size());
 		return bugs;
 	}
 
@@ -339,7 +339,7 @@ public class DaoSqliteImp {
 			conn.commit();
 
 		} catch (SQLException e) {
-			System.out.println("Error get AllBugs bugid and commitname data from database!" + e.getMessage());
+			e.getMessage();
 		}
 
 		return bugList;
@@ -364,7 +364,7 @@ public class DaoSqliteImp {
 			conn.commit();
 
 		} catch (SQLException e1) {
-			System.out.println("Error insert bug http data to put database!" + e1.getMessage());
+			e1.getMessage();
 			e1.printStackTrace();
 		}
 

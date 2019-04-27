@@ -16,32 +16,53 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+
+/*
+ * A modellképzést a VSMModel osztály hajtja végre. 
+ * Ehhez kiindulásként szükség van az elõzõleg meghatározott BagOfWords objektumokra, 
+ * amelyekben már rendelkezésre állnak a „tisztított” szózsákok. A VSMModel a vektortérmodellt 
+ * adatszerkezetileg egy vsmArray[][] kétdimenziós tömbben tárolja, ahol az elsõ dimenzó a 
+ * szavak elõfordulásainak száma a szótár List<String>corpusDictionary listatömb indexei szerint, 
+ * míg a második dimenzió a hibabejelentések és forrásfájlok List<BagOfWords> listatömb szózsák 
+ * objektumaihoz tartozó értékek a listatömb indexei szerint. Ebbõl a tömbbõl számolja a tf-idf súlyozást, 
+ * amibõl kiindulva meghatározza az S1,S2,S3,S4,S5 értékeket. A kiszámított 
+ * értékeket a program három objektumban kezeli. Elsõ egy ArrayList<String>bowBugs objektum a hibabejelentéskbõl,
+ * a második egy ArrayList<String>bowFiles a java fájlokból és a harmadik egy double[][][] bugAndFileRel 
+ * háromdineziós tömb. A tömb elsõ két dimenziója a hibabejelentések és a forrásfájlok BagOfWords 
+ * objektumainak relációja a lista indexük szerint. A harmadikban tárolódik az, hogy az adott 
+ * hibabejelentés és forrásfájl pár összetartozik-e a javítás szempontjából (0.0 vagy 1.0) 
+ * értékkel jelölve, továbbá a tf-idf súlyozás, a koszinusz távolság és az S1,S2,S3,S4,S5 értékei.
+ * 
+ * 
+ * */
+
+
 public class VsmModel {
 
 	List<BagOfWordsV2> bagOfWordsObjects;
 	List<String> corpusDictionary;
 	CollectGitRepoData repoData;
 
-	// detach the BagOfWordsObjects two part (bug and filesWithRankList)
+	// szétszedi a BagOfWordsObject-eket két részre (bug és forrásfájlokra)
 	List<BagOfWordsV2> bowBugs = new ArrayList<BagOfWordsV2>();
 	List<BagOfWordsV2> bowFiles = new ArrayList<BagOfWordsV2>();
 
-	int vsmArray[][]; // 2d first: rows of dictionary, second: columns of bug or filesWithRankList BagOfWords
+	int vsmArray[][]; // 2d elsõ: sor a szótárból, második: oszlop a bug és fájlokból BagOfWords
 						// object
-	float bugAndFileRelation[][][]; // 3d first: rows of bug report, second: columns of filesWithRankList. third: parameters of
-									// computed values. If i bug fixed in j file
-									// int[i][j][0]=1 else int[i][j][0]=0;
+	float bugAndFileRelation[][][]; // 3d elsõ: sor a hibákból, második: oszlop a fájlokból. harmadik:paraméterek. 
+	                              
 
-	int tfIdf[][]; // tfidf with entropy weight matrix;
+	double tfIdf[][]; // tfidf  mátrix ;
 
 	public VsmModel(List<String> corpusDictionary, List<BagOfWordsV2> bagOfWordsObjects, CollectGitRepoData repoData) {
 		this.corpusDictionary = corpusDictionary;
 		this.bagOfWordsObjects = bagOfWordsObjects;
 		this.repoData = repoData;
 
-		// initialize and fill the vsmArray, each object get the words array and fill
-		// the matrix with inner class and executor for threads
-
+		
+		// Inicializállja és kitölti a vsmArray-t, minden objektum megkapja a szótárat
+		// és az alapján kitölti.
+		
 		vsmArray = new int[corpusDictionary.size()][bagOfWordsObjects.size()];
 		ExecutorService executor = Executors.newFixedThreadPool(10);
 		for (int jj = 0; jj < bagOfWordsObjects.size(); ++jj)
@@ -51,7 +72,7 @@ public class VsmModel {
 		while (!executor.isTerminated()) {
 		}
 
-		// initialize the relation array
+		// inicializálja a kapcsolati tömböt
 
 		int i = 0, j = 0;
 		for (BagOfWordsV2 bow : bagOfWordsObjects) {
@@ -67,7 +88,7 @@ public class VsmModel {
 				for (int kk = 0; kk < 6; ++kk)
 					bugAndFileRelation[ii][jj][kk] = 0;
 
-		// fill the relation array
+	
 
 		List<String> sourceCodeFilePathes = new ArrayList<String>();
 
@@ -82,7 +103,7 @@ public class VsmModel {
 				bowBugs.add(bow);
 			}
 
-		// Second fill the relation array
+	
 
 		for (int ii = 0; ii < bowBugs.size(); ++ii) {
 			List<String> bugSourceCodeFileList = bowBugs.get(ii).getBug().getBugSourceCodeFileList();
@@ -101,7 +122,8 @@ public class VsmModel {
 
 	}
 
-	// inner class to build vsmArray in the constructor with threads
+	// belsõ osztály a vsmArray építéshez szálkezeléssel
+	
 	private class PasteVsmArray implements Runnable {
 		private int jj;
 
@@ -131,7 +153,7 @@ public class VsmModel {
 	// that contain term t
 
 	public void computeTfIdfArray() {
-		tfIdf = new int[vsmArray.length][vsmArray[0].length];
+		tfIdf = new double[vsmArray.length][vsmArray[0].length];
 		int N = bagOfWordsObjects.size();
 		int term = vsmArray.length;
 		int document = vsmArray[0].length;
@@ -165,24 +187,22 @@ public class VsmModel {
 
 		for (int t = 0; t < term; ++t)
 			for (int d = 0; d < document; ++d)
-				tfIdf[t][d] = new Double((0.5 + 0.5 * vsmArray[t][d] / maxTermFreq[d]) * idf[t]).intValue();
+				tfIdf[t][d] = new Double((0.5 + 0.5 * vsmArray[t][d] / maxTermFreq[d]) * idf[t]);  ///--------------------------------------------------------//.intValue();
 
 	}
 
 	// S1:
-	// compute the cosine similiraty from bug report and filesWithRankList s1 = sim(r,s) =
+	// kiszámítja a koszinusz távolságot a bugok és fájlok között s1 = sim(r,s) =
 	// cos(r,s) = (rT * s) / (||r|| * ||s||)
-	// Let r the bug report index, let s the source code file index.
+	// r a bug index s a forrásfájl index
 
 	// S2:
-	// Given a bug report r and a source code file s, let br(r,s) be the set of bug
-	// reports for which file s was fixed
-	// before r was reported. The collaborative filtering feature is then defined as
-	// follows: s2 = sim (r,br(r,s)).
-	// The feature computes the textual similarity betwwen the text of the current
-	// bug report r and the summaries
-	// of all the bug reports in br(r,s).
-
+	/* Egy forrásfájlt több hibabejelentés is érinthet.
+	 *  Minden br(r,s) tekintetében a program kiszámítja az aktuális hibabejelentés és a
+	 *   forrásfájl javítását érintõ megelõzõ hibabejelentések közötti 
+	 *   koszinusz távolságot {sim(r, br(r,s)}
+	 *   
+	 */
 	public void computeS1S2() {
 
 		class ComputeS1S2PerFile implements Runnable {
@@ -195,23 +215,22 @@ public class VsmModel {
 			@Override
 			public void run() {
 				// S2:
-				int sumVector[] = new int[tfIdf.length]; // this is the S2 br(r,s)
-				for (int i = 0; i < sumVector.length; ++i) // this is the S2 br(r,s)
-					sumVector[i] = 0; // this is the S2 br(r,s)
+				double sumVector[] = new double[tfIdf.length]; // ez az S2 br(r,s)
+				for (int i = 0; i < sumVector.length; ++i) // ez az S2 br(r,s)
+					sumVector[i] = 0; // ez az S2 br(r,s)
 
-				// get a vsmArray second index (vsmArray first index is the vocab) from a
-				// bowBugs list and the bow index
+				// visszakapni a vsmArray második indexét fájl esetében (az elsõ index a szótár)
+				
 				int vsmArrayIndexS = bagOfWordsObjects.indexOf(bowFiles.get(s));
 
 				for (int r = 0; r < bugAndFileRelation.length; ++r) { // for each bug
-					// get a vsmArray second index (vsmArray first index is the vocab) from a
-					// bowFiles list and the bow index
+					//  visszakapni a vsmArray második indexét bug esetében 
 					int vsmArrayIndexR = bagOfWordsObjects.indexOf(bowBugs.get(r)); // S1 S2
 					double vectorMultiplication = 0, euclideanNormR = 0, euclideanNormS = 0; // S1
 					double vectorMultiplicationS2 = 0, euclideanNormRS2 = 0, euclideanNormVS2 = 0; // S2
 
-					// for the vector length, the vector length is a vsmArray first index (vocab
-					// length)
+					// A vektor hosszán végigmenve
+					
 					for (int v = 0; v < tfIdf.length; ++v) { // compute similiraty
 						// S1:
 						vectorMultiplication += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexS]; // S1 compute
@@ -248,7 +267,7 @@ public class VsmModel {
 		}
 
 		ExecutorService executor = Executors.newFixedThreadPool(10);
-		for (int s = 0; s < bugAndFileRelation[0].length; ++s) // for the bug report rows first
+		for (int s = 0; s < bugAndFileRelation[0].length; ++s) // a bug report sor az elsõ
 			executor.execute(new ComputeS1S2PerFile(s));
 
 		executor.shutdown();
@@ -257,15 +276,14 @@ public class VsmModel {
 
 	}
 
-	// The signal becomes stronger when the class name is longer and thus more
-	// specific. Let s.class denote the name of the main class implemented in source
-	// file s,
-	// and |s.class| the name length. Based on the observation above, define a class
-	// name similarity feature as follows:
-	// s3 = |s.class| if the bug report contains s.class, else 0
+	/*
+	 *  Minden br(r,s) tekintetében, ha a hibabejelentés tartalmazza az osztály nevét, 
+	 *  akkor egyenlõ az osztály nevének hosszával, egyéb esetben pedig 0.
+	 *  s3 = |s.class| ha tartalmazza, egyéb esetben 0
+	 */
 
 	public void computeS3() {
-		for (int s = 0; s < bugAndFileRelation[0].length; ++s) { // for the source code list columns first
+		for (int s = 0; s < bugAndFileRelation[0].length; ++s) { // a forrásfájl oszloplista az elsõ
 			BagOfWordsV2 bowFile = bowFiles.get(s);
 			String fileName = bowFile.getFile().getName().toLowerCase();
 
@@ -274,11 +292,10 @@ public class VsmModel {
 			if (corpusDictionary.contains(fileName)) {
 
 				int vsmArrayFirstIndex = corpusDictionary.indexOf(fileName);
-				for (int r = 0; r < bugAndFileRelation.length; ++r) { // for the bug report rows second
-					int vsmArrayIndexR = bagOfWordsObjects.indexOf(bowBugs.get(r)); // get a vsmArray second index
+				for (int r = 0; r < bugAndFileRelation.length; ++r) { // a bug report sorlista a második
+					int vsmArrayIndexR = bagOfWordsObjects.indexOf(bowBugs.get(r)); // vsmArray második index
 																					// (vsmArray
-																					// first index is the vocab) from a
-																					// bowBugs list and the bow index
+																					// elsõ index a szótár)
 					if (vsmArray[vsmArrayFirstIndex][vsmArrayIndexR] > 0) {
 						bugAndFileRelation[r][s][3] = fileName.length();
 					}
@@ -290,29 +307,21 @@ public class VsmModel {
 	}
 
 	/*
-	 * computeS4(): The change history of source codes provides information that can
-	 * help predict fault-prone filesWithRankList. For example, a source code file that was
-	 * fixed very recently is more likely to still contain bugs than a file that was
-	 * last fixed long time in the past, or never fixed. Let br(r,s) be the set of
-	 * bug reports for which file s was fixed before bug report r was created. Let
-	 * last(r, s) contains br(r, s) be the most recent previously fixed bug. Also,
-	 * for any bug report r, let r.month denote the month when the bug report was
-	 * created. We then define the bug-fixing recently feature to be the inverse of
-	 * the distance in months between r and last(r,s): phi5(r,s) = (r.month -
-	 * last(r,s).month + 1)^-1
+	 * Tekintettel arra, hogy ha egy forrásfájlt frissen javítanak, 
+	 * ott nagyobb valószínûséggel kell ismét javítást végrehajtani, mint a 
+	 * többi fájlon, ezért minden br(r,s) tekintetében S4 elõáll a hibabejelentés dátumának 
+	 * és a forrásfájlt megelõzõ javítás dátumának különbségének reciprokaként {pl.: (2019.04-2019.03+1)-1=1/2}
 	 * 
-	 * Thus, if s was last fixed in the same month that r was created, phi5(r,s) is
-	 * 1. If s was last fixed one month before r was created, phi5(r,s) is 0.5.
 	 * 
 	 */
 	public void computeS4S5() {
 		for (int s = 0; s < bugAndFileRelation[0].length; ++s) {
-			ArrayList<Integer> dateValueList = new ArrayList<Integer>(); // for each source code file collect the all
-																			// bug report date
+			ArrayList<Integer> dateValueList = new ArrayList<Integer>(); // minden egyes fájlon 
+			                                                         //kigyûjti a bugreport dátumát										
 	
 			
 
-			for (int r = 0; r < bugAndFileRelation.length; ++r) { // for each bugs
+			for (int r = 0; r < bugAndFileRelation.length; ++r) { // minden egyes bug
 
 				if (bugAndFileRelation[r][s][0] == 1 && !bowBugs.get(r).getBug().getBugDate().equals("null")) {
 					String[] strDate = bowBugs.get(r).getBug().getBugDate().split("-");
@@ -327,7 +336,7 @@ public class VsmModel {
 
 			Collections.sort(dateValueList);
 
-			for (int r = 0; r < bugAndFileRelation.length; ++r) { // for each bugs
+			for (int r = 0; r < bugAndFileRelation.length; ++r) { // minden egyes bug
 				
 				bugAndFileRelation[r][s][4] = 0;
 				bugAndFileRelation[r][s][5] = 0;
@@ -346,10 +355,8 @@ public class VsmModel {
 							bugAndFileRelation[r][s][4] = (float)(1.0 / (rMonth - dateValueList.get(jj) + 1));
 							bugAndFileRelation[r][s][5] = jj+1;
 							/*
-							 * Bug-Fixing Frequency A source file that has been frequently fixed may be a
-							 * fault- prone file. Consequently, we decline a bug-fixing frequency feature as
-							 * the number of times a source file has been fixed before the current bug
-							 * report: phi6(r,s) = |br(r, s)|
+							 * S5: Minden br(r,s) tekintetében a hibabejelentés megtétele 
+							 * elõtti forrásfájlt érintõ javítások számával.
 							 * 
 							 */
 	

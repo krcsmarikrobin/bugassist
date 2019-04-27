@@ -22,8 +22,13 @@ import bean.Bug;
 public class PreprocessVSM2 implements Serializable {
 
 	/*
-	 * This class can build a Vector Space Model from a List of BagofWords It need a
-	 * CollectGitRepoData object to collect bugs and source Files path
+	 * Az elõfeldolgozást a modellképzéshez a PreprocessVSM osztály hajtja végre. Elsõ körben kigyûjti az összes 
+	 * hibabejelentést, majd kigyûjti a repo könyvtárából az összes java kiterjesztésû fájlt. 
+	 * Minden egyes hibabejelentésbõl és fálból egy BagOfWords (szózsák) objektumot állít elõ. 
+	 * A BagOfWords objektum fogja magában foglalni, hogy a fájlról 
+	 * vagy hibabejelentésrõl van-e szó, illetve itt lesz letárolva 
+	 * a feldolgozott szavak halmaza (szózsák) is.
+	 * 
 	 */
 
 	private static final long serialVersionUID = 4354302558206806918L;
@@ -43,21 +48,22 @@ public class PreprocessVSM2 implements Serializable {
 		this.repo = repo;
 
 	
-		
-		List<Bug> bugs = repo.getDao().getAllBugsWhereHaveHttpData(); // get all bugs where have description from
-																		// bugzilla
-		
+		// kigyûjti az összes bugot aminek van leírása
+		List<Bug> bugs = repo.getDao().getAllBugsWhereHaveHttpData(); 
 		
 		bagOfWordsObjects = new ArrayList<BagOfWordsV2>();
 		for (Bug bug : bugs)
-			bagOfWordsObjects.add(new BagOfWordsV2(bug)); // build bagofwords object from bug
+			// a bugokból BagOfWords objektumot készít
+			bagOfWordsObjects.add(new BagOfWordsV2(bug)); 
 		
 		files = new ArrayList<File>();
-		listFiles(repo.getRepo().getWorkTree().getPath(), files); // get all filesWithRankList for a given file extensions
+		// kigyûjti az összes java kiterjesztésû fájlt a repóból
+		listFiles(repo.getRepo().getWorkTree().getPath(), files); 
 		
 		for (File file : files)
 			try {
-				bagOfWordsObjects.add(new BagOfWordsV2(file)); // build bagofwords object from file
+				//ezekbõl a fájlokból BagOfWords objektumot készít
+				bagOfWordsObjects.add(new BagOfWordsV2(file));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -75,11 +81,9 @@ public class PreprocessVSM2 implements Serializable {
 		this.buildDictionary();
 
 	}
-
-	private void listFiles(String directoryName, List<File> files) { // list given extensions file recursive
+    //kigyûjti a megadott könyvtárból az összes megadott kiterjesztésû fájlt rekurzív az alkönyvtából is.
+	private void listFiles(String directoryName, List<File> files) { 
 		File directory = new File(directoryName);
-
-		// Get all filesWithRankList from a directory.
 
 		File[] fList = directory.listFiles();
 
@@ -95,7 +99,6 @@ public class PreprocessVSM2 implements Serializable {
 
 	public void saveData() {
 
-		// save data objects for load next time
 		ObjectOutput out;
 		try {
 			out = new ObjectOutputStream(
@@ -109,7 +112,7 @@ public class PreprocessVSM2 implements Serializable {
 
 	@SuppressWarnings("unchecked")
 	private void loadData() {
-		// load data from local disk
+		
 		ObjectInput in;
 		try {
 			in = new ObjectInputStream(new FileInputStream(workingDir + "\\OuterFiles\\SaveStatePreprocessVsm2.data"));
@@ -121,8 +124,8 @@ public class PreprocessVSM2 implements Serializable {
 		}
 	}
 
-	// Build bag of words with tokenizer, lemmatizer and stopwords remover. It use
-	// multithreading. It takes approximately 60 mins.
+	
+	// Megépíti a szózsákokat a tokenizer, lemmatizer és stopszó szûrõ segítségével szálkezelést használva.
 	private void buildBagOfWords() {
 
 		ExecutorService executor = Executors.newFixedThreadPool(10);
@@ -135,7 +138,7 @@ public class PreprocessVSM2 implements Serializable {
 		}
 	}
 
-	// build the dictionary
+	// megépíti a szótárat
 	private void buildDictionary() {
 		
 			Set<String> dict = new HashSet<String>();

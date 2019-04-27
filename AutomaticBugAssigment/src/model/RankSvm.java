@@ -14,7 +14,24 @@ import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+/*
+ * Az szupportvektor-gép osztályozó használatáért a RankSvm osztály a felelõs. 
+ * Konstruktorán keresztül vagy megkapja az elõzõekben megalkotott BagOfWords objektumokat és a 
+ * szükséges értékeket (a tf-idf súlyozást, a koszinusz távolságot, az S1,S2,S3,S4,S5 értéket és azt,
+ *  hogy pozitív-e a minta) a bugAndFileRelation[][][] tömb útján, vagy betölti azokat fájlból. Azért 
+ *  van szükség e két féle módozatra, mert maga a számítás rendkívül idõigényes és ha csak a kiértékelt 
+ *  eredményekre van szükségünk, akkor elég fájlból betölteni a VSMModel osztály által kiszámított eredményeket.
+*   Azt osztály példányosításával létrejött objektum elõszõr k részre (a továbbiakban 10 részre) osztja a
+*   rendelkezésre álló hibabejelentéseket és elmenti az k=10 szöveges dokumentumban. 
+*  Ebben a formátumban tudja kezelni az SVMRanking osztályozó tanításáért felelõs lefordított svm_rank_learn.exe program.
+*   Az osztályozónak kiírt 10 csomagban a fájlok rangsorolásához a pozitív minták mellett, 
+*   minden hibabajelentéshez csak a koszinusz távolság szemszögébõl legközelebb álló irreleváns 
+*  forrásfáljok kerültek kiiírásra. Erre azért volt szükség, mert a Mozilla Gecko projekt több, 
+*  mint 3000 java forrásfájlt tartalmaz aminek a számítása rendkívül idõigényes feladat lenne.
 
+ * 
+ * 
+ * */
 
 public class RankSvm {
 
@@ -91,7 +108,7 @@ public class RankSvm {
 					ii = 0;
 					++kk;
 				} else {
-					/////ezt kiírni ha a VsmModelben mûködik:
+					
 					for (int jj = 0; jj < bugAndFileRelation[0].length; ++jj) {
 						if (stLine[jj].equals("NaN"))
 							bugAndFileRelation[ii][jj][kk] = 0;
@@ -242,9 +259,9 @@ public class RankSvm {
 					foldLastSizeHelpCounter = foldsLastSizePlus;
 				for (int b = (foldsCount - f) * foldsSize; b < ((foldsCount + 1 - f) * foldsSize)
 						+ foldLastSizeHelpCounter; ++b) {
-					boolean helpParityVal = false; // if not have positive sample skip bug
-					// first take the positive sample
-
+					boolean helpParityVal = false; 
+					// a változóra azért van szükség, mert ha nincs pozitív minta akkor skippeli a bugot.
+					
 					for (int s = 0; s < bowFiles.size(); ++s) {
 
 						// 3 qid:1 1:1 2:1 3:0 4:0.2 5:0 # 1A

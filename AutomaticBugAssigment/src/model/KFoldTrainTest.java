@@ -12,7 +12,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
+/*
+ * A kigyûjtött szöveges állományokat a 
+ * KFoldTrainTest osztály dolgozza fel úgy, hogy a 
+ * Process osztály segítségével futtatja az SVMRanking program tanító modulját.
+ * 
+ * 
+ * 
+ * 
+ * */
 public class KFoldTrainTest {
 
 	double cValueArray[] = { 0,001, 0.01, 0.1, 1, 10 };
@@ -31,7 +39,7 @@ public class KFoldTrainTest {
 
 	}
 
-
+// a C érték optimalizálásához
 	class ComputeCValue implements Runnable {
 		double c;
 		int cValueCount;
@@ -95,7 +103,7 @@ public class KFoldTrainTest {
 		}
 
 	}
-
+// a C érték optimalizálása
 	public void computeCValueOptimum() {
 		ExecutorService executor = Executors.newFixedThreadPool(10);
 		for (int i = 0; i < cValueArray.length; ++i)

@@ -1,11 +1,2 @@
 Reading model...done.
-Reading test examples...done.
-Classifying test examples...done
-Runtime (without IO) in cpu-seconds: 0.01
-Average loss on test set: 0.0128
-Zero/one-error on test set: 38.53% (335 correct, 210 incorrect, 545 total)
-NOTE: The loss reported above is the fraction of swapped pairs averaged over
-      all rankings. The zero/one-error is fraction of perfectly correct
-      rankings!
-Total Num Swappedpairs  :   8831
-Avg Swappedpairs Percent:   1.28
+Reading test examples...'2:NaN' in LINE: 1 qid:1036 1:0.9999628 2:NaN 3:0.0 4:1.0 5:149.0 

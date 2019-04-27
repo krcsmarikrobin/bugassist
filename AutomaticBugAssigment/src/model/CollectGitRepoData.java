@@ -24,9 +24,24 @@ import org.eclipse.jgit.util.io.DisabledOutputStream;
 import bean.Bug;
 
 /*
- * repo link source:
+ * repo link forrás:
  * https://stackoverflow.com/questions/15822544/jgit-how-to-get-all-commits-of-a
  * -branch-without-changes-to-the-working-direct
+ * 
+ * 
+ * A CollectGitRepoData konstruktoraként szükséges megadni a repository helyét, az adatokból 
+ * létrehozott vagy létrehozandó sqlite adatbázis helyét és a kigyûjteni 
+ * kívánt forrásfájlok kiterjesztését esetünkben a .java forrásállományokat. 
+ * Az osztály a collectBugGitData() metódussal a JGit API segítségével 
+ * kigyûjti az összes branch összes commit-jából a
+ * commit üzenetekbõl a hibabejelentések azonosítóit, és a commit-tal módosított 
+ * java fájlok listáját. Ezt egy GetCommitData belsõ osztály példányosításával 
+ * oldja meg, ami implementálja a Runnable interfészt. Így a commitok adatainak 
+ * kigyûjtése szálkezelést használva történik a feladat gyorsítása érdekében. 
+ * 
+ * 
+ * 
+ * 
  */
 
 public class CollectGitRepoData implements Serializable {
@@ -40,7 +55,7 @@ public class CollectGitRepoData implements Serializable {
 	String fileExtension = null;
 	private List<Bug> bugs = null;
 
-	public CollectGitRepoData(String repoFilePath, String dbFileNameWithPath, String fileExtension) { // example new
+	public CollectGitRepoData(String repoFilePath, String dbFileNameWithPath, String fileExtension) { // például new
 																										// CollectGitRepoData("D:\\GIT\\gecko-dev\\.git",
 																										// "D:\\GIT\\bugassist\\AutomaticBugAssigment\\OuterFiles\\db\\test.db",
 																										// ".java");
@@ -113,12 +128,8 @@ public class CollectGitRepoData implements Serializable {
 			List<DiffEntry> diffs = df.scan(parent.getTree(), commit.getTree());
 
 			for (DiffEntry diff : diffs) {
-				/*
-				 * System.out.println(MessageFormat.format("({0} {1} {2}",
-				 * diff.getChangeType().name(), diff.getNewMode().getBits(),
-				 * diff.getNewPath()));
-				 */
-				if (diff.getNewPath().contains(fileExtension)) // only add .java extension filesWithRankList
+				
+				if (diff.getNewPath().contains(fileExtension)) // csak a .java kiterjesztésû fájlokat
 					fileList.add(diff.getNewPath());
 				df.close();
 				rw.close();
@@ -144,7 +155,7 @@ public class CollectGitRepoData implements Serializable {
 		@Override
 		public void run() {
 
-			// from the commit messages get the bugzilla bugId
+			// a commit üzenetekbõl megkapjuk a bugzilla bugId-t
 			Integer bugId = null;
 			String[] commitTextNumber = commit.getFullMessage().replaceAll("[^0-9]+", " ").trim().split(" ");
 
@@ -156,28 +167,6 @@ public class CollectGitRepoData implements Serializable {
 				}
 
 				List<String> commitModifyFileList = getModifyFileListInCommit(commit, fileExtension);
-/////////////////////////////////////////////
-				
-				/*
-				 * Ezt dobta legutóbb ezért bugId = null plusz ellenõrzés lentebb:
-				 * 
-				 * 
-				 * runCollectGitRepoData() folyamatban...
-				 * Exception in thread "pool-2-thread-10" java.lang.NullPointerException
-				 * at model.DaoSqliteImp$SaveGitRepoDataBug.run(DaoSqliteImp.java:103)
-				 * at java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
-				 * at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
-				 * at java.lang.Thread.run(Unknown Source)
-				 * 
-				 * 103 sor: 
-				 * 
-				 * 
-				 * 
-				 * 
-				 * 
-				 * 
-				 */
-				
 				
 				if (commitModifyFileList.toString().contains(fileExtension) && bugId != null) {
 					Bug bug = new Bug();

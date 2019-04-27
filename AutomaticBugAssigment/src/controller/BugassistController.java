@@ -4,7 +4,6 @@ import model.CollectGitRepoData;
 import model.CollectHttpBugData;
 import model.ConfigFile;
 import model.KFoldTrainTest;
-import model.PreprocessVSM;
 import model.PreprocessVSM2;
 import model.RankSvm;
 import model.VsmModel;
@@ -129,9 +128,13 @@ public class BugassistController {
 		rankSvm.writeBugsKFolds(configFile.getKFoldsNumber());
 		
 		System.out.println("A feldolgozás során felhasznált hibabejelentések összesen: " + rankSvm.getWritedUsefulBugsNumber());
-
+		
 		rankSvm = null;
 
+		a = (System.currentTimeMillis() - a) / 1000;
+		System.out.println("runRankingSVMModelCompute() befejezve. " + a + "sec");
+		
+		
 	}
 
 	public void runClassification() {
@@ -159,8 +162,8 @@ public class BugassistController {
 		// az eredmények tömbbje.
 		int[][] accuracyresults = new int[maxK][configFile.getKFoldsNumber()];
 
-		for (int topK = 0; topK < maxK; ++topK) {
-			int[] accuracyperfolds = kfd.getAccuracyKPercentageEachFolds(topK+1);
+		for (int topK = 0; topK < maxK/5; ++topK) {
+			int[] accuracyperfolds = kfd.getAccuracyKPercentageEachFolds((topK+1)*5);
 			//kell a -1 a foldsNumberhez mert az utolsó folds azaz a 10 csak tesztadat volt. Abba megy majd az összesen sor.
 			for (int foldsN = 0; foldsN < configFile.getKFoldsNumber()-1; ++foldsN) {
 				accuracyresults[topK][foldsN] = accuracyperfolds[foldsN];
@@ -168,14 +171,14 @@ public class BugassistController {
 		}
 
 		// Összesen:
-		for (int topK = 0; topK < maxK; ++topK) {
-			accuracyresults[topK][configFile.getKFoldsNumber()-1] = kfd.getSumAccuracyKPercentage(topK);
+		for (int topK = 0; topK < maxK/5; ++topK) {
+			accuracyresults[topK][configFile.getKFoldsNumber()-1] = kfd.getSumAccuracyKPercentage(topK*5);
 		}
 
 		// kiíratjuk táblázatszerûen a k értékek szerint a szabatosságot
 
 		/*
-		 * TopK érték: 1, 2, 3, 4, 5, 6, 7, ... , 20 
+		 * TopK érték: 5, 10, 15, 20, 25, 30, 35, ... , 100 
 		 * folds1: x%, x%, x%, x%, x%, x%, x%, ... , x% 
 		 * ... 
 		 * folds10: x%, x%, x%, x%, x%, x%, x%, ... , x% 
@@ -185,22 +188,22 @@ public class BugassistController {
 
 		// elsõ sor:
 		outputSt.append("TopK érték:\t");
-		for (int i = 0; i < maxK; ++i)
-			outputSt.append((i + 1) + "\t");
+		for (int i = 0; i < maxK/5; ++i)
+			outputSt.append((i + 1)*5 + "\t");
 		outputSt.append("\n");
 
 		// további sorok:
 		for (int f = 0; f < configFile.getKFoldsNumber()-1; ++f) {
 			outputSt.append("folds " + (f + 1) + ":\t");
-			for (int topK = 0; topK < maxK; ++topK) {
-				outputSt.append(accuracyresults[topK][f] + "%\t");
+			for (int i = 0; i < maxK/5; ++i) {
+				outputSt.append(accuracyresults[i][f] + "%\t");
 			}
 			outputSt.append("\n");
 		}
 
 		// utolsó sor Összesen:
 		outputSt.append("Összesen:\t");
-		for (int topK = 0; topK < maxK; ++topK) {
+		for (int topK = 0; topK < maxK/5; ++topK) {
 			outputSt.append(accuracyresults[topK][configFile.getKFoldsNumber()-1] + "%\t");
 		}
 		outputSt.append("\n");

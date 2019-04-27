@@ -4,7 +4,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
+/*
+ * Az osztály segítségével az eredmények kigyûjthetõek 
+ * A foldsokból és a rangsor értékeket tartalmazó 
+ * fájlokból hibabejelentésenként példányosítva összefogja a hibabajelentésekhez 
+ * tartozó pozitív és negatív mintájú fájlok neveit és rangsorát.
+ * */
 public class BugAndFilesRel implements Serializable {
 
 	private static final long serialVersionUID = 4407972529737802251L;
@@ -21,7 +26,7 @@ public class BugAndFilesRel implements Serializable {
 		String[] inputStringLines = inbugAndFileRelBlock.split(";");
 
 		for (int i = 0; i < inputStringLines.length; ++i) {
-			// example: 1 qid:8181 1:0.99990654 2:0.99993724 3:0.0 4:1.0
+			// például: 1 qid:8181 1:0.99990654 2:0.99993724 3:0.0 4:1.0
 			// 5:2.0#1#1367295#NetworkUtils.java
 
 			String[] columns = inputStringLines[i].split("#");

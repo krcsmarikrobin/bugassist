@@ -20,7 +20,7 @@ public class BagOfWordsV2 implements Serializable {
 	private Bug bug = null;
 	private String bagOfWords[] = null;
 	
-	//for sort irrelevant filesWithRankList to RankSvm by cosine similiraty need a sorting array
+	//Ahhoz, hogy az irreleváns fájlok közül a koszinusztávolság szerinti legközelebbieket kigyûjtse
 	private int[] fileSortedArray;
 	
 	public BagOfWordsV2(File file) throws IOException { // Konstruktor ha fájl objektumot kap a BOW

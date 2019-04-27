@@ -43,13 +43,13 @@ public class CollectHttpBugData {
 			}
 		}
 	}
-
-	public boolean setBugHttpData(Bug bug) { // get the bug data from bugzilla (short desc, long
-												// desc, product name, status
+// a kigyûjtött bugleírásokat short desc, long desc, product name, status elmenti.
+	public boolean setBugHttpData(Bug bug) { 
+												
 		boolean success = true;
 
-		try { // add short desc, product name and the status to bug from bugzilla
-				// Create connection
+		try { 
+		
 			URL url = new URL(HttpUrl + "/rest/bug/" + bug.getBugId().toString());
 			connection = (HttpURLConnection) url.openConnection();
 
@@ -68,8 +68,7 @@ public class CollectHttpBugData {
 			bug.setBugProductName(jsonObj.getJSONArray("bugs").getJSONObject(0).getString("product"));
 			bug.setBugStatus(jsonObj.getJSONArray("bugs").getJSONObject(0).getString("status"));
 
-			String[] bugDate = (jsonObj.getJSONArray("bugs").getJSONObject(0).getString("last_change_time")).split("T"); // for
-																															// example:
+			String[] bugDate = (jsonObj.getJSONArray("bugs").getJSONObject(0).getString("last_change_time")).split("T"); // például:
 																															// 2016-07-29T21:21:23Z
 			bug.setBugDate(bugDate[0]);
 
@@ -87,7 +86,7 @@ public class CollectHttpBugData {
 			}
 		}
 
-		try { // add long desc to bug from bugzilla
+		try { // hozzáadja a hosszú leírást a bughoz a bugzilláról
 				// Create connection
 			try {
 				TimeUnit.SECONDS.sleep(3);

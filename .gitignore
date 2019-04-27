@@ -33,7 +33,7 @@
 ./AutomaticBugAssigment/bin
 
 
-./target/
+
 ./.gradle/
-/AutomaticBugAssigment/
+
 /target/

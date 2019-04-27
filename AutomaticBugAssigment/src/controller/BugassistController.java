@@ -10,9 +10,6 @@ import model.RankSvm;
 import model.VsmModel;
 import view.BugassistGUI;
 
-
-
-
 public class BugassistController {
 
 	private ConfigFile configFile = null;
@@ -38,195 +35,208 @@ public class BugassistController {
 
 	public void runCollectGitRepoData() {
 
-		
-		
 		long a = System.currentTimeMillis();
 		System.out.println("runCollectGitRepoData() folyamatban...");
-		
+
 		CollectGitRepoData repoData = new CollectGitRepoData(configFile.getGitRepoPath() + "\\.git",
 				configFile.getWorkingDir() + "\\OuterFiles\\db\\bugassist.db", ".java");
 		repoData.collectBugGitData(); // ~ 14 perc
-		
+
 		a = (System.currentTimeMillis() - a) / 1000;
 		System.out.println("runCollectGitRepoData() befejezve. " + a + "sec");
-		
-		
 
 	}
 
 	public void runCollecHttpBugData() {
-		
 
-		
 		long a = System.currentTimeMillis();
 		System.out.println("runCollecHttpBugData() folyamatban...");
-		
+
 		CollectGitRepoData repoData = new CollectGitRepoData(configFile.getGitRepoPath() + "\\.git",
 				configFile.getWorkingDir() + "\\OuterFiles\\db\\bugassist.db", ".java");
 		CollectHttpBugData httpData = new CollectHttpBugData(configFile.gethttpAddress(), repoData);
 		httpData.collectBugHttpData(); // ~ 64689 sec ~ 18 hour
-		
-		
+
 		a = (System.currentTimeMillis() - a) / 1000;
 		System.out.println("runCollecHttpBugData() befejezve. " + a + "sec");
-		
-		
+
 	}
 
-	
-	
 	public void runPreprocessVSMCreate() {
-		
 
 		long a = System.currentTimeMillis();
 		System.out.println("runPreprocessVSMCreate() folyamatban...");
-		
-				
+
 		CollectGitRepoData repoData = new CollectGitRepoData(configFile.getGitRepoPath() + "\\.git",
 				configFile.getWorkingDir() + "\\OuterFiles\\db\\bugassist.db", ".java");
 		PreprocessVSM2 preprVSM = new PreprocessVSM2(repoData, configFile.getWorkingDir());
 		preprVSM.saveData();
-		
-		
-		
+
 		a = (System.currentTimeMillis() - a) / 1000;
 		System.out.println("runPreprocessVSMCreate() befejezve. " + a + "sec");
-		
-		
-		
+
 	}
-	
 
 	public PreprocessVSM2 runPreprocessVSMLoad() {
 		return new PreprocessVSM2(configFile.getWorkingDir());
 	}
 
-	
 	public void runRankingSVMModelCompute() {
-		
-		
-				
+
 		long a = System.currentTimeMillis();
 		System.out.println("runRankingSVMModelCompute() folyamatban...");
-		
 
-		
 		CollectGitRepoData repoData = new CollectGitRepoData(configFile.getGitRepoPath() + "\\.git",
 				configFile.getWorkingDir() + "\\OuterFiles\\db\\bugassist.db", ".java");
-		
-        ////////PreprocessVSM2 preprocessVSM = runPreprocessVSMLoad();
-		//helyette:
-		
+
+		//////// PreprocessVSM2 preprocessVSM = runPreprocessVSMLoad();
+		// helyette:
+
 		PreprocessVSM2 preprocessVSM = new PreprocessVSM2(repoData, configFile.getWorkingDir());
 		preprocessVSM.saveData();
-		
-		
-		//VSM preprocess betöltés és VSM model létrehozása! ~ 52 sec
-		VsmModel vsm = new VsmModel(preprocessVSM.getCorpusDictionary(), preprocessVSM.getBagOfWordsObjects(), repoData);
+
+		// VSM preprocess betöltés és VSM model létrehozása! ~ 52 sec
+		VsmModel vsm = new VsmModel(preprocessVSM.getCorpusDictionary(), preprocessVSM.getBagOfWordsObjects(),
+				repoData);
 		preprocessVSM = null;
 		System.out.println("//computeTfIdfArray() ~ 9 sec");
-		//computeTfIdfArray() ~ 9 sec
+		// computeTfIdfArray() ~ 9 sec
 		vsm.computeTfIdfArray();
-		
+
 		System.out.println("//computeS1S2() ~ 56 min");
-		//computeS1S2() ~ 56 min
+		// computeS1S2() ~ 56 min
 		vsm.computeS1S2();
-		
+
 		System.out.println("//computeS3() ~ 7 sec");
-		//vsm.computeS3() ~ 7 sec
+		// vsm.computeS3() ~ 7 sec
 		vsm.computeS3();
-		
+
 		System.out.println("//computeS4S5() ~ 3 sec");
-		//computeS4S5() ~ 3 sec
+		// computeS4S5() ~ 3 sec
 		vsm.computeS4S5();
-		
+
 		System.out.println("SaveVsmData");
 		vsm.saveVsmData();
-		
-		//RankSvm ~ 88 sec
-		RankSvm rankSvm = new RankSvm(vsm.getBowBugs(), vsm.getBowFiles(), vsm.getBugAndFileRelation(), configFile.getWorkingDir());
+
+		// RankSvm ~ 88 sec
+		RankSvm rankSvm = new RankSvm(vsm.getBowBugs(), vsm.getBowFiles(), vsm.getBugAndFileRelation(),
+				configFile.getWorkingDir());
 		vsm = null;
 		System.out.println("RankSvm sort cos similiraty 14 min");
-		//SortCosSim() ~ 14 min	
-		rankSvm.sortFilesByCosSimiliraty();	
-		
+		// SortCosSim() ~ 14 min
+		rankSvm.sortFilesByCosSimiliraty();
+
 		rankSvm.writeBugsKFolds(configFile.getKFoldsNumber());
 		
-		rankSvm = null;
-		
-	}
-	
-	
-	public void runClassification() {
-		
+		System.out.println("A feldolgozás során felhasznált hibabejelentések összesen: " + rankSvm.getWritedUsefulBugsNumber());
 
-	
+		rankSvm = null;
+
+	}
+
+	public void runClassification() {
+
 		long a = System.currentTimeMillis();
 		System.out.println("runClassification() folyamatban...");
+
+		KFoldTrainTest kfd = new KFoldTrainTest(configFile.getKFoldsNumber(), configFile.getWorkingDir(),
+				configFile.getCValue());
 		
-				
-		KFoldTrainTest kfd = new KFoldTrainTest(configFile.getKFoldsNumber(), configFile.getWorkingDir(), configFile.getCValue());
 		kfd.computeClassify();
-		
+
 		a = (System.currentTimeMillis() - a) / 1000;
 		System.out.println("runClassification() befejezve. " + a + "sec");
-			
-		
+
 	}
-	
-	
-	public String runCollectResults() {
+
+	// Kiértékeli az osztályozó eredményességét. Bemenetként a TopK maximum számát
+	// kell megadni. Visszatér a kiírandó táblával.
+	public String runCollectResults(int maxK) {
 		StringBuilder outputSt = new StringBuilder();
-		
-		KFoldTrainTest kfd = new KFoldTrainTest(configFile.getKFoldsNumber(), configFile.getWorkingDir(), configFile.getCValue());
-		
-		outputSt.append("A pontosság: " + kfd.getAccuracyKPercentage(5));
-		
-		
+
+		KFoldTrainTest kfd = new KFoldTrainTest(configFile.getKFoldsNumber(), configFile.getWorkingDir(),
+				configFile.getCValue());
+		// az eredmények tömbbje.
+		int[][] accuracyresults = new int[maxK][configFile.getKFoldsNumber()];
+
+		for (int topK = 0; topK < maxK; ++topK) {
+			int[] accuracyperfolds = kfd.getAccuracyKPercentageEachFolds(topK+1);
+			//kell a -1 a foldsNumberhez mert az utolsó folds azaz a 10 csak tesztadat volt. Abba megy majd az összesen sor.
+			for (int foldsN = 0; foldsN < configFile.getKFoldsNumber()-1; ++foldsN) {
+				accuracyresults[topK][foldsN] = accuracyperfolds[foldsN];
+			}
+		}
+
+		// Összesen:
+		for (int topK = 0; topK < maxK; ++topK) {
+			accuracyresults[topK][configFile.getKFoldsNumber()-1] = kfd.getSumAccuracyKPercentage(topK);
+		}
+
+		// kiíratjuk táblázatszerûen a k értékek szerint a szabatosságot
+
+		/*
+		 * TopK érték: 1, 2, 3, 4, 5, 6, 7, ... , 20 
+		 * folds1: x%, x%, x%, x%, x%, x%, x%, ... , x% 
+		 * ... 
+		 * folds10: x%, x%, x%, x%, x%, x%, x%, ... , x% 
+		 * Összesen: x%, x%, x%, x%, x%, x%, x%, ... , x%
+		 * 
+		 */
+
+		// elsõ sor:
+		outputSt.append("TopK érték:\t");
+		for (int i = 0; i < maxK; ++i)
+			outputSt.append((i + 1) + "\t");
+		outputSt.append("\n");
+
+		// további sorok:
+		for (int f = 0; f < configFile.getKFoldsNumber()-1; ++f) {
+			outputSt.append("folds " + (f + 1) + ":\t");
+			for (int topK = 0; topK < maxK; ++topK) {
+				outputSt.append(accuracyresults[topK][f] + "%\t");
+			}
+			outputSt.append("\n");
+		}
+
+		// utolsó sor Összesen:
+		outputSt.append("Összesen:\t");
+		for (int topK = 0; topK < maxK; ++topK) {
+			outputSt.append(accuracyresults[topK][configFile.getKFoldsNumber()-1] + "%\t");
+		}
+		outputSt.append("\n");
+
 		return outputSt.toString();
-		
-		
+
 	}
-	
-	
-	//compute C value optimum ~ XX sec
+
+	// compute C value optimum ~ XX sec
 	public void runComputeCValueOptimum() {
-		
+
 		long a = System.currentTimeMillis();
 		System.out.println("runComputeCValueOptimum() folyamatban...");
-		
-			
-		
-		
-		KFoldTrainTest kfd = new KFoldTrainTest(configFile.getKFoldsNumber(), configFile.getWorkingDir(), configFile.getCValue());
+
+		KFoldTrainTest kfd = new KFoldTrainTest(configFile.getKFoldsNumber(), configFile.getWorkingDir(),
+				configFile.getCValue());
 		kfd.computeCValueOptimum();
 		configFile.setCValue(kfd.getcValue());
-		
-		
+
 		a = (System.currentTimeMillis() - a) / 1000;
 		System.out.println("runComputeCValueOptimum() befejezve. " + a + "sec");
 	}
-	
-	
-	
-	
-	
+
 	public int getElevenPointAccuracyPrecentage() {
-		
-		
+
 		long a = System.currentTimeMillis();
 		System.out.println("getElevenPointAccuracyPrecentage() folyamatban...");
-		
-		KFoldTrainTest	kfd = new KFoldTrainTest(configFile.getKFoldsNumber(), configFile.getWorkingDir(), configFile.getCValue());
-		
+
+		KFoldTrainTest kfd = new KFoldTrainTest(configFile.getKFoldsNumber(), configFile.getWorkingDir(),
+				configFile.getCValue());
+
 		a = (System.currentTimeMillis() - a) / 1000;
 		System.out.println("getElevenPointAccuracyPrecentage() befejezve. " + a + "sec");
-		
+
 		return kfd.getElevenPointPrecision();
-		
-		
-		
+
 	}
-	
 
 }

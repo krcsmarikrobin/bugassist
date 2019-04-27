@@ -9,11 +9,15 @@ public class BugAndFilesRel implements Serializable {
 
 	private static final long serialVersionUID = 4407972529737802251L;
 
-	int bugId = -1;
+	private int bugId = -1;
+	
+	//melyik foldból való
+	private int foldsNumber = 0;
+	
 	List<FilesWithRank> filesWithRankList = new ArrayList<FilesWithRank>();
 
-	public BugAndFilesRel(String inbugAndFileRelBlock, List<Double> vsmRankValue) {
-
+	public BugAndFilesRel(String inbugAndFileRelBlock, List<Double> vsmRankValue, int foldsNumber) {
+		this.foldsNumber = foldsNumber;
 		String[] inputStringLines = inbugAndFileRelBlock.split(";");
 
 		for (int i = 0; i < inputStringLines.length; ++i) {
@@ -55,6 +59,14 @@ public class BugAndFilesRel implements Serializable {
 			topKFiles.add(filesWithRankList.get(i));
 		return topKFiles;
 	}
+	
+	
+	
+	public int getFoldsNumber() {
+		return foldsNumber;
+	}
+
+
 	//a 11 átlagos pontossághoz szükséeges meghatározi a felidézéshez az összes helyes kategóriaszámot
 	public int getBugElevenPointPrecision() {
 		int meanPrec = 0;

@@ -38,10 +38,10 @@ public class CollectDataAndBuildModelDialog extends JDialog implements ActionLis
 
 		setResizable(false);
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 543, 600);
+		setBounds(100, 100, 800, 600);
 
 		JPanel checkBoxCollectDataPanel = new JPanel();
-		checkBoxCollectDataPanel.setBounds(10, 0, 517, 81);
+		checkBoxCollectDataPanel.setBounds(10, 0, 774, 81);
 		checkBoxCollectDataPanel.setLayout(null);
 		getContentPane().setLayout(null);
 		getContentPane().add(checkBoxCollectDataPanel);
@@ -57,11 +57,11 @@ public class CollectDataAndBuildModelDialog extends JDialog implements ActionLis
 		JLabel lblDataCollect = new JLabel(Labels.collect_data);
 		lblDataCollect.setFont(new Font("Tahoma", Font.ITALIC, 11));
 		lblDataCollect.setHorizontalAlignment(SwingConstants.RIGHT);
-		lblDataCollect.setBounds(6, 7, 501, 14);
+		lblDataCollect.setBounds(6, 7, 758, 14);
 		checkBoxCollectDataPanel.add(lblDataCollect);
 
 		JPanel checkBoxModelCreatePanel = new JPanel();
-		checkBoxModelCreatePanel.setBounds(10, 92, 517, 110);
+		checkBoxModelCreatePanel.setBounds(10, 92, 774, 110);
 		checkBoxModelCreatePanel.setLayout(null);
 		getContentPane().add(checkBoxModelCreatePanel);
 
@@ -77,7 +77,7 @@ public class CollectDataAndBuildModelDialog extends JDialog implements ActionLis
 		JLabel lblModelCompute = new JLabel(Labels.model_compute);
 		lblModelCompute.setFont(new Font("Tahoma", Font.ITALIC, 11));
 		lblModelCompute.setHorizontalAlignment(SwingConstants.RIGHT);
-		lblModelCompute.setBounds(6, 7, 501, 14);
+		lblModelCompute.setBounds(6, 7, 758, 14);
 		checkBoxModelCreatePanel.add(lblModelCompute);
 		
 		chckbxCollectResults = new JCheckBox(Labels.collect_results);
@@ -86,7 +86,7 @@ public class CollectDataAndBuildModelDialog extends JDialog implements ActionLis
 		checkBoxModelCreatePanel.add(chckbxCollectResults);
 
 		JPanel buttonPane = new JPanel();
-		buttonPane.setBounds(10, 213, 517, 33);
+		buttonPane.setBounds(10, 213, 774, 33);
 		getContentPane().add(buttonPane);
 
 		okButton = new JButton(Labels.execute);
@@ -95,20 +95,20 @@ public class CollectDataAndBuildModelDialog extends JDialog implements ActionLis
 		okButton.setActionCommand(Labels.execute);
 		okButton.addActionListener(this);
 		getRootPane().setDefaultButton(okButton);
-
-		cancelButton = new JButton(Labels.cancel);
-		cancelButton.setBounds(129, 0, 80, 23);
-		buttonPane.add(cancelButton);
-		cancelButton.setActionCommand(Labels.cancel);
-		cancelButton.addActionListener(this);
+		
+				cancelButton = new JButton(Labels.cancel);
+				cancelButton.setBounds(129, 0, 80, 23);
+				buttonPane.add(cancelButton);
+				cancelButton.setActionCommand(Labels.cancel);
+				cancelButton.addActionListener(this);
 
 		JPanel textPanel = new JPanel();
-		textPanel.setBounds(10, 257, 517, 303);
+		textPanel.setBounds(10, 257, 774, 303);
 		textPanel.setLayout(null);
 		getContentPane().add(textPanel);
 
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(0, 0, 517, 303);
+		scrollPane.setBounds(0, 0, 774, 303);
 		textPanel.add(scrollPane);
 
 		textArea = new JTextArea();
@@ -185,10 +185,11 @@ public class CollectDataAndBuildModelDialog extends JDialog implements ActionLis
 			}
 			if (chckbxCollectResults.isSelected()) {
 				long a = System.currentTimeMillis();
-				writeLineToConsole(gui.getController().runCollectResults());
+				writeLineToConsole(gui.getController().runCollectResults(20));
 				writeLineToConsole(Labels.collect_result_finished);
 				a = (System.currentTimeMillis() - a) / 1000;
-				writeLineToConsole(Labels.message_running_time + (int) a / 60 + "min " + (int) a % 60 + "sec"); // ~ 4 sec
+				writeLineToConsole(Labels.message_running_time + (int) a / 60 + "min " + (int) a % 60 + "sec"); // ~ 3 min
+				chckbxCollectResults.setSelected(false);
 			}
 
 			writeLineToConsole(Labels.message_ready);

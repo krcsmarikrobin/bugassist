@@ -35,7 +35,10 @@ public class RankSvm {
 	float bugAndFileRelation[][][];
 	int foldsCount = 10;
 	String workingDir;
+	// a negatív forrásfájl mintaszám:
 	public static final int NEGATIVESAMPLECOUNT = 300;
+	// a használható hibabajelentés szám
+	private int writedUsefulBugsNumber = 0;
 
 	public RankSvm(List<BagOfWordsV2> bowBugs, List<BagOfWordsV2> bowFiles, float bugAndFileRelation[][][], String workingDir) {
 		this.workingDir = workingDir;
@@ -246,6 +249,7 @@ public class RankSvm {
 
 						// 3 qid:1 1:1 2:1 3:0 4:0.2 5:0 # 1A
 						if (bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][0] == 1) {
+							++writedUsefulBugsNumber;
 							helpParityVal = true;
 							outFolds.write(Integer.toString((int)bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][0]));
 							outFolds.write(" qid:" + b);
@@ -293,6 +297,10 @@ public class RankSvm {
 
 		}
 
+	}
+
+	public int getWritedUsefulBugsNumber() {
+		return writedUsefulBugsNumber;
 	}
 
 }

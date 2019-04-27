@@ -27,7 +27,7 @@ public class DaoSqliteImp {
 	String url;
 	Repository repo = null;
 
-	public DaoSqliteImp(String dbFileNameWithPath, Repository repo) { // dbFileNameWithPath for example
+	public DaoSqliteImp(String dbFileNameWithPath, Repository repo) { // dbFileNameWithPath például
 																		// D:\\GIT\\bugassist\\dbfiles\\test.db
 		this.repo = repo;
 		url = "jdbc:sqlite:" + dbFileNameWithPath;
@@ -223,57 +223,71 @@ public class DaoSqliteImp {
 	}
 
 	public List<Bug> getAllBugsWhereHaveHttpData() {
+		//A VSM model elõfeldolgozásához listázzuk a felhasználható hibabajelentéseket
 
 		List<Bug> bugs = new ArrayList<Bug>();
 
 		String sql = "SELECT bugid, shortdesc, longdesc, productname, status, bagofwords, bugdate FROM bughttpdata WHERE longdesc != \"null\"";
 		String sql2 = "SELECT commitname FROM bug where bugid = ?";
 		String sql3 = "SELECT filename FROM bugfiles WHERE commitname = ?";
+		String sql4 = "SELECT COUNT(bugid) FROM bug WHERE bugid = ?";
+		
 		try {
 			Statement stmt = conn.createStatement();
 			ResultSet rs = stmt.executeQuery(sql);
 			PreparedStatement pstmt2 = conn.prepareStatement(sql2);
 			PreparedStatement pstmt3 = conn.prepareStatement(sql3);
+			PreparedStatement pstmt4 = conn.prepareStatement(sql4);
 			
 			while (rs.next()) {
-				Bug bug = new Bug();
-				List<RevCommit> commits = new ArrayList<RevCommit>();
-				List<String> bugFiles = new ArrayList<String>();
-				bug.setBugId(rs.getInt("bugid"));
-				bug.setBugShortDesc(rs.getString("shortdesc"));
-				bug.setBugLongDesc(rs.getString("longdesc"));
-				bug.setBugProductName(rs.getString("productname"));
-				bug.setBugStatus(rs.getString("status"));
-				String bugBowString = rs.getString("bagofWords");
-				if (bugBowString != null)
-				bug.setBugBagOfWords(Arrays.asList(bugBowString.split(" ")));
-				bug.setBugDate(rs.getString("bugdate"));
+				pstmt4.setInt(1, rs.getInt("bugid"));
+				ResultSet rs4 = pstmt4.executeQuery();
+				rs4.next();
+				//csak akkor adjuk hozzá, ha egy commitot érint, mivel csak így egyértelmû, hogy mely fájlok javítása volt a releváns.
+				if (rs4.getInt(1) == 1) {
+					Bug bug = new Bug();
+					List<RevCommit> commits = new ArrayList<RevCommit>();
+					List<String> bugFiles = new ArrayList<String>();
+					bug.setBugId(rs.getInt("bugid"));
+					bug.setBugShortDesc(rs.getString("shortdesc"));
+					bug.setBugLongDesc(rs.getString("longdesc"));
+					bug.setBugProductName(rs.getString("productname"));
+					bug.setBugStatus(rs.getString("status"));
+					String bugBowString = rs.getString("bagofWords");
+					if (bugBowString != null)
+					bug.setBugBagOfWords(Arrays.asList(bugBowString.split(" ")));
+					bug.setBugDate(rs.getString("bugdate"));
 
-				pstmt2.setInt(1, bug.getBugId());
-				ResultSet rs2 = pstmt2.executeQuery();
+					pstmt2.setInt(1, bug.getBugId());
+					ResultSet rs2 = pstmt2.executeQuery();
 
-				while (rs2.next()) {
-					ObjectId commitId = ObjectId.fromString(rs2.getString("commitname"));
-					RevWalk revWalk = new RevWalk(repo);
-					RevCommit commit = revWalk.parseCommit(commitId);
-					commits.add(commit);
-					revWalk.close();
-				}
-				bug.setBugCommit(commits);
-				rs2.close();
-
-				for (RevCommit commit : commits) {
-					pstmt3.setString(1, commit.getName());
-					ResultSet rs3 = pstmt3.executeQuery();
-
-					while (rs3.next()) {
-						bugFiles.add(rs3.getString("filename"));
+					while (rs2.next()) {
+						ObjectId commitId = ObjectId.fromString(rs2.getString("commitname"));
+						RevWalk revWalk = new RevWalk(repo);
+						RevCommit commit = revWalk.parseCommit(commitId);
+						commits.add(commit);
+						revWalk.close();
 					}
-					rs3.close();
-				}
+					bug.setBugCommit(commits);
+					rs2.close();
 
-				bug.setBugSourceCodeFileList(bugFiles);
-				bugs.add(bug);
+					for (RevCommit commit : commits) {
+						pstmt3.setString(1, commit.getName());
+						ResultSet rs3 = pstmt3.executeQuery();
+
+						while (rs3.next()) {
+							bugFiles.add(rs3.getString("filename"));
+						}
+						rs3.close();
+					}
+
+					bug.setBugSourceCodeFileList(bugFiles);
+					bugs.add(bug);
+/********************************törölni****************************/ System.out.println("(DaoSqLiteImp üzenete)Ennyi a felhasználható hibabejelentés szám: " + bugs.size());
+					
+				}
+				rs4.close();
+				
 			}
 			rs.close();
 			stmt.close();

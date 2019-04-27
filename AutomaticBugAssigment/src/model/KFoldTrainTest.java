@@ -55,6 +55,7 @@ public class KFoldTrainTest {
 
 				Process process = processBuilder.start();
 				process.waitFor();
+			
 
 			} catch (IOException | InterruptedException e) {
 				e.printStackTrace();
@@ -112,16 +113,18 @@ public class KFoldTrainTest {
 	public double getcValue() {
 		return cValue;
 	}
-
+    
+	
+	// kiszámolja az osztályozó alkalmazásával minden fold rangsorát a következõ fold (azaz idõben az eggyel régebbi csomag) train adatként való felhazsnálásával
 	public void computeClassify() {
-		for (int i = 1; i < foldsCount + 1; ++i) {
+		//folds2-tõl tesztelünk
+		for (int i = 2; i <= foldsCount; ++i) {
 			ProcessBuilder processBuilder = new ProcessBuilder();
 			
 			processBuilder.directory(new File(path + "/OuterFiles/"));
 			processBuilder.command(path + "/OuterFiles/svm_rank_learn.exe", "-c",
-					Double.toString(cValue), new String("folds" + (i + 1) + ".txt"),
-					new String("folds" + i + "_model_from_folds" + (i + 1) + ".dat"));
-
+					Double.toString(cValue), new String("folds" + i + ".txt"),
+					new String("folds" + (i-1) + "_model_from_folds" + i + ".dat"));
 			try {
 
 				Process process = processBuilder.start();
@@ -130,7 +133,11 @@ public class KFoldTrainTest {
 			} catch (IOException | InterruptedException e) {
 				e.printStackTrace();
 			}
-
+			
+		}
+		
+		for (int i = 1; i < foldsCount; ++i) {
+			ProcessBuilder processBuilder = new ProcessBuilder();
 			processBuilder = new ProcessBuilder();
 			processBuilder.directory(new File(path + "/OuterFiles/"));
 			processBuilder.command(path + "/OuterFiles/svm_rank_classify.exe",
@@ -165,10 +172,13 @@ public class KFoldTrainTest {
 		}
 	}
 	
+	
+	
+	
 	public List<BugAndFilesRel> collectResult() {
 		
 		List<BugAndFilesRel> bugAndFilesRelList = new ArrayList<BugAndFilesRel>();
-		for (int i = foldsCount; i > 0; --i) {
+		for (int i = (foldsCount-1); i > 0; --i) {
 			
 			try {
 				File foldsFile = new File(path + "/OuterFiles/folds" + i + ".txt");
@@ -182,10 +192,8 @@ public class KFoldTrainTest {
 				StringBuilder stringB = new StringBuilder();
 				List <Double>filesRankValueList = null;
 				
-				// example: 1 qid:8181 1:0.99990654 2:0.99993724 3:0.0 4:1.0 5:2.0 #1#1367295#NetworkUtils.java		
+				// például: 1 qid:8181 1:0.99990654 2:0.99993724 3:0.0 4:1.0 5:2.0 #1#1367295#NetworkUtils.java		
 				while ((st = reader.readLine()) != null) {
-
-//////////////////////////////vissza
 					Double rankValue = null;
 					String stresult = null;
 					try {
@@ -205,7 +213,8 @@ public class KFoldTrainTest {
 						filesRankValueList = new ArrayList<Double>();
 						filesRankValueList.add(rankValue);
 					} else if (bugid != Integer.parseInt(rowArray[2])) {
-						bugAndFilesRel = new BugAndFilesRel(stringB.toString(), filesRankValueList);
+						// i a folds állomány sorszáma
+						bugAndFilesRel = new BugAndFilesRel(stringB.toString(), filesRankValueList, i);
 						bugAndFilesRelList.add(bugAndFilesRel);
 						
 						stringB = new StringBuilder();
@@ -235,8 +244,8 @@ public class KFoldTrainTest {
 		return bugAndFilesRelList;
 	}
 	
-	
-	public int getAccuracyKPercentage (int k) {
+	//megadja a a pontosságot az elsõ k elemre
+	public int getSumAccuracyKPercentage (int k) {
 		List<BugAndFilesRel> bugAndFilesRelList = this.collectResult();
 		int allBugCount = bugAndFilesRelList.size();
 		int correctKSample = 0;
@@ -249,6 +258,33 @@ public class KFoldTrainTest {
 		return ((correctKSample*100)/allBugCount);
 		
 	}
+	
+	
+	//Megadja a pontosságot az elsõ k elemre foldsonként. Visszatér egy int tömbbel, amiben a százalék értékek vannak folsonként sorban. 
+	public int[] getAccuracyKPercentageEachFolds(int k) {
+		//Az utolsó foldsnak a 10 nek nincs eredménye, csak tesztadat volt.
+		int[] accuracyEachFolds = new int[foldsCount-1];
+		
+		List<BugAndFilesRel> bugAndFilesRelListAll = this.collectResult();
+		
+		for (int i=0; i<foldsCount-1; ++i) {
+			int correctKSampleInner = 0;
+			int allBugCountInner = 0;
+			for (BugAndFilesRel bugAndFilesRel : bugAndFilesRelListAll) {				
+				if (bugAndFilesRel.getFoldsNumber() == i+1) {
+					++allBugCountInner;
+					if (bugAndFilesRel.getTopKHit(k))
+						++correctKSampleInner;
+				}
+			}
+			//százalék számítás
+			accuracyEachFolds[i] = ((correctKSampleInner*100)/allBugCountInner);
+		}
+		return accuracyEachFolds;
+	}
+	
+	
+	
 	
 	//a 11 átlagos pontossághoz szükséeges meghatározi a felidézéshez az összes helyes kategóriaszámot
 		public int getElevenPointPrecision() {

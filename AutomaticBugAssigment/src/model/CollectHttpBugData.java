@@ -30,10 +30,11 @@ public class CollectHttpBugData {
 	public void collectBugHttpData() {
 		int s = 0;
 		for (Bug bug : bugs) {
-			this.setBugHttpData(bug);
+			//Ha sikeres a hibabajelentés adatgyûjtés elmentjük azt.
+			if (this.setBugHttpData(bug))
 			repoData.getDao().saveBugHttpData(bug);
 
-			System.out.println("Processed: " + ++s + "/" + bugs.size());
+			System.out.println("Feldolgozott bugHttpData: " + ++s + "/" + bugs.size());
 
 			try {
 				TimeUnit.SECONDS.sleep(3);

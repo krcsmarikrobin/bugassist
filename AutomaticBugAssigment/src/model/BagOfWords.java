@@ -51,7 +51,7 @@ public class BagOfWords implements Serializable, Runnable {
 
 		StringBuilder s = new StringBuilder();
 		int c;
-		int cPrev = 0; // for previous character to define whitespace and the java name convention
+		int cPrev = 0; // // Megelõzõ karakter ahhoz hogy definiálni tudjuk az üres és a java elnevezési konnveciók szerinti karaktereket
 
 		FileInputStream fin = null;
 
@@ -63,15 +63,16 @@ public class BagOfWords implements Serializable, Runnable {
 			System.err.println(0);
 		}
 
-		/* Reads individual characters till End of file is encountered */
+		/* Beolvassuk a karaktereket, ügyelve a java szerinti elnevezési konvennciókra.
+		 * Tehát ha kis betût kapunk de az elõzõ nagy betû, akkor az egy egybeírt változónév, 
+		 * ami külön szavakat jelent.*/
 		try {
 			while ((c = fin.read()) != -1) {
 
-				if (('A' <= c && c <= 'Z') && ('a' <= cPrev && cPrev <= 'z')) // if c between 65-90 (ABC) and previous
-																				// char
-																				// between 97-122 (abc) like varKey =
-																				// var
-																				// Key
+				if (('A' <= c && c <= 'Z') && ('a' <= cPrev && cPrev <= 'z')) 
+					// ha c karakter 65-90 között van akkor nagy (ABC) és a					
+					// megelõzõ char 97-122 között van (abc), akkor az külön szó
+					// és kell egy whitespace
 					s.append(' ');
 
 				if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z'))
@@ -98,7 +99,7 @@ public class BagOfWords implements Serializable, Runnable {
 
 	}
 
-	public BagOfWords(Bug bug, String workingDir) { // constructor when get a bug
+	public BagOfWords(Bug bug, String workingDir) { // konstruktor ha Bugot kap.
 		this.bug = bug;
 		this.workingDir = workingDir;
 		words = bug.getBugShortDesc() + bug.getBugLongDesc();

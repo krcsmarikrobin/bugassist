@@ -18,15 +18,15 @@ import java.util.concurrent.Executors;
 
 public class VsmModel {
 
-	List<BagOfWords> bagOfWordsObjects;
+	List<BagOfWordsV2> bagOfWordsObjects;
 	List<String> corpusDictionary;
 	CollectGitRepoData repoData;
 
 	// detach the BagOfWordsObjects two part (bug and filesWithRankList)
-	List<BagOfWords> bowBugs = new ArrayList<BagOfWords>();
-	List<BagOfWords> bowFiles = new ArrayList<BagOfWords>();
+	List<BagOfWordsV2> bowBugs = new ArrayList<BagOfWordsV2>();
+	List<BagOfWordsV2> bowFiles = new ArrayList<BagOfWordsV2>();
 
-	int vsmArray[][]; // 3d first: rows of dictionary, second: columns of bug or filesWithRankList BagOfWords
+	int vsmArray[][]; // 2d first: rows of dictionary, second: columns of bug or filesWithRankList BagOfWords
 						// object
 	float bugAndFileRelation[][][]; // 3d first: rows of bug report, second: columns of filesWithRankList. third: parameters of
 									// computed values. If i bug fixed in j file
@@ -34,7 +34,7 @@ public class VsmModel {
 
 	int tfIdf[][]; // tfidf with entropy weight matrix;
 
-	public VsmModel(List<String> corpusDictionary, List<BagOfWords> bagOfWordsObjects, CollectGitRepoData repoData) {
+	public VsmModel(List<String> corpusDictionary, List<BagOfWordsV2> bagOfWordsObjects, CollectGitRepoData repoData) {
 		this.corpusDictionary = corpusDictionary;
 		this.bagOfWordsObjects = bagOfWordsObjects;
 		this.repoData = repoData;
@@ -54,7 +54,7 @@ public class VsmModel {
 		// initialize the relation array
 
 		int i = 0, j = 0;
-		for (BagOfWords bow : bagOfWordsObjects) {
+		for (BagOfWordsV2 bow : bagOfWordsObjects) {
 			if (!bow.isItSourceCode())
 				++i;
 			else
@@ -71,7 +71,7 @@ public class VsmModel {
 
 		List<String> sourceCodeFilePathes = new ArrayList<String>();
 
-		for (BagOfWords bow : bagOfWordsObjects)
+		for (BagOfWordsV2 bow : bagOfWordsObjects)
 			if (bow.isItSourceCode()) {
 				bowFiles.add(bow);
 				// only the file name need example: sourcefiles.java
@@ -111,7 +111,7 @@ public class VsmModel {
 
 		@Override
 		public void run() {
-			BagOfWords bow = bagOfWordsObjects.get(jj);
+			BagOfWordsV2 bow = bagOfWordsObjects.get(jj);
 			String[] bagWords = bow.getBagOfWords();
 			for (String word : bagWords)
 				++vsmArray[corpusDictionary.indexOf(word)][jj];
@@ -226,12 +226,19 @@ public class VsmModel {
 
 					}
 					// S1
-					Double cosinSimiliraty = vectorMultiplication / Math.sqrt(euclideanNormR * euclideanNormS);
+					// ha nincs közös egyezés, akkor a két vektor távolsága maximum (az érték 0)
+					Double cosinSimiliraty = 0.0;
+					if ( Math.sqrt(euclideanNormR * euclideanNormS) != 0.0)
+					cosinSimiliraty = vectorMultiplication / Math.sqrt(euclideanNormR * euclideanNormS);
 					bugAndFileRelation[r][s][1] = cosinSimiliraty.floatValue();
 
 					// S2
-					Double cosinSimiliratyS2 = vectorMultiplicationS2 / Math.sqrt(euclideanNormRS2 * euclideanNormVS2);
+					// ha nincs megelõzõ hibabejelentés tehát a két vektor távolsága maximum (akkor az érték 0)
+					Double cosinSimiliratyS2 = 0.0;
+					if (Math.sqrt(euclideanNormRS2 * euclideanNormVS2) != 0.0)
+					cosinSimiliratyS2 = vectorMultiplicationS2 / Math.sqrt(euclideanNormRS2 * euclideanNormVS2);			
 					bugAndFileRelation[r][s][2] = cosinSimiliratyS2.floatValue();
+					
 					if (bugAndFileRelation[r][s][0] == 1)
 						for (int i = 0; i < sumVector.length; ++i)
 							sumVector[i] += tfIdf[i][vsmArrayIndexR];
@@ -259,7 +266,7 @@ public class VsmModel {
 
 	public void computeS3() {
 		for (int s = 0; s < bugAndFileRelation[0].length; ++s) { // for the source code list columns first
-			BagOfWords bowFile = bowFiles.get(s);
+			BagOfWordsV2 bowFile = bowFiles.get(s);
 			String fileName = bowFile.getFile().getName().toLowerCase();
 
 			fileName = fileName.substring(0, fileName.lastIndexOf('.'));
@@ -356,11 +363,11 @@ public class VsmModel {
 		}	
 	}
 
-	public List<BagOfWords> getBowBugs() {
+	public List<BagOfWordsV2> getBowBugs() {
 		return bowBugs;
 	}
 
-	public List<BagOfWords> getBowFiles() {
+	public List<BagOfWordsV2> getBowFiles() {
 		return bowFiles;
 	}
 
@@ -368,8 +375,8 @@ public class VsmModel {
 		return bugAndFileRelation;
 	}
 
-	public void saveVsmData(String path) {
-
+	public void saveVsmData() {
+		String path = (new ConfigFile()).getWorkingDir();
 		ObjectOutputStream outBowBugs;
 		try {
 			outBowBugs = new ObjectOutputStream(
@@ -415,10 +422,10 @@ public class VsmModel {
 	public void loadVsmData(String path) {
 
 		ObjectInput inBowBugs;
-		List<BagOfWords> bowBugs = null;
+		List<BagOfWordsV2> bowBugs = null;
 		try {
 			inBowBugs = new ObjectInputStream(new FileInputStream(path + "\\OuterFiles\\bowBugs.data"));
-			bowBugs = (List<BagOfWords>) inBowBugs.readObject();
+			bowBugs = (List<BagOfWordsV2>) inBowBugs.readObject();
 			inBowBugs.close();
 			this.bowBugs = bowBugs;
 		} catch (Exception e) {
@@ -426,10 +433,10 @@ public class VsmModel {
 		}
 
 		ObjectInput inBowFiles;
-		List<BagOfWords> bowFiles = null;
+		List<BagOfWordsV2> bowFiles = null;
 		try {
 			inBowFiles = new ObjectInputStream(new FileInputStream(path + "\\OuterFiles\\bowFiles.data"));
-			bowFiles = (List<BagOfWords>) inBowFiles.readObject();
+			bowFiles = (List<BagOfWordsV2>) inBowFiles.readObject();
 			inBowFiles.close();
 			this.bowFiles = bowFiles;
 		} catch (Exception e) {
@@ -439,7 +446,7 @@ public class VsmModel {
 		BufferedReader inBugAndFileRelation;
 
 		int i = 0, j = 0;
-		for (BagOfWords bow : bagOfWordsObjects) {
+		for (BagOfWordsV2 bow : bagOfWordsObjects) {
 			if (!bow.isItSourceCode())
 				++i;
 			else
@@ -447,7 +454,6 @@ public class VsmModel {
 		}
 
 		bugAndFileRelation = null;
-		System.gc();
 		bugAndFileRelation = new float[i][j][6];
 
 		try {

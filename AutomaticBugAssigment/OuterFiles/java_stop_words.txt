@@ -6,3 +6,6 @@ abstract
 class
 void
 string
+boolean
+static
+return

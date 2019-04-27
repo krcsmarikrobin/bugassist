@@ -1,14 +1,134 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+
 import controller.BugassistController;
+import model.CollectGitRepoData;
+import model.ConfigFile;
+import model.KFoldTrainTest;
+import model.PreprocessVSM2;
+import model.RankSvm;
+import model.VsmModel;
 
 public class Main {
 	
 	public static void main(String[] args) {
+	
 		
 		BugassistController controller = new BugassistController();
 		controller.startDesktop();
-	}
-}
+		
+		/*
+		PrintStream out;
+		try {
+			out = new PrintStream(
+			        new FileOutputStream(new File("d:\\output.txt")));
+			PrintStream outerr = new PrintStream(
+			        new FileOutputStream(new File("d:\\outputerr.txt")));
+			System.setOut(out);
+			System.setErr(outerr);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		*/
+		
+		
+		
+		
+		
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+		
+	/*2019.04.25. egy teljes automatikus futtatás:*/
+/*		
+		Long b = System.currentTimeMillis();
+	
+		ConfigFile configFile = new ConfigFile();
+		
+	
+		
+				
+		CollectGitRepoData repoData = new CollectGitRepoData(configFile.getGitRepoPath() + "\\.git", "AutomaticBugAssigment\\OuterFiles\\db\\bugassist.db", ".java");
+		
+		
+		PreprocessVSM2 preprocessVSM = new PreprocessVSM2(repoData, configFile.getWorkingDir());
+		
+		
+		VsmModel vsm = new VsmModel(preprocessVSM.getCorpusDictionary(), preprocessVSM.getBagOfWordsObjects(), repoData);
+		
+		vsm.computeTfIdfArray();
+		
+		vsm.computeS1S2();
+		vsm.computeS3();	
+		vsm.computeS4S5();
+		vsm.saveVsmData();
+		//// ez eddig 1.5 óra
+		
+		RankSvm rankSvm = new RankSvm(vsm.getBowBugs(), vsm.getBowFiles(), vsm.getBugAndFileRelation(), configFile.getWorkingDir());
+		
+		
+		
+		
+		rankSvm.sortFilesByCosSimiliraty();
+		
+		
+		
+		
+		rankSvm.writeBugsKFolds(configFile.getKFoldsNumber());
+		
+		
+		
 
+		
+		KFoldTrainTest kfd = new KFoldTrainTest(configFile.getKFoldsNumber(), configFile.getWorkingDir());
+		kfd.computeClassify();
+		
+		
+		int accuracy = kfd.getAccuracyKPercentage(configFile.getAccuracyK());
+		
+		b = (System.currentTimeMillis() - b)/1000;
+		System.out.println("Vége! Futási idõ másodperc: " + b); //~ XX sec
+		System.out.println("Találati arány: " + accuracy + "%");
+		
+	*/	
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+		
+		
+/*		
+		
+		
+		Long b = System.currentTimeMillis();
+		
+		ConfigFile configFile = new ConfigFile();
+		System.out.println("kezdõdik");
+		
+		
+		KFoldTrainTest kfd = new KFoldTrainTest(configFile.getKFoldsNumber(), configFile.getWorkingDir(), configFile.getCValue());
+		kfd.computeClassify();
+		
+		
+		int accuracy = kfd.getAccuracyKPercentage(configFile.getAccuracyK());
+		
+		b = (System.currentTimeMillis() - b)/1000;
+		System.out.println("Vége! Futási idõ másodperc: " + b); //~ xx sec
+		System.out.println("Találati arány: " + accuracy + "%");
+		
+		
+		
+	*/	
+		
+		
+		
+		
+		
+		
+		
+	/*	
+		
+
+*/
 		
 /*
 		Long b;
@@ -22,7 +142,7 @@ public class Main {
 		long a = System.currentTimeMillis();
 		System.out.println("Start collectBugGitData()");
 		
-		repoData.collectBugGitData();
+        repoData.collectBugGitData(); //1.lépés
 			
 		a = (System.currentTimeMillis() - a)/1000;
 	 	System.out.println("Finished collectBugGitData() running time sec: " + a);     //13 min 15 sec
@@ -40,7 +160,7 @@ public class Main {
 		long ab = System.currentTimeMillis();
 		System.out.println("Start collect http data");
 		
-		httpData.collectBugHttpData();
+		httpData.collectBugHttpData(); //2. lépés
 		
 		ab = (System.currentTimeMillis() - ab)/1000;
 		System.out.println("Finished load all bugs running time sec: " + ab); // 64689 sec ~ 18 hour
@@ -88,7 +208,7 @@ public class Main {
 		b = System.currentTimeMillis();
 		System.out.println("Start! VsmPreprocess");
 		
-		PreprocessVSM preprocessVSM = new PreprocessVSM(repoData);
+		PreprocessVSM preprocessVSM = new PreprocessVSM(repoData); //3. lépés a vsm létrehozása szózsákokból
 		
 		System.out.println("Buildelés kész! Futási idõ: " + ((System.currentTimeMillis() - b)/1000));  //~ 3468 sec ~ 60 min
 		System.out.println("Mentés!");
@@ -143,7 +263,6 @@ public class Main {
 		System.out.println("computeS1S2() vége! Futási idõ másodperc: " + b); //~ 3361 sec
 		
 
-	
 	
 		System.out.println("computeS3() kezdõdik!");
 		b = System.currentTimeMillis();
@@ -265,6 +384,10 @@ public class Main {
 		RankSvm rankSvm3 = new RankSvm();
 		rankSvm3.writeBugsTenFolds();
 		
+		
+		
+		
+		
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("\"WriteTenFolds vége! Futási idõ másodperc: " + b); //~ 291 sec
 */
@@ -307,15 +430,17 @@ public class Main {
 */
 /*		
 		System.out.println("getAccuracyKPercentage kezdõdik!");
-		b = System.currentTimeMillis();
+		Long b = System.currentTimeMillis();
 		
 		//KFoldTrainTest kfd = new KFoldTrainTest();
-		KFoldTrainTest kfd3 = new KFoldTrainTest();
-		int accuracy = kfd3.getAccuracyKPercentage(5, kfd3.collectResult());
+		KFoldTrainTest kfd3 = new KFoldTrainTest(10, "D:\\GIT\\bugassist\\AutomaticBugAssigment");
+		int accuracy = kfd3.getAccuracyKPercentage(5);
 		
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("getAccuracyKPercentage vége! Futási idõ másodperc: " + b); //~ xx sec
 		System.out.println("Találati arány: " + accuracy + "%");
 		
-*/		
+		*/
+}		
+}
 

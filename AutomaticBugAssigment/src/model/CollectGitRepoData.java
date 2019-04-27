@@ -156,8 +156,30 @@ public class CollectGitRepoData implements Serializable {
 				}
 
 				List<String> commitModifyFileList = getModifyFileListInCommit(commit, fileExtension);
-
-				if (commitModifyFileList.toString().contains(fileExtension)) {
+/////////////////////////////////////////////
+				
+				/*
+				 * Ezt dobta legutóbb ezért bugId = null plusz ellenõrzés lentebb:
+				 * 
+				 * 
+				 * runCollectGitRepoData() folyamatban...
+				 * Exception in thread "pool-2-thread-10" java.lang.NullPointerException
+				 * at model.DaoSqliteImp$SaveGitRepoDataBug.run(DaoSqliteImp.java:103)
+				 * at java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+				 * at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+				 * at java.lang.Thread.run(Unknown Source)
+				 * 
+				 * 103 sor: 
+				 * 
+				 * 
+				 * 
+				 * 
+				 * 
+				 * 
+				 */
+				
+				
+				if (commitModifyFileList.toString().contains(fileExtension) && bugId != null) {
 					Bug bug = new Bug();
 					bug.setBugId(bugId);
 					List<RevCommit> commitList = new ArrayList<RevCommit>();

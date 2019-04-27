@@ -70,7 +70,7 @@ public class DaoSqliteImp {
 		ExecutorService executor = Executors.newFixedThreadPool(10);
 
 		for (Bug bug : bugs)
-			executor.execute(new SaveGitRepoDataBug(bug));
+			executor.execute(new SaveBugIfItNotExists(bug));
 
 		executor.shutdown();
 		while (!executor.isTerminated()) {
@@ -84,11 +84,11 @@ public class DaoSqliteImp {
 		return success;
 	}
 
-	private class SaveGitRepoDataBug implements Runnable {
+	private class SaveBugIfItNotExists implements Runnable {
 
 		Bug bug;
 
-		private SaveGitRepoDataBug(Bug bug) {
+		private SaveBugIfItNotExists(Bug bug) {
 			this.bug = bug;
 		}
 
@@ -234,7 +234,7 @@ public class DaoSqliteImp {
 			ResultSet rs = stmt.executeQuery(sql);
 			PreparedStatement pstmt2 = conn.prepareStatement(sql2);
 			PreparedStatement pstmt3 = conn.prepareStatement(sql3);
-
+			
 			while (rs.next()) {
 				Bug bug = new Bug();
 				List<RevCommit> commits = new ArrayList<RevCommit>();

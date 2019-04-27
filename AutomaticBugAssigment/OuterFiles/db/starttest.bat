@@ -1,1 +1,1 @@
-sqlite3.exe test.db
+sqlite3.exe bugassist.db

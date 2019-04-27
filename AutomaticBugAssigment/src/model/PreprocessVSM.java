@@ -33,10 +33,10 @@ public class PreprocessVSM implements Serializable {
 	private List<File> files = null;
 	private List<String> corpusDictionary = new ArrayList<String>();
 	
-	private String workingDir;
+	private static String workingDir;
 
 	public PreprocessVSM(CollectGitRepoData repo, String workingDir) {
-		this.workingDir = workingDir;
+		PreprocessVSM.workingDir = workingDir;
 		this.repo = repo;
 
 		List<Bug> bugs = repo.getDao().getAllBugsWhereHaveHttpData(); // get all bugs where have description from bugzilla

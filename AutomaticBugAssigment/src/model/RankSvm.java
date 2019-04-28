@@ -241,27 +241,38 @@ public class RankSvm {
 	}
 
 	public void writeBugsKFolds(int k) {
+		
 		foldsCount = k;
+		//foldonkénti bugindexszámok két index között tól-ig
+		int[] bugIndexPackByFolds = new int[foldsCount+1];
+		
 		int bugsNumber = bowBugs.size();
+		
 		int foldsSize = bugsNumber / foldsCount;
 		int foldsLastSizePlus = bugsNumber % foldsCount;
-		int foldLastSizeHelpCounter = 0;
-
-		// create folds. Folds 10 is the oldest bugs
-		for (int f = foldsCount; f > 0; --f) {
+		
+		
+		
+		for (int i = 0; i <= foldsCount; ++i) {
+			bugIndexPackByFolds[i] = foldsSize*i;
+			//az utolsó csomaghoz hozzáadjuk a maradékot is
+			if (i == foldsCount)
+			bugIndexPackByFolds[i] += foldsLastSizePlus;
+		}
+		
+		// kiírjuk csomagonként
+		for (int f = 0; f < foldsCount; ++f) {
 
 			try {
 				BufferedWriter outFolds = new BufferedWriter(
-						new FileWriter(new File((workingDir.replace("\\", "\\\\") + "\\\\OuterFiles\\\\folds" + f + ".txt"))));
-				// for each bug in folds
-
-				if (f == 1)
-					foldLastSizeHelpCounter = foldsLastSizePlus;
-				for (int b = (foldsCount - f) * foldsSize; b < ((foldsCount + 1 - f) * foldsSize)
-						+ foldLastSizeHelpCounter; ++b) {
+						new FileWriter(new File((workingDir.replace("\\", "\\\\") + "\\\\OuterFiles\\\\folds" + (foldsCount-f) + ".txt")))); //az állománynévnél 
+				//a legrégebbiek a legnagyobb számba
+				
+				// minden egyes bugra a csomagban
+				for (int b = bugIndexPackByFolds[f]; b < bugIndexPackByFolds[f+1]; ++b) {
 					boolean helpParityVal = false; 
 					// a változóra azért van szükség, mert ha nincs pozitív minta akkor skippeli a bugot.
-					
+					//minden egyes forrásfájlra kiírjuk elõször a pozitív mitákat:
 					for (int s = 0; s < bowFiles.size(); ++s) {
 
 						// 3 qid:1 1:1 2:1 3:0 4:0.2 5:0 # 1A
@@ -277,14 +288,16 @@ public class RankSvm {
 							outFolds.write(" 5:" + bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][5]);
 							outFolds.write(" #" + (int)bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][0]);
 							outFolds.write("#" + bowBugs.get(b).getBug().getBugId());
-							outFolds.write("#" + bowFiles.get(s).getFile().getName());
+							outFolds.write("#" + bowFiles.get(bowBugs.get(b).getFileSortedArray()[s]).getFile().getName());
 							outFolds.newLine();
 
 						}
 					}
+					//és ha van pozitív minta kiírjuk hozzá a falsokat is 
 					if (helpParityVal) {
-
+                         //kiírjuk hozzá a rendezett lista szerinti legközelebbi mintákat
 						for (int s = bowFiles.size() - 1; s > bowFiles.size() - NEGATIVESAMPLECOUNT; --s) {
+							// csak akkor ha nem pozitív a minta
 							if (bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][0] != 1) {
 								// 3 qid:1 1:1 2:1 3:0 4:0.2 5:0 # 1A
 								outFolds.write(Integer.toString((int)bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][0]));
@@ -296,7 +309,7 @@ public class RankSvm {
 								outFolds.write(" 5:" + bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][5]);
 								outFolds.write(" #" + (int)bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][0]);
 								outFolds.write("#" + bowBugs.get(b).getBug().getBugId());
-								outFolds.write("#" + bowFiles.get(s).getFile().getName());
+								outFolds.write("#" + bowFiles.get(bowBugs.get(b).getFileSortedArray()[s]).getFile().getName());
 								outFolds.newLine();
 
 							}

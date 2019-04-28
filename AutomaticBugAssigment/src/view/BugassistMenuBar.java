@@ -21,8 +21,7 @@ public class BugassistMenuBar extends JMenuBar implements ActionListener {
 		super();
 		 this.gui = gui;
 		 // Három menüpontot gyártunk általánosan, a createMenuPoint metódussal
-	        createMenuPoint(Labels.modell_build, Labels.parameters_setting, Labels.collect_data_and_build_model, Labels.exit);
-	        		 
+	        createMenuPoint(Labels.modell_build, Labels.parameters_setting, Labels.collect_data_and_build_model, Labels.exit);		 
 	}
 
 	

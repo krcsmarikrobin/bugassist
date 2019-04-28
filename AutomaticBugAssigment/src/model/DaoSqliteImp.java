@@ -41,23 +41,21 @@ public class DaoSqliteImp {
 
 			}
 		} catch (SQLException e1) {
-			System.out.println("Error create database!");
+			e1.getMessage();
+			e1.printStackTrace();
 		}
 
-		// SQL parancs az új tábla készítéséhez
-		String sql1 = "CREATE TABLE IF NOT EXISTS bug(commitname text, bugid integer);";
-		String sql2 = "CREATE TABLE IF NOT EXISTS bugfiles(commitname text, filename text);";
-		String sql3 = "CREATE TABLE IF NOT EXISTS bughttpdata(bugid integer, shortdesc text, longdesc text, productname text, status text, bugdate text, bagofwords text);";
+		// SQL parancs az új http tábla készítéséhez
+		
+		String sql = "CREATE TABLE IF NOT EXISTS bughttpdata(bugid integer, shortdesc text, longdesc text, productname text, status text, bugdate text, bagofwords text);";
 		try {
 
 			Statement stmt = conn.createStatement();
-			// create new table
-			stmt.execute(sql1);
-			stmt.execute(sql2);
-			stmt.execute(sql3);
+			
+			stmt.execute(sql);
 			conn.commit();
 		} catch (SQLException e1) {
-			System.out.println("Error create tables in database!\n" + e1.getMessage());
+			e1.getMessage();
 			e1.printStackTrace();
 			System.exit(0);
 		}
@@ -65,12 +63,31 @@ public class DaoSqliteImp {
 	}
 
 	public boolean saveGitRepoData(List<Bug> bugs) {
-		boolean success = true;
-
+		boolean success = false;
+		//git táblák létrehozása vagy a régiek eldobása
+		String sql1 = "DROP TABLE IF EXISTS bug;";
+		String sql2 = "DROP TABLE IF EXISTS bugfiles;";
+		String sql3 = "CREATE TABLE IF NOT EXISTS bug(commitname text, bugid integer);";
+		String sql4 = "CREATE TABLE IF NOT EXISTS bugfiles(commitname text, filename text);";
+		
+		try {
+			Statement stmt = conn.createStatement();
+			stmt.execute(sql1);
+			stmt.execute(sql2);
+			stmt.execute(sql3);
+			stmt.execute(sql4);
+			conn.commit();
+		} catch (SQLException e1) {
+			System.out.println("Error drop and create git data tables in database!\n" + e1.getMessage());
+			e1.printStackTrace();
+		}
+		
+		
+		//szálkezelést hasznáéva bugonként mentjük az adatokat
 		ExecutorService executor = Executors.newFixedThreadPool(10);
 
 		for (Bug bug : bugs)
-			executor.execute(new SaveBugIfItNotExists(bug));
+			executor.execute(new SaveBugGitData(bug));
 
 		executor.shutdown();
 		while (!executor.isTerminated()) {
@@ -78,66 +95,53 @@ public class DaoSqliteImp {
 
 		try {
 			conn.commit();
+			success = true;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return success;
 	}
 
-	private class SaveBugIfItNotExists implements Runnable {
+	private class SaveBugGitData implements Runnable {
 
 		Bug bug;
 
-		private SaveBugIfItNotExists(Bug bug) {
+		private SaveBugGitData(Bug bug) {
 			this.bug = bug;
 		}
 
 		@Override
 		public void run() {
 
-			String sql1 = "SELECT 1 FROM bug WHERE bugid = ? AND commitname = ?";
-			String sql2 = "INSERT INTO bug(bugid, commitname) VALUES(?,?)";
+			String sql = "INSERT INTO bug(bugid, commitname) VALUES(?,?)";
 
-			try (PreparedStatement pstmt = conn.prepareStatement(sql1)) {
+			try {
 
-				pstmt.setInt(1, bug.getBugId());
-				pstmt.setString(2, bug.getBugCommit().get(0).getName());
-				ResultSet rs = pstmt.executeQuery();
-				pstmt.close();
-
-				if (!rs.next()) {
-					PreparedStatement pstmt2 = conn.prepareStatement(sql2);
-					pstmt2.setInt(1, bug.getBugId());
-					pstmt2.setString(2, bug.getBugCommit().get(0).getName());
-					pstmt2.executeUpdate();
-					pstmt2.close();
-				}
+					PreparedStatement pstmt = conn.prepareStatement(sql);
+					pstmt.setInt(1, bug.getBugId());
+					pstmt.setString(2, bug.getBugCommit().get(0).getName());
+					pstmt.executeUpdate();
+					pstmt.close();
 
 			} catch (SQLException e1) {
-				System.out.println("Error insert bug data to put database at saveGitRepoData()" + e1.getMessage());
+				e1.getMessage();
 				e1.printStackTrace();
 
 			}
 
 			for (String fileName : bug.getBugSourceCodeFileList()) {
-				sql1 = "SELECT 1 FROM bugfiles WHERE commitname = ? AND filename = ?";
-				sql2 = "INSERT INTO bugfiles(commitname, filename) VALUES(?,?)";
-				try (PreparedStatement pstmt = conn.prepareStatement(sql1)) {
-					pstmt.setString(1, bug.getBugCommit().get(0).getName());
-					pstmt.setString(2, fileName);
-					ResultSet rs = pstmt.executeQuery();
-					pstmt.close();
-					if (!rs.next()) {
-						PreparedStatement pstmt2 = conn.prepareStatement(sql2);
-						pstmt2.setString(1, bug.getBugCommit().get(0).getName());
-						pstmt2.setString(2, fileName);
-						pstmt2.executeUpdate();
-						pstmt2.close();
-					}
+				sql = "INSERT INTO bugfiles(commitname, filename) VALUES(?,?)";
+				try {
+					
+						PreparedStatement pstmt = conn.prepareStatement(sql);
+						pstmt.setString(1, bug.getBugCommit().get(0).getName());
+						pstmt.setString(2, fileName);
+						pstmt.executeUpdate();
+						pstmt.close();
+					
 
-				} catch (SQLException e1) {
-					System.out.println(
-							e1.getMessage());
+				} catch (SQLException e1) {	
+					e1.getMessage();
 					e1.printStackTrace();
 
 				}
@@ -206,16 +210,16 @@ public class DaoSqliteImp {
 			pstmt2.close();
 			pstmt3.close();
 		} catch (SQLException e) {
-			System.out.println("Error get bug data from database!" + e.getMessage());
+			e.getMessage();
 			e.printStackTrace();
 		} catch (MissingObjectException e) {
-			System.out.println("Error get bug data from database!" + e.getMessage());
+			e.getMessage();
 			e.printStackTrace();
 		} catch (IncorrectObjectTypeException e) {
-			System.out.println("Error get bug data from database!" + e.getMessage());
+			e.getMessage();
 			e.printStackTrace();
 		} catch (IOException e) {
-			System.out.println("Error get bug data from database!" + e.getMessage());
+			e.getMessage();
 			e.printStackTrace();
 		}
 

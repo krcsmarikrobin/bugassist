@@ -5,14 +5,6 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -37,7 +29,6 @@ public class SetParameterDialog extends JDialog implements ActionListener {
 	private String httpAddress;
 
 	private int kFoldsNumber;
-	private int accuracyK;
 	private double cValue;
 
 
@@ -48,7 +39,6 @@ public class SetParameterDialog extends JDialog implements ActionListener {
 	private JTextField gitRepoPathTextField;
 	private JTextField httpAddressTextField;
 	private JSpinner kFoldsNumberSpinner;
-	private JSpinner accuracyKSpinner;
 	private JSpinner cValueSpinner;
 
 	private JButton workingDirFileChooserButton = new JButton(Labels.three_point);
@@ -66,7 +56,6 @@ public class SetParameterDialog extends JDialog implements ActionListener {
 		gitRepoPath = gui.getController().getConfigFile().getGitRepoPath();
 		httpAddress = gui.getController().getConfigFile().gethttpAddress();
 		kFoldsNumber = gui.getController().getConfigFile().getKFoldsNumber();
-		accuracyK = gui.getController().getConfigFile().getAccuracyK();
 		cValue = gui.getController().getConfigFile().getCValue();
 		
 		// A dialógus címének beállítása
@@ -80,8 +69,7 @@ public class SetParameterDialog extends JDialog implements ActionListener {
 		// from 0 to 9, in 1.0 steps start value 5:
 		SpinnerNumberModel modelKFoldsNumberSpinner = new SpinnerNumberModel(kFoldsNumber, 0, 20, 1);
 		kFoldsNumberSpinner = new JSpinner(modelKFoldsNumberSpinner);
-		SpinnerNumberModel modelAccuracyKSpinner = new SpinnerNumberModel(accuracyK, 0, 20, 1);
-		accuracyKSpinner = new JSpinner(modelAccuracyKSpinner);
+		
 		SpinnerNumberModel modelcValueSpinner = new SpinnerNumberModel(cValue, 0.0001, 1000.0, 1.0);
 		cValueSpinner = new JSpinner(modelcValueSpinner);
 
@@ -139,7 +127,7 @@ public class SetParameterDialog extends JDialog implements ActionListener {
 		gitRepoPathPanel.add(gitRepoPathTextField);
 		gitRepoPathPanel.add(gitRepoPathFileChooserButton);
 
-		// A panel elrendezése mátrix, 5 sor és 2 oszlop, a cellák egyforma méretûek
+		// A panel elrendezése mátrix, 4 sor és 2 oszlop, a cellák egyforma méretûek
 		settingPanel.setLayout(new GridLayout(6, 2));
 
 		// Az elsõ sor:
@@ -156,9 +144,6 @@ public class SetParameterDialog extends JDialog implements ActionListener {
 		settingPanel.add(new JLabel(Labels.set_k_folds_number));
 		settingPanel.add(kFoldsNumberSpinner);
 		// ötödik sor:
-		settingPanel.add(new JLabel(Labels.set_accuracy_k));
-		settingPanel.add(accuracyKSpinner);
-		// hatodik sor:
 		settingPanel.add(new JLabel(Labels.set_c_value));
 		settingPanel.add(cValueSpinner);
 
@@ -197,7 +182,6 @@ public class SetParameterDialog extends JDialog implements ActionListener {
 				gui.getController().getConfigFile().setGitRepoPath(gitRepoPathTextField.getText());
 				gui.getController().getConfigFile().setHttpAddress(httpAddressTextField.getText());
 				gui.getController().getConfigFile().setKFoldsNumber((int) kFoldsNumberSpinner.getValue());
-				gui.getController().getConfigFile().setAccuracyK((int) accuracyKSpinner.getValue());
 				gui.getController().getConfigFile().setCValue((double) cValueSpinner.getValue());
 				gui.getController().getConfigFile().saveData();
 				this.dispose();

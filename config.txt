@@ -2,5 +2,4 @@ D:\GIT\bugassist\AutomaticBugAssigment
 D:\GIT\gecko-dev
 https://bugzilla.mozilla.org
 10
-5
-0.01
+0.010000000000000009

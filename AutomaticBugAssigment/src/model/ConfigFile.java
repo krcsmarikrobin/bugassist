@@ -16,7 +16,7 @@ public class ConfigFile {
 
 	public ConfigFile() {
 
-		i = 6;
+		i = 5;
 		configs = new String[i];
 		configFile = new File("./config.txt");
 
@@ -39,8 +39,7 @@ public class ConfigFile {
 			configs[1] = (new java.io.File( "." ).getAbsolutePath()).replace("\\.", "") + "\\gecko-dev"; //gitRepoPath
 			configs[2] = "https://bugzilla.mozilla.org"; //httpAddress
 			configs[3] = "10"; // kFoldsNumber
-			configs[4] = "5"; // Top-K folds accuracyK
-			configs[5] = "0.1"; // VSM C value	
+			configs[4] = "0.1"; // VSM C value	
 			this.saveData();
 		}
 
@@ -82,22 +81,13 @@ public class ConfigFile {
 		return Integer.parseInt(configs[3]);
 	}
 	
-	
-	public void setAccuracyK(Integer accuracyK) {
-		configs[4] = accuracyK.toString();
-	}
-	
-	public Integer getAccuracyK() {
-		return Integer.parseInt(configs[4]);
-	}
-	
-	
+
 	public void setCValue(Double cValue) {
-		configs[5] = cValue.toString();
+		configs[4] = cValue.toString();
 	}
 	
 	public Double getCValue() {
-		return Double.parseDouble((configs[5]));
+		return Double.parseDouble((configs[4]));
 	}
 	
 

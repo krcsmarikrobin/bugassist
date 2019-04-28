@@ -2,8 +2,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.util.List;
 
 import controller.BugassistController;
+import model.BagOfWordsV2;
 import model.CollectGitRepoData;
 import model.ConfigFile;
 import model.KFoldTrainTest;
@@ -19,7 +21,15 @@ public class Main {
 		BugassistController controller = new BugassistController();
 		controller.startDesktop();
 		
-		/*
+		
+/*
+ * 
+ * 
+ *    A további részek, csak a program funkcióinak önálló tesztelése végett vannak benne.
+ * 
+ * 		
+ */
+	/*	
 		PrintStream out;
 		try {
 			out = new PrintStream(
@@ -31,7 +41,8 @@ public class Main {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		
+		*/
+/*		
 		Long b = System.currentTimeMillis();
 		ConfigFile configFile = new ConfigFile();
 		KFoldTrainTest kfd = new KFoldTrainTest(configFile.getKFoldsNumber(), configFile.getWorkingDir(), 0.001);
@@ -40,29 +51,82 @@ public class Main {
 		
 		b = (System.currentTimeMillis() - b)/1000;
 		System.out.println("Vége! Futási idõ másodperc: " + b); //~ XX sec
+*/		
 		
-		*/
 		
 		
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 		
 	/*2019.04.25. egy teljes automatikus futtatás:*/
-/*		
+/*	
 		Long b = System.currentTimeMillis();
-	
+*/	
+		
+		
+	/*	
+		
 		ConfigFile configFile = new ConfigFile();
 		
 	
-		
+	
 				
 		CollectGitRepoData repoData = new CollectGitRepoData(configFile.getGitRepoPath() + "\\.git", "AutomaticBugAssigment\\OuterFiles\\db\\bugassist.db", ".java");
 		
 		
-		PreprocessVSM2 preprocessVSM = new PreprocessVSM2(repoData, configFile.getWorkingDir());
-		
+		//PreprocessVSM2 preprocessVSM = new PreprocessVSM2(repoData, configFile.getWorkingDir());
+		PreprocessVSM2 preprocessVSM = new PreprocessVSM2(configFile.getWorkingDir());
 		
 		VsmModel vsm = new VsmModel(preprocessVSM.getCorpusDictionary(), preprocessVSM.getBagOfWordsObjects(), repoData);
+	
+	    /* 
+			vsm.computeTfIdfArray();
+			vsm.computeS1S2();
+			vsm.computeS3();	
+			vsm.computeS4S5();
+			vsm.saveVsmData();
+			*/
+		/*
+		RankSvm rankSvm = new RankSvm(vsm.getBowBugs(), vsm.getBowFiles(), vsm.getBugAndFileRelation(),
+				configFile.getWorkingDir());
+  
+		List<BagOfWordsV2> bowBugs = vsm.getBowBugs();
+		List<BagOfWordsV2> bowFiles = vsm.getBowFiles();
+		float bugAndFileRelation[][][] = vsm.getBugAndFileRelation();
+		int bugindex = 0;
+		int fileindex = 0;
 		
+		for (BagOfWordsV2 bug : bowBugs) 
+			if (bug.getBug().getBugId() == 1038798)
+				bugindex = bowBugs.indexOf(bug);
+		
+
+		for (BagOfWordsV2 bow : bowFiles) 
+			if (bow.getFile().getName().equals("TabsPanel.java"))
+				fileindex = bowFiles.indexOf(bow);
+		
+		System.out.println("Indexek: " + bugindex + ";" + fileindex);
+		System.out.println(bugAndFileRelation[bugindex][fileindex][0]);
+		System.out.println(bugAndFileRelation[bugindex][fileindex][1]);
+		System.out.println(bugAndFileRelation[bugindex][fileindex][2]);
+		System.out.println(bugAndFileRelation[bugindex][fileindex][3]);
+		System.out.println(bugAndFileRelation[bugindex][fileindex][4]);
+		System.out.println(bugAndFileRelation[bugindex][fileindex][5]);
+		*/
+		/*
+		System.out.println("Kezdõdik");
+		for (BagOfWordsV2 bow : bowFiles) {
+			//System.out.println(bow.getFile().getName());
+			if (bow.getFile().getName().equals("TabsPanel.java")) {
+				//System.out.println(bow.getBug().getBugSourceCodeFileList());
+				String[] text = bow.getBagOfWords();
+				for (String szo : text)
+				System.out.print(szo + ", ");
+			}
+			
+		}
+		
+		
+/*
 		vsm.computeTfIdfArray();
 		
 		vsm.computeS1S2();

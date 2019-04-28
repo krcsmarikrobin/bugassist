@@ -185,7 +185,7 @@ public class CollectDataAndBuildModelDialog extends JDialog implements ActionLis
 			}
 			if (chckbxCollectResults.isSelected()) {
 				long a = System.currentTimeMillis();
-				writeLineToConsole(gui.getController().runCollectResults(120));
+				writeLineToConsole(gui.getController().runCollectResults(20));
 				writeLineToConsole(Labels.collect_result_finished);
 				a = (System.currentTimeMillis() - a) / 1000;
 				writeLineToConsole(Labels.message_running_time + (int) a / 60 + "min " + (int) a % 60 + "sec"); // ~ 3 min

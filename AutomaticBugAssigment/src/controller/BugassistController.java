@@ -59,7 +59,7 @@ public class BugassistController {
 		CollectGitRepoData repoData = new CollectGitRepoData(configFile.getGitRepoPath() + "\\.git",
 				configFile.getWorkingDir() + "\\OuterFiles\\db\\bugassist.db", ".java");
 		CollectHttpBugData httpData = new CollectHttpBugData(configFile.gethttpAddress(), repoData);
-		httpData.collectBugHttpData(); // ~ 64689 sec ~ 18 hour
+		httpData.collectBugHttpData(); // ~ 64689 sec ~ 8 hour
 
 		a = (System.currentTimeMillis() - a) / 1000;
 		System.out.println("runCollecHttpBugData() befejezve. " + a + "sec");
@@ -81,10 +81,6 @@ public class BugassistController {
 
 	}
 
-	public PreprocessVSM2 runPreprocessVSMLoad() {
-		return new PreprocessVSM2(configFile.getWorkingDir());
-	}
-
 	public void runRankingSVMModelCompute() {
 
 		long a = System.currentTimeMillis();
@@ -93,29 +89,28 @@ public class BugassistController {
 		CollectGitRepoData repoData = new CollectGitRepoData(configFile.getGitRepoPath() + "\\.git",
 				configFile.getWorkingDir() + "\\OuterFiles\\db\\bugassist.db", ".java");
 
-		//////// PreprocessVSM2 preprocessVSM = runPreprocessVSMLoad();
-		// helyette:
 
-		PreprocessVSM2 preprocessVSM = new PreprocessVSM2(repoData, configFile.getWorkingDir());
-		preprocessVSM.saveData();
+
+        PreprocessVSM2 preprocessVSM = new PreprocessVSM2(repoData, configFile.getWorkingDir());
+        preprocessVSM.saveData();
 
 		// VSM preprocess betöltés és VSM model létrehozása! ~ 52 sec
 		VsmModel vsm = new VsmModel(preprocessVSM.getCorpusDictionary(), preprocessVSM.getBagOfWordsObjects(),
 				repoData);
 		preprocessVSM = null;
-		System.out.println("//computeTfIdfArray() ~ 9 sec");
+		System.out.println("computeTfIdfArray()");
 		// computeTfIdfArray() ~ 9 sec
 		vsm.computeTfIdfArray();
 
-		System.out.println("//computeS1S2() ~ 56 min");
+		System.out.println("//computeS1S2()");
 		// computeS1S2() ~ 56 min
-		vsm.computeS1S2();
+     	vsm.computeS1S2();
 
-		System.out.println("//computeS3() ~ 7 sec");
+		System.out.println("//computeS3()");
 		// vsm.computeS3() ~ 7 sec
 		vsm.computeS3();
 
-		System.out.println("//computeS4S5() ~ 3 sec");
+		System.out.println("//computeS4S5()");
 		// computeS4S5() ~ 3 sec
 		vsm.computeS4S5();
 
@@ -126,13 +121,13 @@ public class BugassistController {
 		RankSvm rankSvm = new RankSvm(vsm.getBowBugs(), vsm.getBowFiles(), vsm.getBugAndFileRelation(),
 				configFile.getWorkingDir());
 		vsm = null;
-		System.out.println("RankSvm sort cos similiraty 14 min");
+		System.out.println("RankSvm sorbarenbezés cos similiraty alapján");
 		// SortCosSim() ~ 14 min
 		rankSvm.sortFilesByCosSimiliraty();
 
 		rankSvm.writeBugsKFolds(configFile.getKFoldsNumber());
 		
-		System.out.println("A feldolgozás során felhasznált hibabejelentések összesen: " + rankSvm.getWritedUsefulBugsNumber());
+		System.out.println("A feldolgozás során felhasznált pozitív minták összesen: " + rankSvm.getWritedUsefulBugsNumber());
 		
 		rankSvm = null;
 
@@ -167,17 +162,17 @@ public class BugassistController {
 		// az eredmények tömbbje.
 		int[][] accuracyresults = new int[maxK][configFile.getKFoldsNumber()];
 
-		for (int topK = 0; topK < maxK/5; ++topK) {
-			int[] accuracyperfolds = kfd.getAccuracyKPercentageEachFolds((topK+1)*5);
+		for (int i = 0; i < maxK; ++i) {
+			int[] accuracyperfolds = kfd.getAccuracyKPercentageEachFolds((i+1));
 			//kell a -1 a foldsNumberhez mert az utolsó folds azaz a 10 csak tesztadat volt. Abba megy majd az összesen sor.
 			for (int foldsN = 0; foldsN < configFile.getKFoldsNumber()-1; ++foldsN) {
-				accuracyresults[topK][foldsN] = accuracyperfolds[foldsN];
+				accuracyresults[i][foldsN] = accuracyperfolds[foldsN];
 			}
 		}
 
 		// Összesen:
-		for (int topK = 0; topK < maxK/5; ++topK) {
-			accuracyresults[topK][configFile.getKFoldsNumber()-1] = kfd.getSumAccuracyKPercentage(topK*5);
+		for (int i = 0; i < maxK; ++i) {
+			accuracyresults[i][configFile.getKFoldsNumber()-1] = kfd.getSumAccuracyKPercentage(i+1);
 		}
 
 		// kiíratjuk táblázatszerûen a k értékek szerint a szabatosságot
@@ -193,14 +188,14 @@ public class BugassistController {
 
 		// elsõ sor:
 		outputSt.append("TopK érték:\t");
-		for (int i = 3; i < maxK/5; ++i)
-			outputSt.append((i + 1)*5 + "\t");
+		for (int i = 0; i < maxK; ++i)
+			outputSt.append((i + 1) + "\t");
 		outputSt.append("\n");
 
 		// további sorok:
 		for (int f = 0; f < configFile.getKFoldsNumber()-1; ++f) {
 			outputSt.append("folds " + (f + 1) + ":\t");
-			for (int i = 3; i < maxK/5; ++i) {
+			for (int i = 0; i < maxK; ++i) {
 				outputSt.append(accuracyresults[i][f] + "%\t");
 			}
 			outputSt.append("\n");
@@ -208,7 +203,7 @@ public class BugassistController {
 
 		// utolsó sor Összesen:
 		outputSt.append("Összesen:\t");
-		for (int i = 3; i < maxK/5; ++i) {
+		for (int i = 0; i < maxK; ++i) {
 			outputSt.append(accuracyresults[i][configFile.getKFoldsNumber()-1] + "%\t");
 		}
 		outputSt.append("\n");

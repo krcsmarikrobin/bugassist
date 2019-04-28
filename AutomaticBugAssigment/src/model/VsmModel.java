@@ -240,7 +240,7 @@ public class VsmModel {
 
 					// A vektor hosszán végigmenve
 					
-					for (int v = 0; v < tfIdf.length; ++v) { // compute similiraty
+					for (int v = 0; v < tfIdf.length; ++v) { //  hasonlóság számítás
 						// S1:
 						vectorMultiplication += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexS]; // S1
 						euclideanNormR += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexR]; // S1

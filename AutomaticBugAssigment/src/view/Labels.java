@@ -1,6 +1,6 @@
 package view;
 
-import javax.swing.Icon;
+
 
 public class Labels {
 
@@ -11,8 +11,6 @@ public class Labels {
 	public static final String tests_and_results = "Tesztelés/eredmények";
 	public static final String bug_query = "Bug lekérdezés";
 	public static final String queries = "Lekérdezés";
-	
-	
 	public static final String set_working_directory = "Munka könyvtár kiválasztása";
 	public static final String set_git_repo_path = "GIT repository helye:";
 	public static final String set_http_address = "Bug leírások internet címének megadása";

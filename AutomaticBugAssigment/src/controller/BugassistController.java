@@ -1,5 +1,10 @@
 package controller;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+
 import model.CollectGitRepoData;
 import model.CollectHttpBugData;
 import model.ConfigFile;
@@ -188,14 +193,14 @@ public class BugassistController {
 
 		// elsõ sor:
 		outputSt.append("TopK érték:\t");
-		for (int i = 0; i < maxK/5; ++i)
+		for (int i = 3; i < maxK/5; ++i)
 			outputSt.append((i + 1)*5 + "\t");
 		outputSt.append("\n");
 
 		// további sorok:
 		for (int f = 0; f < configFile.getKFoldsNumber()-1; ++f) {
 			outputSt.append("folds " + (f + 1) + ":\t");
-			for (int i = 0; i < maxK/5; ++i) {
+			for (int i = 3; i < maxK/5; ++i) {
 				outputSt.append(accuracyresults[i][f] + "%\t");
 			}
 			outputSt.append("\n");
@@ -203,16 +208,33 @@ public class BugassistController {
 
 		// utolsó sor Összesen:
 		outputSt.append("Összesen:\t");
-		for (int topK = 0; topK < maxK/5; ++topK) {
-			outputSt.append(accuracyresults[topK][configFile.getKFoldsNumber()-1] + "%\t");
+		for (int i = 3; i < maxK/5; ++i) {
+			outputSt.append(accuracyresults[i][configFile.getKFoldsNumber()-1] + "%\t");
 		}
 		outputSt.append("\n");
-
+		
+		//c érték optimalizázásához:
+		//kfd.computeCValueOptimum();
+		
+		
+		//értékek file-ba írása:
+		
+		try {
+			PrintStream out = new PrintStream(new FileOutputStream(new File(configFile.getWorkingDir() + "\\OuterFiles\\results.txt")));
+			out.print(outputSt.toString());
+			out.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} 
+		
+		
+		
 		return outputSt.toString();
+		
 
 	}
 
-	// compute C value optimum ~ XX sec
+	// c érték optimum számítása ~ XX sec
 	public void runComputeCValueOptimum() {
 
 		long a = System.currentTimeMillis();

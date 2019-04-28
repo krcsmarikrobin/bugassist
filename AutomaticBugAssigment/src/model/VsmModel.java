@@ -142,15 +142,22 @@ public class VsmModel {
 	}
 
 
-	// this method compute the tf-idf weighted model in wich the term frequency
-	// factors are normalized
-	// weight[term][document] = numberFrequenty[term][document]*idf[term]
+	
+	
+	/*
+	 * A metódus kiszámítja a tf-idf súlyozott modellt:
+	 * weight[term][document] = numberFrequenty[term][document]*idf[term]
 	// numberFrequenty[term][document]=0.5 +
 	// 0.5*termFrequenty[term][document]/(maximum of a document
 	// termFrequenty[term][document])
 	// idf[term] = log(N/documentFrequenty[term])
-	// documentFrequenty[term] represents the number of documents in the repository
-	// that contain term t
+	 * documentFrequenty[term] érték reprezentálja a documnetumok számáz ahol t szó elõfordul
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * */
 
 	public void computeTfIdfArray() {
 		tfIdf = new double[vsmArray.length][vsmArray[0].length];
@@ -161,7 +168,7 @@ public class VsmModel {
 		int maxTermFreq[] = new int[document];
 		double idf[] = new double[term];
 
-		// compute documentFrequenty[term]
+		// documentFrequenty[term]
 		for (int t = 0; t < term; ++t) {
 			for (int d = 0; d < document; ++d) {
 				if (vsmArray[t][d] > 0)
@@ -169,12 +176,12 @@ public class VsmModel {
 			}
 		}
 
-		// compute idf[term]
+		// idf[term]
 		for (int t = 0; t < term; ++t) {
 			idf[t] = Math.log(N / docFreq[t]);
 		}
 
-		// compute (maximum of a document termFrequenty[term][document]
+		// egy dokumentumon belül a maximum termFrequenty[term][document]
 
 		for (int d = 0; d < document; ++d) {
 			for (int t = 0; t < term; ++t) {
@@ -183,11 +190,13 @@ public class VsmModel {
 			}
 		}
 
-		// compute weight[term][document] = numberFrequenty[term][document]*idf[term]
+		// weight[term][document] = numberFrequenty[term][document]*idf[term]
 
 		for (int t = 0; t < term; ++t)
-			for (int d = 0; d < document; ++d)
-				tfIdf[t][d] = new Double((0.5 + 0.5 * vsmArray[t][d] / maxTermFreq[d]) * idf[t]);  ///--------------------------------------------------------//.intValue();
+			for (int d = 0; d < document; ++d)	
+				tfIdf[t][d] = new Double((0.5 + 0.5 * vsmArray[t][d] / maxTermFreq[d]) * idf[t]);
+			
+		
 
 	}
 
@@ -223,7 +232,7 @@ public class VsmModel {
 				
 				int vsmArrayIndexS = bagOfWordsObjects.indexOf(bowFiles.get(s));
 
-				for (int r = 0; r < bugAndFileRelation.length; ++r) { // for each bug
+				for (int r = 0; r < bugAndFileRelation.length; ++r) { // minden egyes bugra
 					//  visszakapni a vsmArray második indexét bug esetében 
 					int vsmArrayIndexR = bagOfWordsObjects.indexOf(bowBugs.get(r)); // S1 S2
 					double vectorMultiplication = 0, euclideanNormR = 0, euclideanNormS = 0; // S1
@@ -233,30 +242,37 @@ public class VsmModel {
 					
 					for (int v = 0; v < tfIdf.length; ++v) { // compute similiraty
 						// S1:
-						vectorMultiplication += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexS]; // S1 compute
-						euclideanNormR += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexR]; // S1 compute
-						euclideanNormS += tfIdf[v][vsmArrayIndexS] * tfIdf[v][vsmArrayIndexS]; // S1 compute
+						vectorMultiplication += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexS]; // S1
+						euclideanNormR += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexR]; // S1
+						euclideanNormS += tfIdf[v][vsmArrayIndexS] * tfIdf[v][vsmArrayIndexS]; // S1
 
 						// S2:
-						vectorMultiplicationS2 += tfIdf[v][vsmArrayIndexR] * sumVector[v]; // S2 compute sim(r,br(r,s))
-						euclideanNormRS2 += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexR]; // S2 compute
-																									// sim(r,br(r,s))
-						euclideanNormVS2 += sumVector[v] * sumVector[v]; // S2 compute sim(r,br(r,s))
+						vectorMultiplicationS2 += tfIdf[v][vsmArrayIndexR] * sumVector[v]; // S2  sim(r,br(r,s))
+						euclideanNormRS2 += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexR]; // S2 sim(r,br(r,s))
+																									
+						euclideanNormVS2 += sumVector[v] * sumVector[v]; // S2 sim(r,br(r,s))
 
 					}
 					// S1
 					// ha nincs közös egyezés, akkor a két vektor távolsága maximum (az érték 0)
 					Double cosinSimiliraty = 0.0;
-					if ( Math.sqrt(euclideanNormR * euclideanNormS) != 0.0)
+                           //if ( Math.sqrt(euclideanNormR * euclideanNormS) != 0.0) helyette lásd lentebb
 					cosinSimiliraty = vectorMultiplication / Math.sqrt(euclideanNormR * euclideanNormS);
 					bugAndFileRelation[r][s][1] = cosinSimiliraty.floatValue();
 
 					// S2
 					// ha nincs megelõzõ hibabejelentés tehát a két vektor távolsága maximum (akkor az érték 0)
 					Double cosinSimiliratyS2 = 0.0;
-					if (Math.sqrt(euclideanNormRS2 * euclideanNormVS2) != 0.0)
+                           //if (Math.sqrt(euclideanNormRS2 * euclideanNormVS2) != 0.0) helyette lásd lentebb
 					cosinSimiliratyS2 = vectorMultiplicationS2 / Math.sqrt(euclideanNormRS2 * euclideanNormVS2);			
 					bugAndFileRelation[r][s][2] = cosinSimiliratyS2.floatValue();
+					
+					
+					if (new Float(bugAndFileRelation[r][s][1]).isNaN())
+						bugAndFileRelation[r][s][1] = 0;
+					if (new Float(bugAndFileRelation[r][s][2]).isNaN())
+						bugAndFileRelation[r][s][2] = 0;
+					
 					
 					if (bugAndFileRelation[r][s][0] == 1)
 						for (int i = 0; i < sumVector.length; ++i)
@@ -477,9 +493,7 @@ public class VsmModel {
 					++kk;
 				} else {
 					for (int jj = 0; jj < bugAndFileRelation[0].length; ++jj) {
-						if (stLine[jj].equals("NaN"))
-							bugAndFileRelation[ii][jj][kk] = 0;
-						else
+						
 							bugAndFileRelation[ii][jj][kk] = Float.parseFloat(stLine[jj]);
 					}
 					++ii;

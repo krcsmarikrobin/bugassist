@@ -32,10 +32,16 @@ public class Main {
 			e.printStackTrace();
 		}
 		
+		Long b = System.currentTimeMillis();
+		ConfigFile configFile = new ConfigFile();
+		KFoldTrainTest kfd = new KFoldTrainTest(configFile.getKFoldsNumber(), configFile.getWorkingDir(), 0.001);
+		kfd.computeCValueOptimum();
+		
+		
+		b = (System.currentTimeMillis() - b)/1000;
+		System.out.println("Vége! Futási idõ másodperc: " + b); //~ XX sec
+		
 		*/
-		
-		
-		
 		
 		
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////	

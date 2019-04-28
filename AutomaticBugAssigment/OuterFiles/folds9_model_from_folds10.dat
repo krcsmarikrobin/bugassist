@@ -9,4 +9,4 @@ empty# kernel parameter -u
 7 # number of training documents 
 2 # number of support vectors plus 1 
 0 # threshold b, each following line is a SV (starting with alpha*y)
-1 1:-0.00022188389 2:0.48066583 3:0.00027356183 4:0.23414864 5:0.51342773 #
+1 1:-9.3496623e-005 2:0.549613 3:-0.00038513198 4:0.2900874 5:0.42147663 #

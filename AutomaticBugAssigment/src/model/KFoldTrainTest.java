@@ -23,7 +23,7 @@ import java.util.concurrent.Executors;
  * */
 public class KFoldTrainTest {
 
-	double cValueArray[] = { 0,001, 0.01, 0.1, 1, 10 };
+	double cValueArray[] = { 0.001, 0.01, 0.1, 1, 10 };
 	double cValuePercent = 100;
 	double cValue = 0.001;
 	List<File> filesToCGridSearch = new ArrayList<File>();
@@ -89,6 +89,9 @@ public class KFoldTrainTest {
 						int k = line.lastIndexOf("Zero/one-error on test set: ");
 						int l = line.indexOf("%");
 						String value = line.substring(k + 28, l);
+						/*törölni*/ System.out.println("C érték: " + c + " " + Double.parseDouble(value) + "% minél kisebb annál jobb");
+						
+						
 						if (Double.parseDouble(value) < cValuePercent) {
 							cValuePercent = Double.parseDouble(value);
 							cValue = c;

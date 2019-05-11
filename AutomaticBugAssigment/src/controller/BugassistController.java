@@ -244,18 +244,18 @@ public class BugassistController {
 		System.out.println("runComputeCValueOptimum() befejezve. " + a + "sec");
 	}
 
-	public int getElevenPointAccuracyPrecentage() {
+	public float getMeanAveragePrecision() {
 
 		long a = System.currentTimeMillis();
-		System.out.println("getElevenPointAccuracyPrecentage() folyamatban...");
+		System.out.println("getgetMeanAveragePrecision() folyamatban...");
 
 		KFoldTrainTest kfd = new KFoldTrainTest(configFile.getKFoldsNumber(), configFile.getWorkingDir(),
 				configFile.getCValue());
 
 		a = (System.currentTimeMillis() - a) / 1000;
-		System.out.println("getElevenPointAccuracyPrecentage() befejezve. " + a + "sec");
+		System.out.println("getgetMeanAveragePrecision() befejezve. " + a + "sec");
 
-		return kfd.getElevenPointPrecision();
+		return kfd.getMeanAveragePreicsion();
 
 	}
 

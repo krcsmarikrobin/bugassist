@@ -1,17 +1,5 @@
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-import java.util.List;
 
 import controller.BugassistController;
-import model.BagOfWordsV2;
-import model.CollectGitRepoData;
-import model.ConfigFile;
-import model.KFoldTrainTest;
-import model.PreprocessVSM2;
-import model.RankSvm;
-import model.VsmModel;
 
 public class Main {
 	
@@ -20,6 +8,11 @@ public class Main {
 		
 		BugassistController controller = new BugassistController();
 		controller.startDesktop();
+		
+
+		
+		
+		
 		
 		
 /*

@@ -2,10 +2,10 @@ Reading model...done.
 Reading test examples...done.
 Classifying test examples...done
 Runtime (without IO) in cpu-seconds: 0.01
-Average loss on test set: 0.0325
-Zero/one-error on test set: 70.06% (103 correct, 241 incorrect, 344 total)
+Average loss on test set: 0.0329
+Zero/one-error on test set: 69.83% (105 correct, 243 incorrect, 348 total)
 NOTE: The loss reported above is the fraction of swapped pairs averaged over
       all rankings. The zero/one-error is fraction of perfectly correct
       rankings!
-Total Num Swappedpairs  :  66544
-Avg Swappedpairs Percent:   3.25
+Total Num Swappedpairs  :  66767
+Avg Swappedpairs Percent:   3.29

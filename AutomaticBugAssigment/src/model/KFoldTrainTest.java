@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 /*
  * A kigyûjtött szöveges állományokat a 
  * KFoldTrainTest osztály dolgozza fel úgy, hogy a 
@@ -157,9 +158,14 @@ public class KFoldTrainTest {
 			Process process;
 			try {
 				process = processBuilder.start();
-				process.waitFor();
-				BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
+				process.waitFor();		
+				InputStreamReader inputStream = new InputStreamReader(process.getInputStream());
+				//nem várja meg a végét. Váratni kell az inputstreamreaderbefejeztéig .
+				while (!inputStream.ready())
+					{}
+				
+				BufferedReader reader = new BufferedReader(inputStream);
+				
 				File fout = new File(path + "/OuterFiles/folds" + i + "_process_result.txt");
 				FileOutputStream fos = new FileOutputStream(fout);
 				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos));
@@ -171,11 +177,17 @@ public class KFoldTrainTest {
 				}
 				writer.close();
 				fos.close();
-
 				File predictionsFile = new File(path + "/OuterFiles/svm_predictions");
+				
+				
 				File predictionsFileRename = new File(
 						path + "/OuterFiles/folds" + i + "_svm_predictions");
-				predictionsFile.renameTo(predictionsFileRename);
+				if (predictionsFileRename.exists())
+					predictionsFileRename.delete();
+				
+				predictionsFile.renameTo(new File(
+						path + "/OuterFiles/folds" + i + "_svm_predictions"));
+				
 
 			} catch (IOException | InterruptedException e) {
 				e.printStackTrace();
@@ -297,17 +309,18 @@ public class KFoldTrainTest {
 	
 	
 	
-	//a 11 átlagos pontossághoz szükséeges meghatározi a felidézéshez az összes helyes kategóriaszámot
-		public int getElevenPointPrecision() {
-			int result = 0;
-			List<BugAndFilesRel> bugAndFilesRelList = collectResult();
-			
-			int allBugCount = bugAndFilesRelList.size();
-			
-			for (BugAndFilesRel bugAndFilesRel : bugAndFilesRelList) {
-				result += bugAndFilesRel.getBugElevenPointPrecision();
-			}			
-			return result/allBugCount;	
-		}
+	//Megadja az átlagos pontosság átlagát (Mean Average Precision)
+			public float getMeanAveragePreicsion() {
+				float result = 0;
+				List<BugAndFilesRel> bugAndFilesRelList = collectResult();
+				
+				int allBugCount = bugAndFilesRelList.size();
+				
+				for (BugAndFilesRel bugAndFilesRel : bugAndFilesRelList) {
+					result += bugAndFilesRel.getAveragePrec();
+				}			
+				return result/allBugCount;	
+			}
+
 
 }

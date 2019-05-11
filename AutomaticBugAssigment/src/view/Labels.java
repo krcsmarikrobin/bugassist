@@ -51,6 +51,7 @@ public class Labels {
 	public static final String collect_result_finished = "Kiértékelés kész";
 	public static final String exit = "Kilépés";
 	public static final String complete_running_time = "Teljes program futási idõ: ";
+	public static final String MAP = "Átlagos pontosság átlaga (Mean Average Precision): ";
 
 	
 	

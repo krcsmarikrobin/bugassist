@@ -13,24 +13,24 @@ import bean.Bug;
 public class BagOfWordsV2 implements Serializable {
 
 	private static final long serialVersionUID = -6897995552388710939L;
-	
-  	private File file = null;
+
+	private File file = null;
 	private Bug bug = null;
 	private String bagOfWords[] = null;
-	
-	//Ahhoz, hogy az irreleváns fájlok közül a koszinusztávolság szerinti legközelebbieket kigyûjtse
+
+	// Ahhoz, hogy az irreleváns fájlok közül a koszinusztávolság szerinti
+	// legközelebbieket kigyûjtse
 	private int[] fileSortedArray;
-	
+
 	public BagOfWordsV2(File file) throws IOException { // Konstruktor ha fájl objektumot kap a BOW
 		this.file = file;
 	}
-		
+
 	public BagOfWordsV2(Bug bug) { // konstruktor ha Bugot kap.
 		this.bug = bug;
 
 	}
-	
-	
+
 	public boolean isItSourceCode() {
 		if (file == null)
 			return false;
@@ -45,8 +45,7 @@ public class BagOfWordsV2 implements Serializable {
 	public File getFile() {
 		return file;
 	}
-	
-	
+
 	public int[] getFileSortedArray() {
 		return fileSortedArray;
 	}
@@ -62,6 +61,5 @@ public class BagOfWordsV2 implements Serializable {
 	public void setBagOfWords(String[] bagOfWords) {
 		this.bagOfWords = bagOfWords;
 	}
-
 
 }

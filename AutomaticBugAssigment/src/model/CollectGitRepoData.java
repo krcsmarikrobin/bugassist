@@ -83,8 +83,6 @@ public class CollectGitRepoData implements Serializable {
 
 	public void collectBugGitData() {
 
-		// create a database to collect data
-
 		bugs = new ArrayList<Bug>();
 		try {
 			for (int i = 0; i < branches.size(); i++) {
@@ -128,7 +126,7 @@ public class CollectGitRepoData implements Serializable {
 			List<DiffEntry> diffs = df.scan(parent.getTree(), commit.getTree());
 
 			for (DiffEntry diff : diffs) {
-				
+
 				if (diff.getNewPath().contains(fileExtension)) // csak a .java kiterjesztésû fájlokat
 					fileList.add(diff.getNewPath());
 				df.close();
@@ -167,7 +165,7 @@ public class CollectGitRepoData implements Serializable {
 				}
 
 				List<String> commitModifyFileList = getModifyFileListInCommit(commit, fileExtension);
-				
+
 				if (commitModifyFileList.toString().contains(fileExtension) && bugId != null) {
 					Bug bug = new Bug();
 					bug.setBugId(bugId);

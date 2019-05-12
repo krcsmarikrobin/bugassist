@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-
 /*
  * A modellképzést a VSMModel osztály hajtja végre. 
  * Ehhez kiindulásként szükség van az elõzõleg meghatározott BagOfWords objektumokra, 
@@ -36,7 +35,6 @@ import java.util.concurrent.Executors;
  * 
  * */
 
-
 public class VsmModel {
 
 	List<BagOfWordsV2> bagOfWordsObjects;
@@ -49,20 +47,18 @@ public class VsmModel {
 
 	int vsmArray[][]; // 2d elsõ: sor a szótárból, második: oszlop a bug és fájlokból BagOfWords
 						// object
-	float bugAndFileRelation[][][]; // 3d elsõ: sor a hibákból, második: oszlop a fájlokból. harmadik:paraméterek. 
-	                              
+	float bugAndFileRelation[][][]; // 3d elsõ: sor a hibákból, második: oszlop a fájlokból. harmadik:paraméterek.
 
-	double tfIdf[][]; // tfidf  mátrix ;
+	double tfIdf[][]; // tfidf mátrix ;
 
 	public VsmModel(List<String> corpusDictionary, List<BagOfWordsV2> bagOfWordsObjects, CollectGitRepoData repoData) {
 		this.corpusDictionary = corpusDictionary;
 		this.bagOfWordsObjects = bagOfWordsObjects;
 		this.repoData = repoData;
 
-		
 		// Inicializállja és kitölti a vsmArray-t, minden objektum megkapja a szótárat
 		// és az alapján kitölti.
-		
+
 		vsmArray = new int[corpusDictionary.size()][bagOfWordsObjects.size()];
 		ExecutorService executor = Executors.newFixedThreadPool(10);
 		for (int jj = 0; jj < bagOfWordsObjects.size(); ++jj)
@@ -88,8 +84,6 @@ public class VsmModel {
 				for (int kk = 0; kk < 6; ++kk)
 					bugAndFileRelation[ii][jj][kk] = 0;
 
-	
-
 		List<String> sourceCodeFilePathes = new ArrayList<String>();
 
 		for (BagOfWordsV2 bow : bagOfWordsObjects)
@@ -102,8 +96,6 @@ public class VsmModel {
 			} else {
 				bowBugs.add(bow);
 			}
-
-	
 
 		for (int ii = 0; ii < bowBugs.size(); ++ii) {
 			List<String> bugSourceCodeFileList = bowBugs.get(ii).getBug().getBugSourceCodeFileList();
@@ -123,7 +115,7 @@ public class VsmModel {
 	}
 
 	// belsõ osztály a vsmArray építéshez szálkezeléssel
-	
+
 	private class PasteVsmArray implements Runnable {
 		private int jj;
 
@@ -141,23 +133,20 @@ public class VsmModel {
 		}
 	}
 
-
-	
-	
 	/*
-	 * A metódus kiszámítja a tf-idf súlyozott modellt:
-	 * weight[term][document] = numberFrequenty[term][document]*idf[term]
-	// numberFrequenty[term][document]=0.5 +
-	// 0.5*termFrequenty[term][document]/(maximum of a document
-	// termFrequenty[term][document])
-	// idf[term] = log(N/documentFrequenty[term])
-	 * documentFrequenty[term] érték reprezentálja a documnetumok számáz ahol t szó elõfordul
+	 * A metódus kiszámítja a tf-idf súlyozott modellt: weight[term][document] =
+	 * numberFrequenty[term][document]*idf[term] //
+	 * numberFrequenty[term][document]=0.5 + //
+	 * 0.5*termFrequenty[term][document]/(maximum of a document //
+	 * termFrequenty[term][document]) // idf[term] = log(N/documentFrequenty[term])
+	 * documentFrequenty[term] érték reprezentálja a documnetumok számáz ahol t szó
+	 * elõfordul
 	 * 
 	 * 
 	 * 
 	 * 
 	 * 
-	 * */
+	 */
 
 	public void computeTfIdfArray() {
 		tfIdf = new double[vsmArray.length][vsmArray[0].length];
@@ -193,10 +182,8 @@ public class VsmModel {
 		// weight[term][document] = numberFrequenty[term][document]*idf[term]
 
 		for (int t = 0; t < term; ++t)
-			for (int d = 0; d < document; ++d)	
+			for (int d = 0; d < document; ++d)
 				tfIdf[t][d] = new Double((0.5 + 0.5 * vsmArray[t][d] / maxTermFreq[d]) * idf[t]);
-			
-		
 
 	}
 
@@ -206,11 +193,12 @@ public class VsmModel {
 	// r a bug index s a forrásfájl index
 
 	// S2:
-	/* Egy forrásfájlt több hibabejelentés is érinthet.
-	 *  Minden br(r,s) tekintetében a program kiszámítja az aktuális hibabejelentés és a
-	 *   forrásfájl javítását érintõ megelõzõ hibabejelentések közötti 
-	 *   koszinusz távolságot {sim(r, br(r,s)}
-	 *   
+	/*
+	 * Egy forrásfájlt több hibabejelentés is érinthet. Minden br(r,s) tekintetében
+	 * a program kiszámítja az aktuális hibabejelentés és a forrásfájl javítását
+	 * érintõ megelõzõ hibabejelentések közötti koszinusz távolságot {sim(r,
+	 * br(r,s)}
+	 * 
 	 */
 	public void computeS1S2() {
 
@@ -229,51 +217,51 @@ public class VsmModel {
 					sumVector[i] = 0; // ez az S2 br(r,s)
 
 				// visszakapni a vsmArray második indexét fájl esetében (az elsõ index a szótár)
-				
+
 				int vsmArrayIndexS = bagOfWordsObjects.indexOf(bowFiles.get(s));
 
 				for (int r = 0; r < bugAndFileRelation.length; ++r) { // minden egyes bugra
-					//  visszakapni a vsmArray második indexét bug esetében 
+					// visszakapni a vsmArray második indexét bug esetében
 					int vsmArrayIndexR = bagOfWordsObjects.indexOf(bowBugs.get(r)); // S1 S2
 					double vectorMultiplication = 0, euclideanNormR = 0, euclideanNormS = 0; // S1
 					double vectorMultiplicationS2 = 0, euclideanNormRS2 = 0, euclideanNormVS2 = 0; // S2
 
 					// A vektor hosszán végigmenve
-					
-					for (int v = 0; v < tfIdf.length; ++v) { //  hasonlóság számítás
+
+					for (int v = 0; v < tfIdf.length; ++v) { // hasonlóság számítás
 						// S1:
 						vectorMultiplication += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexS]; // S1
 						euclideanNormR += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexR]; // S1
 						euclideanNormS += tfIdf[v][vsmArrayIndexS] * tfIdf[v][vsmArrayIndexS]; // S1
 
 						// S2:
-						vectorMultiplicationS2 += tfIdf[v][vsmArrayIndexR] * sumVector[v]; // S2  sim(r,br(r,s))
+						vectorMultiplicationS2 += tfIdf[v][vsmArrayIndexR] * sumVector[v]; // S2 sim(r,br(r,s))
 						euclideanNormRS2 += tfIdf[v][vsmArrayIndexR] * tfIdf[v][vsmArrayIndexR]; // S2 sim(r,br(r,s))
-																									
+
 						euclideanNormVS2 += sumVector[v] * sumVector[v]; // S2 sim(r,br(r,s))
 
 					}
 					// S1
 					// ha nincs közös egyezés, akkor a két vektor távolsága maximum (az érték 0)
 					Double cosinSimiliraty = 0.0;
-                           //if ( Math.sqrt(euclideanNormR * euclideanNormS) != 0.0) helyette lásd lentebb
+					// if ( Math.sqrt(euclideanNormR * euclideanNormS) != 0.0) helyette lásd lentebb
 					cosinSimiliraty = vectorMultiplication / Math.sqrt(euclideanNormR * euclideanNormS);
 					bugAndFileRelation[r][s][1] = cosinSimiliraty.floatValue();
 
 					// S2
-					// ha nincs megelõzõ hibabejelentés tehát a két vektor távolsága maximum (akkor az érték 0)
+					// ha nincs megelõzõ hibabejelentés tehát a két vektor távolsága maximum (akkor
+					// az érték 0)
 					Double cosinSimiliratyS2 = 0.0;
-                           //if (Math.sqrt(euclideanNormRS2 * euclideanNormVS2) != 0.0) helyette lásd lentebb
-					cosinSimiliratyS2 = vectorMultiplicationS2 / Math.sqrt(euclideanNormRS2 * euclideanNormVS2);			
+					// if (Math.sqrt(euclideanNormRS2 * euclideanNormVS2) != 0.0) helyette lásd
+					// lentebb
+					cosinSimiliratyS2 = vectorMultiplicationS2 / Math.sqrt(euclideanNormRS2 * euclideanNormVS2);
 					bugAndFileRelation[r][s][2] = cosinSimiliratyS2.floatValue();
-					
-					
+
 					if (new Float(bugAndFileRelation[r][s][1]).isNaN())
 						bugAndFileRelation[r][s][1] = 0;
 					if (new Float(bugAndFileRelation[r][s][2]).isNaN())
 						bugAndFileRelation[r][s][2] = 0;
-					
-					
+
 					if (bugAndFileRelation[r][s][0] == 1)
 						for (int i = 0; i < sumVector.length; ++i)
 							sumVector[i] += tfIdf[i][vsmArrayIndexR];
@@ -293,9 +281,9 @@ public class VsmModel {
 	}
 
 	/*
-	 *  Minden br(r,s) tekintetében, ha a hibabejelentés tartalmazza az osztály nevét, 
-	 *  akkor egyenlõ az osztály nevének hosszával, egyéb esetben pedig 0.
-	 *  s3 = |s.class| ha tartalmazza, egyéb esetben 0
+	 * Minden br(r,s) tekintetében, ha a hibabejelentés tartalmazza az osztály
+	 * nevét, akkor egyenlõ az osztály nevének hosszával, egyéb esetben pedig 0. s3
+	 * = |s.class| ha tartalmazza, egyéb esetben 0
 	 */
 
 	public void computeS3() {
@@ -323,19 +311,18 @@ public class VsmModel {
 	}
 
 	/*
-	 * Tekintettel arra, hogy ha egy forrásfájlt frissen javítanak, 
-	 * ott nagyobb valószínûséggel kell ismét javítást végrehajtani, mint a 
-	 * többi fájlon, ezért minden br(r,s) tekintetében S4 elõáll a hibabejelentés dátumának 
-	 * és a forrásfájlt megelõzõ javítás dátumának különbségének reciprokaként {pl.: (2019.04-2019.03+1)-1=1/2}
+	 * Tekintettel arra, hogy ha egy forrásfájlt frissen javítanak, ott nagyobb
+	 * valószínûséggel kell ismét javítást végrehajtani, mint a többi fájlon, ezért
+	 * minden br(r,s) tekintetében S4 elõáll a hibabejelentés dátumának és a
+	 * forrásfájlt megelõzõ javítás dátumának különbségének reciprokaként {pl.:
+	 * (2019.04-2019.03+1)-1=1/2}
 	 * 
 	 * 
 	 */
 	public void computeS4S5() {
 		for (int s = 0; s < bugAndFileRelation[0].length; ++s) {
-			ArrayList<Integer> dateValueList = new ArrayList<Integer>(); // minden egyes fájlon 
-			                                                         //kigyûjti a bugreport dátumát										
-	
-			
+			ArrayList<Integer> dateValueList = new ArrayList<Integer>(); // minden egyes fájlon
+			// kigyûjti a bugreport dátumát
 
 			for (int r = 0; r < bugAndFileRelation.length; ++r) { // minden egyes bug
 
@@ -353,10 +340,10 @@ public class VsmModel {
 			Collections.sort(dateValueList);
 
 			for (int r = 0; r < bugAndFileRelation.length; ++r) { // minden egyes bug
-				
+
 				bugAndFileRelation[r][s][4] = 0;
 				bugAndFileRelation[r][s][5] = 0;
-				
+
 				if (!bowBugs.get(r).getBug().getBugDate().equals("null")) {
 
 					String[] strDate = bowBugs.get(r).getBug().getBugDate().split("-");
@@ -368,22 +355,22 @@ public class VsmModel {
 
 					for (int jj = 0; jj < dateValueList.size(); ++jj) {
 						if (rMonth > dateValueList.get(jj)) {
-							bugAndFileRelation[r][s][4] = (float)(1.0 / (rMonth - dateValueList.get(jj) + 1));
-							bugAndFileRelation[r][s][5] = jj+1;
+							bugAndFileRelation[r][s][4] = (float) (1.0 / (rMonth - dateValueList.get(jj) + 1));
+							bugAndFileRelation[r][s][5] = jj + 1;
 							/*
-							 * S5: Minden br(r,s) tekintetében a hibabejelentés megtétele 
-							 * elõtti forrásfájlt érintõ javítások számával.
+							 * S5: Minden br(r,s) tekintetében a hibabejelentés megtétele elõtti forrásfájlt
+							 * érintõ javítások számával.
 							 * 
 							 */
-	
+
 						} else if (rMonth == dateValueList.get(jj) && jj > 0) {
-								bugAndFileRelation[r][s][4] = (float)(1.0 / (rMonth - dateValueList.get(jj - 1) + 1));
-								bugAndFileRelation[r][s][5] = jj;
+							bugAndFileRelation[r][s][4] = (float) (1.0 / (rMonth - dateValueList.get(jj - 1) + 1));
+							bugAndFileRelation[r][s][5] = jj;
 						}
 					}
 				}
 			}
-		}	
+		}
 	}
 
 	public List<BagOfWordsV2> getBowBugs() {
@@ -402,8 +389,7 @@ public class VsmModel {
 		String path = (new ConfigFile()).getWorkingDir();
 		ObjectOutputStream outBowBugs;
 		try {
-			outBowBugs = new ObjectOutputStream(
-					new FileOutputStream(path + "\\OuterFiles\\bowBugs.data"));
+			outBowBugs = new ObjectOutputStream(new FileOutputStream(path + "\\OuterFiles\\bowBugs.data"));
 			outBowBugs.writeObject(bowBugs);
 			outBowBugs.close();
 		} catch (Exception e) {
@@ -412,8 +398,7 @@ public class VsmModel {
 
 		ObjectOutputStream outBowFiles;
 		try {
-			outBowFiles = new ObjectOutputStream(
-					new FileOutputStream(path + "\\OuterFiles\\bowFiles.data"));
+			outBowFiles = new ObjectOutputStream(new FileOutputStream(path + "\\OuterFiles\\bowFiles.data"));
 			outBowFiles.writeObject(bowFiles);
 			outBowFiles.close();
 		} catch (Exception e) {
@@ -493,8 +478,8 @@ public class VsmModel {
 					++kk;
 				} else {
 					for (int jj = 0; jj < bugAndFileRelation[0].length; ++jj) {
-						
-							bugAndFileRelation[ii][jj][kk] = Float.parseFloat(stLine[jj]);
+
+						bugAndFileRelation[ii][jj][kk] = Float.parseFloat(stLine[jj]);
 					}
 					++ii;
 				}

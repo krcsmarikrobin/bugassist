@@ -26,7 +26,8 @@ public class DaoSqliteImp {
 	Connection conn;
 	String url;
 	Repository repo = null;
-    //Az adatbázis kezeléséhez
+
+	// Az adatbázis kezeléséhez
 	public DaoSqliteImp(String dbFileNameWithPath, Repository repo) { // dbFileNameWithPath például
 																		// D:\\GIT\\bugassist\\dbfiles\\test.db
 		this.repo = repo;
@@ -46,12 +47,12 @@ public class DaoSqliteImp {
 		}
 
 		// SQL parancs az új http tábla készítéséhez
-		
+
 		String sql = "CREATE TABLE IF NOT EXISTS bughttpdata(bugid integer, shortdesc text, longdesc text, productname text, status text, bugdate text, bagofwords text);";
 		try {
 
 			Statement stmt = conn.createStatement();
-			
+
 			stmt.execute(sql);
 			conn.commit();
 		} catch (SQLException e1) {
@@ -64,12 +65,12 @@ public class DaoSqliteImp {
 
 	public boolean saveGitRepoData(List<Bug> bugs) {
 		boolean success = false;
-		//git táblák létrehozása vagy a régiek eldobása
+		// git táblák létrehozása vagy a régiek eldobása
 		String sql1 = "DROP TABLE IF EXISTS bug;";
 		String sql2 = "DROP TABLE IF EXISTS bugfiles;";
 		String sql3 = "CREATE TABLE IF NOT EXISTS bug(commitname text, bugid integer);";
 		String sql4 = "CREATE TABLE IF NOT EXISTS bugfiles(commitname text, filename text);";
-		
+
 		try {
 			Statement stmt = conn.createStatement();
 			stmt.execute(sql1);
@@ -81,9 +82,8 @@ public class DaoSqliteImp {
 			System.out.println("Error drop and create git data tables in database!\n" + e1.getMessage());
 			e1.printStackTrace();
 		}
-		
-		
-		//szálkezelést hasznáéva bugonként mentjük az adatokat
+
+		// szálkezelést hasznáéva bugonként mentjük az adatokat
 		ExecutorService executor = Executors.newFixedThreadPool(10);
 
 		for (Bug bug : bugs)
@@ -117,11 +117,11 @@ public class DaoSqliteImp {
 
 			try {
 
-					PreparedStatement pstmt = conn.prepareStatement(sql);
-					pstmt.setInt(1, bug.getBugId());
-					pstmt.setString(2, bug.getBugCommit().get(0).getName());
-					pstmt.executeUpdate();
-					pstmt.close();
+				PreparedStatement pstmt = conn.prepareStatement(sql);
+				pstmt.setInt(1, bug.getBugId());
+				pstmt.setString(2, bug.getBugCommit().get(0).getName());
+				pstmt.executeUpdate();
+				pstmt.close();
 
 			} catch (SQLException e1) {
 				e1.getMessage();
@@ -132,15 +132,14 @@ public class DaoSqliteImp {
 			for (String fileName : bug.getBugSourceCodeFileList()) {
 				sql = "INSERT INTO bugfiles(commitname, filename) VALUES(?,?)";
 				try {
-					
-						PreparedStatement pstmt = conn.prepareStatement(sql);
-						pstmt.setString(1, bug.getBugCommit().get(0).getName());
-						pstmt.setString(2, fileName);
-						pstmt.executeUpdate();
-						pstmt.close();
-					
 
-				} catch (SQLException e1) {	
+					PreparedStatement pstmt = conn.prepareStatement(sql);
+					pstmt.setString(1, bug.getBugCommit().get(0).getName());
+					pstmt.setString(2, fileName);
+					pstmt.executeUpdate();
+					pstmt.close();
+
+				} catch (SQLException e1) {
 					e1.getMessage();
 					e1.printStackTrace();
 
@@ -176,7 +175,7 @@ public class DaoSqliteImp {
 				bug.setBugStatus(rs.getString("status"));
 				String bugBowString = rs.getString("bagofWords");
 				if (bugBowString != null)
-				bug.setBugBagOfWords(Arrays.asList(bugBowString.split(" ")));
+					bug.setBugBagOfWords(Arrays.asList(bugBowString.split(" ")));
 				bug.setBugDate(rs.getString("bugdate"));
 
 				pstmt2.setInt(1, bug.getBugId());
@@ -227,8 +226,8 @@ public class DaoSqliteImp {
 	}
 
 	public List<Bug> getAllBugsWhereHaveHttpData() {
-		
-		//A VSM model elõfeldolgozásához listázzuk a felhasználható hibabajelentéseket
+
+		// A VSM model elõfeldolgozásához listázzuk a felhasználható hibabajelentéseket
 
 		List<Bug> bugs = new ArrayList<Bug>();
 
@@ -236,19 +235,20 @@ public class DaoSqliteImp {
 		String sql2 = "SELECT commitname FROM bug where bugid = ?";
 		String sql3 = "SELECT filename FROM bugfiles WHERE commitname = ?";
 		String sql4 = "SELECT COUNT(bugid) FROM bug WHERE bugid = ?";
-		
+
 		try {
 			Statement stmt = conn.createStatement();
 			ResultSet rs = stmt.executeQuery(sql);
 			PreparedStatement pstmt2 = conn.prepareStatement(sql2);
 			PreparedStatement pstmt3 = conn.prepareStatement(sql3);
 			PreparedStatement pstmt4 = conn.prepareStatement(sql4);
-			
+
 			while (rs.next()) {
 				pstmt4.setInt(1, rs.getInt("bugid"));
 				ResultSet rs4 = pstmt4.executeQuery();
 				rs4.next();
-				//csak akkor adjuk hozzá, ha egy commitot érint, mivel csak így egyértelmû, hogy mely fájlok javítása volt a releváns.
+				// csak akkor adjuk hozzá, ha egy commitot érint, mivel csak így egyértelmû,
+				// hogy mely fájlok javítása volt a releváns.
 				if (rs4.getInt(1) == 1) {
 					Bug bug = new Bug();
 					List<RevCommit> commits = new ArrayList<RevCommit>();
@@ -260,7 +260,7 @@ public class DaoSqliteImp {
 					bug.setBugStatus(rs.getString("status"));
 					String bugBowString = rs.getString("bagofWords");
 					if (bugBowString != null)
-					bug.setBugBagOfWords(Arrays.asList(bugBowString.split(" ")));
+						bug.setBugBagOfWords(Arrays.asList(bugBowString.split(" ")));
 					bug.setBugDate(rs.getString("bugdate"));
 
 					pstmt2.setInt(1, bug.getBugId());
@@ -287,11 +287,11 @@ public class DaoSqliteImp {
 					}
 
 					bug.setBugSourceCodeFileList(bugFiles);
-					bugs.add(bug);		
-				
+					bugs.add(bug);
+
 				}
 				rs4.close();
-				
+
 			}
 			rs.close();
 			stmt.close();
@@ -310,7 +310,7 @@ public class DaoSqliteImp {
 			e.getMessage();
 			e.printStackTrace();
 		}
-		/********************************törölni****************************/ System.out.println("(DaoSqLiteImp üzenete)Ennyi a felhasználható hibabejelentés szám: " + bugs.size());
+
 		return bugs;
 	}
 

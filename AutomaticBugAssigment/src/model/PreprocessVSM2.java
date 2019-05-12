@@ -22,12 +22,13 @@ import bean.Bug;
 public class PreprocessVSM2 implements Serializable {
 
 	/*
-	 * Az elõfeldolgozást a modellképzéshez a PreprocessVSM osztály hajtja végre. Elsõ körben kigyûjti az összes 
-	 * hibabejelentést, majd kigyûjti a repo könyvtárából az összes java kiterjesztésû fájlt. 
-	 * Minden egyes hibabejelentésbõl és fálból egy BagOfWords (szózsák) objektumot állít elõ. 
-	 * A BagOfWords objektum fogja magában foglalni, hogy a fájlról 
-	 * vagy hibabejelentésrõl van-e szó, illetve itt lesz letárolva 
-	 * a feldolgozott szavak halmaza (szózsák) is.
+	 * Az elõfeldolgozást a modellképzéshez a PreprocessVSM osztály hajtja végre.
+	 * Elsõ körben kigyûjti az összes hibabejelentést, majd kigyûjti a repo
+	 * könyvtárából az összes java kiterjesztésû fájlt. Minden egyes
+	 * hibabejelentésbõl és fálból egy BagOfWords (szózsák) objektumot állít elõ. A
+	 * BagOfWords objektum fogja magában foglalni, hogy a fájlról vagy
+	 * hibabejelentésrõl van-e szó, illetve itt lesz letárolva a feldolgozott szavak
+	 * halmaza (szózsák) is.
 	 * 
 	 */
 
@@ -41,37 +42,33 @@ public class PreprocessVSM2 implements Serializable {
 	private static String workingDir;
 
 	public PreprocessVSM2(CollectGitRepoData repo, String workingDir) {
-		
-		
-		
+
 		PreprocessVSM2.workingDir = workingDir;
 		this.repo = repo;
 
-	
 		// kigyûjti az összes bugot aminek van leírása
-		List<Bug> bugs = repo.getDao().getAllBugsWhereHaveHttpData(); 
-		
+		List<Bug> bugs = repo.getDao().getAllBugsWhereHaveHttpData();
+
 		bagOfWordsObjects = new ArrayList<BagOfWordsV2>();
 		for (Bug bug : bugs)
 			// a bugokból BagOfWords objektumot készít
-			bagOfWordsObjects.add(new BagOfWordsV2(bug)); 
-		
+			bagOfWordsObjects.add(new BagOfWordsV2(bug));
+
 		files = new ArrayList<File>();
 		// kigyûjti az összes java kiterjesztésû fájlt a repóból
-		listFiles(repo.getRepo().getWorkTree().getPath(), files); 
-		
+		listFiles(repo.getRepo().getWorkTree().getPath(), files);
+
 		for (File file : files)
 			try {
-				//ezekbõl a fájlokból BagOfWords objektumot készít
+				// ezekbõl a fájlokból BagOfWords objektumot készít
 				bagOfWordsObjects.add(new BagOfWordsV2(file));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		
-		this.buildBagOfWords(); 
+
+		this.buildBagOfWords();
 		this.buildDictionary();
 		this.saveData();
-		
 
 	}
 
@@ -81,8 +78,10 @@ public class PreprocessVSM2 implements Serializable {
 		this.buildDictionary();
 
 	}
-    //kigyûjti a megadott könyvtárból az összes megadott kiterjesztésû fájlt rekurzív az alkönyvtából is.
-	private void listFiles(String directoryName, List<File> files) { 
+
+	// kigyûjti a megadott könyvtárból az összes megadott kiterjesztésû fájlt
+	// rekurzív az alkönyvtából is.
+	private void listFiles(String directoryName, List<File> files) {
 		File directory = new File(directoryName);
 
 		File[] fList = directory.listFiles();
@@ -112,7 +111,7 @@ public class PreprocessVSM2 implements Serializable {
 
 	@SuppressWarnings("unchecked")
 	private void loadData() {
-		
+
 		ObjectInput in;
 		try {
 			in = new ObjectInputStream(new FileInputStream(workingDir + "\\OuterFiles\\SaveStatePreprocessVsm2.data"));
@@ -124,8 +123,8 @@ public class PreprocessVSM2 implements Serializable {
 		}
 	}
 
-	
-	// Megépíti a szózsákokat a tokenizer, lemmatizer és stopszó szûrõ segítségével szálkezelést használva.
+	// Megépíti a szózsákokat a tokenizer, lemmatizer és stopszó szûrõ segítségével
+	// szálkezelést használva.
 	private void buildBagOfWords() {
 
 		ExecutorService executor = Executors.newFixedThreadPool(10);
@@ -140,13 +139,13 @@ public class PreprocessVSM2 implements Serializable {
 
 	// megépíti a szótárat
 	private void buildDictionary() {
-		
-			Set<String> dict = new HashSet<String>();
-			for (BagOfWordsV2 bo : bagOfWordsObjects) {
-				String[] str = bo.getBagOfWords();
-				dict.addAll(Arrays.asList(str));
-			}
-			corpusDictionary = new ArrayList<String>(dict);
+
+		Set<String> dict = new HashSet<String>();
+		for (BagOfWordsV2 bo : bagOfWordsObjects) {
+			String[] str = bo.getBagOfWords();
+			dict.addAll(Arrays.asList(str));
+		}
+		corpusDictionary = new ArrayList<String>(dict);
 
 	}
 

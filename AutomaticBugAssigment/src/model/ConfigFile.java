@@ -34,62 +34,56 @@ public class ConfigFile {
 				e.printStackTrace();
 			}
 
-		} else {	
-			configs[0] = (new java.io.File( "." ).getAbsolutePath()).replace("\\.", ""); //workingDir
-			configs[1] = (new java.io.File( "." ).getAbsolutePath()).replace("\\.", "") + "\\gecko-dev"; //gitRepoPath
-			configs[2] = "https://bugzilla.mozilla.org"; //httpAddress
+		} else {
+			configs[0] = (new java.io.File(".").getAbsolutePath()).replace("\\.", ""); // workingDir
+			configs[1] = (new java.io.File(".").getAbsolutePath()).replace("\\.", "") + "\\gecko-dev"; // gitRepoPath
+			configs[2] = "https://bugzilla.mozilla.org"; // httpAddress
 			configs[3] = "10"; // kFoldsNumber
-			configs[4] = "0.1"; // VSM C value	
+			configs[4] = "0.1"; // VSM C value
 			this.saveData();
 		}
 
 	}
-	
-	
+
 	public void setWorkingDir(String workingDir) {
 		configs[0] = workingDir;
 	}
-	
+
 	public String getWorkingDir() {
 		return configs[0];
 	}
-	
-	
+
 	public void setGitRepoPath(String gitRepoPath) {
 		configs[1] = gitRepoPath;
 	}
-	
+
 	public String getGitRepoPath() {
 		return configs[1];
 	}
-	
-	
+
 	public void setHttpAddress(String httpAddress) {
 		configs[2] = httpAddress;
 	}
-	
+
 	public String gethttpAddress() {
 		return configs[2];
 	}
-	
-	
+
 	public void setKFoldsNumber(Integer kFoldsNumber) {
 		configs[3] = kFoldsNumber.toString();
 	}
-	
+
 	public Integer getKFoldsNumber() {
 		return Integer.parseInt(configs[3]);
 	}
-	
 
 	public void setCValue(Double cValue) {
 		configs[4] = cValue.toString();
 	}
-	
+
 	public Double getCValue() {
 		return Double.parseDouble((configs[4]));
 	}
-	
 
 	public void saveData() {
 
@@ -101,7 +95,7 @@ public class ConfigFile {
 				configWriter.write(configs[i]);
 				configWriter.newLine();
 			}
-			
+
 			configWriter.close();
 			fos.close();
 
@@ -110,8 +104,5 @@ public class ConfigFile {
 		}
 
 	}
-	
-	
-	
 
 }

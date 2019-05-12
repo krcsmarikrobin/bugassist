@@ -27,9 +27,6 @@ public class Bug implements Serializable {
 	private String bugStatus = "null";
 	private String bugDate = "null";
 	private List<String> bugBagOfWords = null;
-	
-	
-	
 
 	public List<RevCommit> getBugCommits() {
 		return bugCommits;

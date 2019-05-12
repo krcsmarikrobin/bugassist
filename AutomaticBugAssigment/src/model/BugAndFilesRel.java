@@ -71,27 +71,26 @@ public class BugAndFilesRel implements Serializable {
 	}
 
 	// megkapjuk a bug átlagos pontosságát (AP)
-	
+
 	public float getAveragePrec() {
 		float avPrec = 0;
 		int relevantFileNum = 0;
 		int lastIndexOfRelevantFile = 0;
-	
+
 		for (FilesWithRank rankedFile : filesWithRankList) // releváns forrásfájlok száma
 			if (rankedFile.isSampleParity()) {
 				++relevantFileNum;
 				lastIndexOfRelevantFile = filesWithRankList.indexOf(rankedFile);
 			}
-				
 
 		for (int i = 0, j = 0; j < relevantFileNum; ++i) { // egyenkénti pontosság számítása midaddig míg el nem érjük
 															// az összes pozitív tagot
 			if (filesWithRankList.get(i).isSampleParity())
 				++j;
-			
-			avPrec += j/(i+1);
+
+			avPrec += j / (i + 1);
 		}
-	
-		return avPrec / (lastIndexOfRelevantFile+1);
+
+		return avPrec / (lastIndexOfRelevantFile + 1);
 	}
 }

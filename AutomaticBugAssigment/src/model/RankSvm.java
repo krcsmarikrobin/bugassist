@@ -57,7 +57,8 @@ public class RankSvm {
 	// a használható hibabajelentés szám
 	private int writedUsefulBugsNumber = 0;
 
-	public RankSvm(List<BagOfWordsV2> bowBugs, List<BagOfWordsV2> bowFiles, float bugAndFileRelation[][][], String workingDir) {
+	public RankSvm(List<BagOfWordsV2> bowBugs, List<BagOfWordsV2> bowFiles, float bugAndFileRelation[][][],
+			String workingDir) {
 		this.workingDir = workingDir;
 		this.bowBugs = bowBugs;
 		this.bowFiles = bowFiles;
@@ -108,7 +109,7 @@ public class RankSvm {
 					ii = 0;
 					++kk;
 				} else {
-					
+
 					for (int jj = 0; jj < bugAndFileRelation[0].length; ++jj) {
 						if (stLine[jj].equals("NaN"))
 							bugAndFileRelation[ii][jj][kk] = 0;
@@ -128,7 +129,6 @@ public class RankSvm {
 		this.bugAndFileRelation = bugAndFileRelation;
 
 	}
-
 
 	public void sortFilesByCosSimiliraty() {
 
@@ -201,8 +201,7 @@ public class RankSvm {
 
 		ObjectOutputStream outBowBugs;
 		try {
-			outBowBugs = new ObjectOutputStream(
-					new FileOutputStream(workingDir + "\\OuterFiles\\bowBugs.data"));
+			outBowBugs = new ObjectOutputStream(new FileOutputStream(workingDir + "\\OuterFiles\\bowBugs.data"));
 			outBowBugs.writeObject(bowBugs);
 			outBowBugs.close();
 		} catch (Exception e) {
@@ -211,8 +210,7 @@ public class RankSvm {
 
 		ObjectOutputStream outBowFiles;
 		try {
-			outBowFiles = new ObjectOutputStream(
-					new FileOutputStream(workingDir + "\\OuterFiles\\bowFiles.data"));
+			outBowFiles = new ObjectOutputStream(new FileOutputStream(workingDir + "\\OuterFiles\\bowFiles.data"));
 			outBowFiles.writeObject(bowFiles);
 			outBowFiles.close();
 		} catch (Exception e) {
@@ -241,75 +239,86 @@ public class RankSvm {
 	}
 
 	public void writeBugsKFolds(int k) {
-		
+
 		foldsCount = k;
-		//foldonkénti bugindexszámok két index között tól-ig
-		int[] bugIndexPackByFolds = new int[foldsCount+1];
-		
+		// foldonkénti bugindexszámok két index között tól-ig
+		int[] bugIndexPackByFolds = new int[foldsCount + 1];
+
 		int bugsNumber = bowBugs.size();
-		
+
 		int foldsSize = bugsNumber / foldsCount;
 		int foldsLastSizePlus = bugsNumber % foldsCount;
-		
-		
-		
+
 		for (int i = 0; i <= foldsCount; ++i) {
-			bugIndexPackByFolds[i] = foldsSize*i;
-			//az utolsó csomaghoz hozzáadjuk a maradékot is
+			bugIndexPackByFolds[i] = foldsSize * i;
+			// az utolsó csomaghoz hozzáadjuk a maradékot is
 			if (i == foldsCount)
-			bugIndexPackByFolds[i] += foldsLastSizePlus;
+				bugIndexPackByFolds[i] += foldsLastSizePlus;
 		}
-		
+
 		// kiírjuk csomagonként
 		for (int f = 0; f < foldsCount; ++f) {
 
 			try {
-				BufferedWriter outFolds = new BufferedWriter(
-						new FileWriter(new File((workingDir.replace("\\", "\\\\") + "\\\\OuterFiles\\\\folds" + (foldsCount-f) + ".txt")))); //az állománynévnél 
-				//a legrégebbiek a legnagyobb számba
-				
+				BufferedWriter outFolds = new BufferedWriter(new FileWriter(new File(
+						(workingDir.replace("\\", "\\\\") + "\\\\OuterFiles\\\\folds" + (foldsCount - f) + ".txt")))); // az
+																														// állománynévnél
+				// a legrégebbiek a legnagyobb számba
+
 				// minden egyes bugra a csomagban
-				for (int b = bugIndexPackByFolds[f]; b < bugIndexPackByFolds[f+1]; ++b) {
-					boolean helpParityVal = false; 
-					// a változóra azért van szükség, mert ha nincs pozitív minta akkor skippeli a bugot.
-					//minden egyes forrásfájlra kiírjuk elõször a pozitív mitákat:
+				for (int b = bugIndexPackByFolds[f]; b < bugIndexPackByFolds[f + 1]; ++b) {
+					boolean helpParityVal = false;
+					// a változóra azért van szükség, mert ha nincs pozitív minta akkor skippeli a
+					// bugot.
+					// minden egyes forrásfájlra kiírjuk elõször a pozitív mitákat:
 					for (int s = 0; s < bowFiles.size(); ++s) {
 
 						// 3 qid:1 1:1 2:1 3:0 4:0.2 5:0 # 1A
 						if (bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][0] == 1) {
 							++writedUsefulBugsNumber;
 							helpParityVal = true;
-							outFolds.write(Integer.toString((int)bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][0]));
+							outFolds.write(Integer
+									.toString((int) bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][0]));
 							outFolds.write(" qid:" + b);
 							outFolds.write(" 1:" + bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][1]);
 							outFolds.write(" 2:" + bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][2]);
 							outFolds.write(" 3:" + bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][3]);
 							outFolds.write(" 4:" + bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][4]);
 							outFolds.write(" 5:" + bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][5]);
-							outFolds.write(" #" + (int)bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][0]);
+							outFolds.write(
+									" #" + (int) bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][0]);
 							outFolds.write("#" + bowBugs.get(b).getBug().getBugId());
-							outFolds.write("#" + bowFiles.get(bowBugs.get(b).getFileSortedArray()[s]).getFile().getName());
+							outFolds.write(
+									"#" + bowFiles.get(bowBugs.get(b).getFileSortedArray()[s]).getFile().getName());
 							outFolds.newLine();
 
 						}
 					}
-					//és ha van pozitív minta kiírjuk hozzá a falsokat is 
+					// és ha van pozitív minta kiírjuk hozzá a falsokat is
 					if (helpParityVal) {
-                         //kiírjuk hozzá a rendezett lista szerinti legközelebbi mintákat
+						// kiírjuk hozzá a rendezett lista szerinti legközelebbi mintákat
 						for (int s = bowFiles.size() - 1; s > bowFiles.size() - NEGATIVESAMPLECOUNT; --s) {
 							// csak akkor ha nem pozitív a minta
 							if (bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][0] != 1) {
 								// 3 qid:1 1:1 2:1 3:0 4:0.2 5:0 # 1A
-								outFolds.write(Integer.toString((int)bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][0]));
+								outFolds.write(Integer.toString(
+										(int) bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][0]));
 								outFolds.write(" qid:" + b);
-								outFolds.write(" 1:" + bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][1]);
-								outFolds.write(" 2:" + bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][2]);
-								outFolds.write(" 3:" + bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][3]);
-								outFolds.write(" 4:" + bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][4]);
-								outFolds.write(" 5:" + bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][5]);
-								outFolds.write(" #" + (int)bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][0]);
+								outFolds.write(
+										" 1:" + bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][1]);
+								outFolds.write(
+										" 2:" + bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][2]);
+								outFolds.write(
+										" 3:" + bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][3]);
+								outFolds.write(
+										" 4:" + bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][4]);
+								outFolds.write(
+										" 5:" + bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][5]);
+								outFolds.write(
+										" #" + (int) bugAndFileRelation[b][bowBugs.get(b).getFileSortedArray()[s]][0]);
 								outFolds.write("#" + bowBugs.get(b).getBug().getBugId());
-								outFolds.write("#" + bowFiles.get(bowBugs.get(b).getFileSortedArray()[s]).getFile().getName());
+								outFolds.write(
+										"#" + bowFiles.get(bowBugs.get(b).getFileSortedArray()[s]).getFile().getName());
 								outFolds.newLine();
 
 							}

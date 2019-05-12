@@ -30,9 +30,9 @@ public class CollectHttpBugData {
 	public void collectBugHttpData() {
 		int s = 0;
 		for (Bug bug : bugs) {
-			//Ha sikeres a hibabajelentés adatgyûjtés elmentjük azt.
+			// Ha sikeres a hibabajelentés adatgyûjtés elmentjük azt.
 			if (this.setBugHttpData(bug))
-			repoData.getDao().saveBugHttpData(bug);
+				repoData.getDao().saveBugHttpData(bug);
 
 			System.out.println("Feldolgozott bugHttpData: " + ++s + "/" + bugs.size());
 
@@ -43,13 +43,14 @@ public class CollectHttpBugData {
 			}
 		}
 	}
+
 // a kigyûjtött bugleírásokat short desc, long desc, product name, status elmenti.
-	public boolean setBugHttpData(Bug bug) { 
-												
+	public boolean setBugHttpData(Bug bug) {
+
 		boolean success = true;
 
-		try { 
-		
+		try {
+
 			URL url = new URL(HttpUrl + "/rest/bug/" + bug.getBugId().toString());
 			connection = (HttpURLConnection) url.openConnection();
 
@@ -87,7 +88,6 @@ public class CollectHttpBugData {
 		}
 
 		try { // hozzáadja a hosszú leírást a bughoz a bugzilláról
-				// Create connection
 			try {
 				TimeUnit.SECONDS.sleep(3);
 			} catch (InterruptedException e) {

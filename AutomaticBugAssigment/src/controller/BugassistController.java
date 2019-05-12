@@ -89,10 +89,8 @@ public class BugassistController {
 		CollectGitRepoData repoData = new CollectGitRepoData(configFile.getGitRepoPath() + "\\.git",
 				configFile.getWorkingDir() + "\\OuterFiles\\db\\bugassist.db", ".java");
 
-
-
-        PreprocessVSM2 preprocessVSM = new PreprocessVSM2(repoData, configFile.getWorkingDir());
-        preprocessVSM.saveData();
+		PreprocessVSM2 preprocessVSM = new PreprocessVSM2(repoData, configFile.getWorkingDir());
+		preprocessVSM.saveData();
 
 		// VSM preprocess betöltés és VSM model létrehozása! ~ 52 sec
 		VsmModel vsm = new VsmModel(preprocessVSM.getCorpusDictionary(), preprocessVSM.getBagOfWordsObjects(),
@@ -104,7 +102,7 @@ public class BugassistController {
 
 		System.out.println("//computeS1S2()");
 		// computeS1S2() ~ 56 min
-     	vsm.computeS1S2();
+		vsm.computeS1S2();
 
 		System.out.println("//computeS3()");
 		// vsm.computeS3() ~ 7 sec
@@ -126,15 +124,15 @@ public class BugassistController {
 		rankSvm.sortFilesByCosSimiliraty();
 
 		rankSvm.writeBugsKFolds(configFile.getKFoldsNumber());
-		
-		System.out.println("A feldolgozás során felhasznált pozitív minták összesen: " + rankSvm.getWritedUsefulBugsNumber());
-		
+
+		System.out.println(
+				"A feldolgozás során felhasznált pozitív minták összesen: " + rankSvm.getWritedUsefulBugsNumber());
+
 		rankSvm = null;
 
 		a = (System.currentTimeMillis() - a) / 1000;
 		System.out.println("runRankingSVMModelCompute() befejezve. " + a + "sec");
-		
-		
+
 	}
 
 	public void runClassification() {
@@ -144,7 +142,7 @@ public class BugassistController {
 
 		KFoldTrainTest kfd = new KFoldTrainTest(configFile.getKFoldsNumber(), configFile.getWorkingDir(),
 				configFile.getCValue());
-		
+
 		kfd.computeClassify();
 
 		a = (System.currentTimeMillis() - a) / 1000;
@@ -163,26 +161,25 @@ public class BugassistController {
 		int[][] accuracyresults = new int[maxK][configFile.getKFoldsNumber()];
 
 		for (int i = 0; i < maxK; ++i) {
-			int[] accuracyperfolds = kfd.getAccuracyKPercentageEachFolds((i+1));
-			//kell a -1 a foldsNumberhez mert az utolsó folds azaz a 10 csak tesztadat volt. Abba megy majd az összesen sor.
-			for (int foldsN = 0; foldsN < configFile.getKFoldsNumber()-1; ++foldsN) {
+			int[] accuracyperfolds = kfd.getAccuracyKPercentageEachFolds((i + 1));
+			// kell a -1 a foldsNumberhez mert az utolsó folds azaz a 10 csak tesztadat
+			// volt. Abba megy majd az összesen sor.
+			for (int foldsN = 0; foldsN < configFile.getKFoldsNumber() - 1; ++foldsN) {
 				accuracyresults[i][foldsN] = accuracyperfolds[foldsN];
 			}
 		}
 
 		// Összesen:
 		for (int i = 0; i < maxK; ++i) {
-			accuracyresults[i][configFile.getKFoldsNumber()-1] = kfd.getSumAccuracyKPercentage(i+1);
+			accuracyresults[i][configFile.getKFoldsNumber() - 1] = kfd.getSumAccuracyKPercentage(i + 1);
 		}
 
 		// kiíratjuk táblázatszerûen a k értékek szerint a szabatosságot
 
 		/*
-		 * TopK érték: 5, 10, 15, 20, 25, 30, 35, ... , 100 
-		 * folds1: x%, x%, x%, x%, x%, x%, x%, ... , x% 
-		 * ... 
-		 * folds10: x%, x%, x%, x%, x%, x%, x%, ... , x% 
-		 * Összesen: x%, x%, x%, x%, x%, x%, x%, ... , x%
+		 * TopK érték: 5, 10, 15, 20, 25, 30, 35, ... , 100 folds1: x%, x%, x%, x%, x%,
+		 * x%, x%, ... , x% ... folds10: x%, x%, x%, x%, x%, x%, x%, ... , x% Összesen:
+		 * x%, x%, x%, x%, x%, x%, x%, ... , x%
 		 * 
 		 */
 
@@ -193,7 +190,7 @@ public class BugassistController {
 		outputSt.append("\n");
 
 		// további sorok:
-		for (int f = 0; f < configFile.getKFoldsNumber()-1; ++f) {
+		for (int f = 0; f < configFile.getKFoldsNumber() - 1; ++f) {
 			outputSt.append("folds " + (f + 1) + ":\t");
 			for (int i = 0; i < maxK; ++i) {
 				outputSt.append(accuracyresults[i][f] + "%\t");
@@ -204,32 +201,29 @@ public class BugassistController {
 		// utolsó sor Összesen:
 		outputSt.append("Összesen:\t");
 		for (int i = 0; i < maxK; ++i) {
-			outputSt.append(accuracyresults[i][configFile.getKFoldsNumber()-1] + "%\t");
+			outputSt.append(accuracyresults[i][configFile.getKFoldsNumber() - 1] + "%\t");
 		}
 		outputSt.append("\n");
-		
-		//c érték optimalizázásához:
-		//kfd.computeCValueOptimum();
-		
-		
-		//értékek file-ba írása:
-		
+
+		// c érték optimalizázásához:
+		// kfd.computeCValueOptimum();
+
+		// értékek file-ba írása:
+
 		try {
-			PrintStream out = new PrintStream(new FileOutputStream(new File(configFile.getWorkingDir() + "\\OuterFiles\\results.txt")));
+			PrintStream out = new PrintStream(
+					new FileOutputStream(new File(configFile.getWorkingDir() + "\\OuterFiles\\results.txt")));
 			out.print(outputSt.toString());
 			out.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-		} 
-		
-		
-		
+		}
+
 		return outputSt.toString();
-		
 
 	}
 
-	// c érték optimum számítása ~ XX sec
+	// c érték optimum számítása
 	public void runComputeCValueOptimum() {
 
 		long a = System.currentTimeMillis();
